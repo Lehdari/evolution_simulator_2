@@ -1,0 +1,3 @@
+[submodule "ext/fug"]
+	path = ext/fug
+	url = git@github.com:Lehdari/fug.git

@@ -16,7 +16,7 @@ set(FUG_APP_HEADERS ${EVOLUTION_SIMULATOR_HEADERS})
 
 
 # Fetch external dependencies
-#add_subdirectory(ext)
+add_subdirectory(ext)
 
 
 # Add evolution simulator executable target
@@ -38,7 +38,4 @@ target_compile_definitions(evolution_simulator
 target_link_libraries(evolution_simulator
     PUBLIC
         fug_ecs
-        fug_engine
-        gut_opengl
-        reactphysics3d
 )
