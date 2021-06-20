@@ -94,10 +94,13 @@ void Window::init(void)
     _spriteSheetId = _ecs.getSingleton<fug::SpriteSingleton>()->addSpriteSheetFromFile(
         EVOLUTION_SIMULATOR_RES("sprites/creature.png"), 128, 128);
 
+    // TODO TEMP begin
     // Test entity
     fug::EntityId testEntityId = 0;
     _ecs.setComponent(testEntityId, fug::Orientation2DComponent(Vec2f(256.0f, 256.0f)));
     _ecs.setComponent(testEntityId, fug::SpriteComponent(_spriteSheetId, 0));
+    _ecs.getComponent<fug::SpriteComponent>(testEntityId)->setOrigin(Vec2f(64.0f, 64.0f));
+    // TODO TEMP end
 }
 
 void Window::loop(void)
@@ -117,6 +120,12 @@ void Window::loop(void)
 
         // Render
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // TODO TEMP begin rotation demo
+        fug::EntityId testEntityId = 0;
+        auto* orientationComponent = _ecs.getComponent<fug::Orientation2DComponent>(testEntityId);
+        orientationComponent->setRotation(orientationComponent->getRotation()+M_PI*0.01);
+        // TODO TEMP end
 
         // Run systems
         runSystems();
