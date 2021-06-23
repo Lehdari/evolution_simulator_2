@@ -16,7 +16,7 @@ Viewport::Viewport(const Vec2f& position, float scale) :
 {
     _viewport <<
         scale,  0.0f,   position(0),
-        0.0f,   scale,  position(1),
+        0.0f,   -scale, position(1),
         0.0f,   0.0f,   1.0f;
 }
 
@@ -30,7 +30,7 @@ void Viewport::applyScale(float scale, float minScale, float maxScale)
         return;
 
     _viewport(0,0) = s;
-    _viewport(1,1) = s;
+    _viewport(1,1) = -s;
 }
 
 void Viewport::zoom(float scale, const Vec2f& pivot, float minScale, float maxScale)
@@ -55,7 +55,7 @@ void Viewport::zoom(float scale, const Vec2f& pivot, float minScale, float maxSc
 
     // set scaling to the stabilized factor
     _viewport(0,0) = s;
-    _viewport(1,1) = s;
+    _viewport(1,1) = -s;
 }
 
 const Mat3f& Viewport::getViewport() const
