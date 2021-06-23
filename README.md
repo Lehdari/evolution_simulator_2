@@ -7,7 +7,7 @@ Let's evolve, again!
 How do I even
 -------------
 
-Requires bunch of stuff like `Eigen3`.
+Requires bunch of stuff like `Eigen3` and `SDL2`.
 
 Unix:
 
@@ -19,7 +19,7 @@ mkdir build
 cd build/
 cmake ..
 make -j
-./evolution_simulator_2
+./evolution_simulator
 ```
 
 Windows / others:
