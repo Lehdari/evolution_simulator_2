@@ -21,6 +21,8 @@ Window::Window(
     _settings           (settings),
     _window             (nullptr),
     _quit               (false),
+    _viewport           (Vec2f(_settings.window.width*0.5f, _settings.window.height*0.5f), 32.0f),
+    _cursorPosition     (0.0f, 0.0f),
     _lastTicks          (0),
     _frameTicks         (0),
     _windowContext      (*this),
@@ -97,7 +99,7 @@ void Window::init(void)
     // TODO TEMP begin
     // Test entity
     fug::EntityId testEntityId = 0;
-    _ecs.setComponent(testEntityId, fug::Orientation2DComponent(Vec2f(256.0f, 256.0f)));
+    _ecs.setComponent(testEntityId, fug::Orientation2DComponent(Vec2f(0.0f, 0.0f)));
     _ecs.setComponent(testEntityId, fug::SpriteComponent(_spriteSheetId, 0));
     _ecs.getComponent<fug::SpriteComponent>(testEntityId)->setOrigin(Vec2f(64.0f, 64.0f));
     // TODO TEMP end
@@ -125,13 +127,14 @@ void Window::loop(void)
         fug::EntityId testEntityId = 0;
         auto* orientationComponent = _ecs.getComponent<fug::Orientation2DComponent>(testEntityId);
         orientationComponent->setRotation(orientationComponent->getRotation()+M_PI*0.01);
+        orientationComponent->setScale(1.0f/64.0f);
         // TODO TEMP end
 
         // Run systems
         runSystems();
 
         // Render sprites
-        _ecs.getSingleton<fug::SpriteSingleton>()->render();
+        _ecs.getSingleton<fug::SpriteSingleton>()->render(_viewport);
 
         // Swap draw and display buffers
         SDL_GL_SwapWindow(_window);
@@ -156,6 +159,12 @@ void Window::handleEvent(SDL_Event& event)
         case SDL_KEYDOWN:
             if (event.key.keysym.sym == SDLK_ESCAPE)
                 _quit = true;
+            break;
+        case SDL_MOUSEWHEEL:
+            _viewport.zoom(std::pow(1.414213562373f, event.wheel.y), _cursorPosition);
+            break;
+        case SDL_MOUSEMOTION:
+            _cursorPosition << (float)event.motion.x, (float)event.motion.y;
             break;
     }
 }

@@ -12,6 +12,7 @@
 #define EVOLUTION_SIMULATOR_WINDOW_HPP
 
 
+#include <Viewport.hpp>
 #include <string>
 #include <SDL.h>
 #include <glad/glad.h>
@@ -65,16 +66,21 @@ public:
     struct Context {
         WindowSettings* windowSettings;
         GLSettings*     glSettings;
+
         SDL_Window*     window;
         SDL_GLContext*  glContext;
-        bool*           quit;
+
+        bool*           quit; // set to true to exit the loop
+
+        Viewport*       viewport;
 
         Context(Window& window) :
                 windowSettings  (&window._settings.window),
                 glSettings      (&window._settings.gl),
                 window          (window._window),
                 glContext       (&window._glCtx),
-                quit            (&window._quit)
+                quit            (&window._quit),
+                viewport        (&window._viewport)
         {}
     };
 
@@ -107,7 +113,11 @@ private:
     Settings            _settings;
     SDL_Window*         _window;
     SDL_GLContext       _glCtx;
+
     bool                _quit; // flag for quitting the application
+    Viewport            _viewport;
+    Vec2f               _cursorPosition;
+
     uint32_t            _lastTicks;
     uint32_t            _frameTicks;
 
