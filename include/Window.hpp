@@ -13,6 +13,7 @@
 
 
 #include <Viewport.hpp>
+#include <CreatureSystem.hpp>
 #include <string>
 #include <SDL.h>
 #include <glad/glad.h>
@@ -126,6 +127,7 @@ private:
     // ECS
     fug::Ecs            _ecs;
     // Systems
+    CreatureSystem      _creatureSystem;
     fug::SpriteSystem   _spriteSystem;
 
     // Resources

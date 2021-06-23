@@ -8,8 +8,9 @@
 // with this source code package.
 //
 
-#include "Window.hpp"
-#include "Utils.hpp"
+#include <Window.hpp>
+#include <Utils.hpp>
+#include <CreatureComponent.hpp>
 
 #include <engine/LogicComponent.hpp>
 #include <graphics/SpriteSingleton.hpp>
@@ -99,7 +100,9 @@ void Window::init(void)
     // TODO TEMP begin
     // Test entity
     fug::EntityId testEntityId = 0;
-    _ecs.setComponent(testEntityId, fug::Orientation2DComponent(Vec2f(0.0f, 0.0f)));
+    _ecs.addComponent<fug::Orientation2DComponent>(testEntityId);
+    _ecs.getComponent<fug::Orientation2DComponent>(testEntityId)->setScale(1.0f/64.0f);
+    _ecs.addComponent<CreatureComponent>(testEntityId);
     _ecs.setComponent(testEntityId, fug::SpriteComponent(_spriteSheetId, 0));
     _ecs.getComponent<fug::SpriteComponent>(testEntityId)->setOrigin(Vec2f(64.0f, 64.0f));
     // TODO TEMP end
@@ -122,13 +125,6 @@ void Window::loop(void)
 
         // Render
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        // TODO TEMP begin rotation demo
-        fug::EntityId testEntityId = 0;
-        auto* orientationComponent = _ecs.getComponent<fug::Orientation2DComponent>(testEntityId);
-        orientationComponent->setRotation(orientationComponent->getRotation()+M_PI*0.01);
-        orientationComponent->setScale(1.0f/64.0f);
-        // TODO TEMP end
 
         // Run systems
         runSystems();
@@ -171,5 +167,6 @@ void Window::handleEvent(SDL_Event& event)
 
 void Window::runSystems(void)
 {
+    _ecs.runSystem(_creatureSystem);
     _ecs.runSystem(_spriteSystem);
 }
