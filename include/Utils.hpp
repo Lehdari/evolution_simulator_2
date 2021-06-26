@@ -12,7 +12,19 @@
 #define EVOLUTION_SIMULATOR_UTILS_HPP
 
 
+#include <random>
+
+
 #define EVOLUTION_SIMULATOR_RES(PATH) (std::string(EVOLUTION_SIMULATOR_RES_DIR) + "/" + PATH)
+
+#define RND ((generateRandomNumber()%1000000)*0.000001)
+
+
+inline __attribute__((always_inline)) int64_t generateRandomNumber()
+{
+    static std::default_random_engine rnd(1507715517);
+    return rnd();
+}
 
 
 #endif //EVOLUTION_SIMULATOR_UTILS_HPP
