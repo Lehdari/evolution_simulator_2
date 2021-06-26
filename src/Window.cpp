@@ -11,6 +11,7 @@
 #include <Window.hpp>
 #include <Utils.hpp>
 #include <CreatureComponent.hpp>
+#include <FoodComponent.hpp>
 
 #include <engine/LogicComponent.hpp>
 #include <graphics/SpriteSingleton.hpp>
@@ -95,17 +96,29 @@ void Window::init(void)
 {
     _ecs.getSingleton<fug::SpriteSingleton>()->init();
     _spriteSheetId = _ecs.getSingleton<fug::SpriteSingleton>()->addSpriteSheetFromFile(
-        EVOLUTION_SIMULATOR_RES("sprites/creature.png"), 128, 128);
+        EVOLUTION_SIMULATOR_RES("sprites/sprites.png"), 128, 128);
 
-    // TODO TEMP begin
-    // Test entity
-    fug::EntityId testEntityId = 0;
-    _ecs.addComponent<fug::Orientation2DComponent>(testEntityId);
-    _ecs.getComponent<fug::Orientation2DComponent>(testEntityId)->setScale(1.0f/64.0f);
-    _ecs.addComponent<CreatureComponent>(testEntityId);
-    _ecs.setComponent(testEntityId, fug::SpriteComponent(_spriteSheetId, 0));
-    _ecs.getComponent<fug::SpriteComponent>(testEntityId)->setOrigin(Vec2f(64.0f, 64.0f));
-    // TODO TEMP end
+    // Create creatures
+    constexpr int nCreatures = 100;
+    for (int i=0; i<nCreatures; ++i) {
+        fug::EntityId id = _ecs.getEmptyEntityId();
+        _ecs.setComponent(id, fug::Orientation2DComponent(
+            Vec2f((RND-0.5f)*256.0f,(RND-0.5f)*256.0f), 0.0f, 1.0f / 64.0f));
+        _ecs.setComponent(id, CreatureComponent(RND*M_PI*2.0f, RND, 300.0+600.0*RND));
+        _ecs.setComponent(id, fug::SpriteComponent(_spriteSheetId, 0));
+        _ecs.getComponent<fug::SpriteComponent>(id)->setOrigin(Vec2f(64.0f, 64.0f));
+    }
+
+    constexpr int nFoods = 250;
+    for (int i=0; i<nFoods; ++i) {
+        fug::EntityId id = _ecs.getEmptyEntityId();
+        _ecs.setComponent(id, fug::Orientation2DComponent(
+            Vec2f((RND-0.5f)*256.0f,(RND-0.5f)*256.0f), 0.0f, 0.5f / 64.0f));
+        _ecs.addComponent<FoodComponent>(id);
+        _ecs.setComponent(id, fug::SpriteComponent(_spriteSheetId, 1));
+        _ecs.getComponent<fug::SpriteComponent>(id)->setOrigin(Vec2f(64.0f, 64.0f));
+        _ecs.getComponent<fug::SpriteComponent>(id)->setColor(Vec3f(0.3f, 0.8f, 0.0f));
+    }
 }
 
 void Window::loop(void)
