@@ -9,24 +9,31 @@
 //
 
 #include <CreatureSystem.hpp>
+#include <Utils.hpp>
 
 
-#define RND ((_rnd()%1000000)*0.000001)
-
-
-std::default_random_engine CreatureSystem::_rnd(1507715517);
-
+CreatureSystem::CreatureSystem(fug::Ecs& ecs) :
+    _ecs    (ecs)
+{
+}
 
 void CreatureSystem::operator()(
     const fug::EntityId& eId,
     CreatureComponent& creatureComponent,
     fug::Orientation2DComponent& orientationComponent)
 {
+    creatureComponent._energy -= 1.0;
+    if (creatureComponent._energy <= 0.0) {
+        _ecs.removeEntity(eId);
+    }
+
     auto& s = creatureComponent._speed;
     auto& d = creatureComponent._direction;
+
     s += (RND-0.3f)*0.001f;
     if (s > 0.1f) s = 0.1f;
     d += (RND-0.5f)*0.1f;
+
     orientationComponent.translate(Vec2f(s*cosf(d), s*sinf(d)));
     orientationComponent.setRotation(d);
 }

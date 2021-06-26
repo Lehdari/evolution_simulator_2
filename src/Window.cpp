@@ -27,6 +27,7 @@ Window::Window(
     _lastTicks          (0),
     _frameTicks         (0),
     _windowContext      (*this),
+    _creatureSystem     (_ecs),
     _spriteSystem       (_ecs),
     _spriteSheetId      (-1)
 {

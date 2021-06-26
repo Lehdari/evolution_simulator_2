@@ -16,16 +16,19 @@
 #include <CreatureComponent.hpp>
 #include <graphics/Orientation2DComponent.hpp>
 #include <random>
+#include <ecs/Ecs.hpp>
 
 
 FUG_SYSTEM(CreatureSystem, CreatureComponent, fug::Orientation2DComponent) {
 public:
+    CreatureSystem(fug::Ecs& ecs);
+
     void operator()(const fug::EntityId& eId,
         CreatureComponent& creatureComponent,
         fug::Orientation2DComponent& orientationComponent);
 
 private:
-    static std::default_random_engine   _rnd;
+    fug::Ecs&   _ecs;
 };
 
 
