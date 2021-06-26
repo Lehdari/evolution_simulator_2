@@ -15,14 +15,16 @@
 class CreatureComponent {
 public:
     CreatureComponent(
-        float direction = 0.0f,
-        float speed = 0.0f);
+        float   direction = 0.0f,
+        float   speed = 0.0f,
+        double  energy = 600.0);
 
     friend class CreatureSystem;
 
 private:
     float   _direction;
     float   _speed;
+    double  _energy;
 };
 
 

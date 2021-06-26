@@ -11,8 +11,13 @@
 #include <CreatureComponent.hpp>
 
 
-CreatureComponent::CreatureComponent(float direction, float speed) :
+CreatureComponent::CreatureComponent(
+    float direction,
+    float speed,
+    double energy
+    ) :
     _direction  (direction),
-    _speed      (speed)
+    _speed      (speed),
+    _energy     (energy)
 {
 }
