@@ -9,6 +9,7 @@
 //
 
 #include <CreatureSystem.hpp>
+#include <WorldSingleton.hpp>
 #include <Utils.hpp>
 
 
@@ -36,4 +37,7 @@ void CreatureSystem::operator()(
 
     orientationComponent.translate(Vec2f(s*cosf(d), s*sinf(d)));
     orientationComponent.setRotation(d);
+
+    auto* world = _ecs.getSingleton<WorldSingleton>();
+    world->addEntity(eId, orientationComponent.getPosition());
 }

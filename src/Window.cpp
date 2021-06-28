@@ -12,6 +12,7 @@
 #include <Utils.hpp>
 #include <CreatureComponent.hpp>
 #include <FoodComponent.hpp>
+#include <WorldSingleton.hpp>
 
 #include <engine/LogicComponent.hpp>
 #include <graphics/SpriteSingleton.hpp>
@@ -138,6 +139,8 @@ void Window::loop(void)
 
         // Render
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        _ecs.getSingleton<WorldSingleton>()->resetBVH();
 
         // Run systems
         runSystems();
