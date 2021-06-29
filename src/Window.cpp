@@ -13,8 +13,10 @@
 #include <CreatureComponent.hpp>
 #include <FoodComponent.hpp>
 #include <WorldSingleton.hpp>
+#include <EventHandlers.hpp>
 
 #include <engine/LogicComponent.hpp>
+#include <engine/EventComponent.hpp>
 #include <graphics/SpriteSingleton.hpp>
 
 
@@ -111,6 +113,7 @@ void Window::init(void)
         _ecs.setComponent(id, CreatureComponent(RND*M_PI*2.0f, RND, 300.0+600.0*RND));
         _ecs.setComponent(id, fug::SpriteComponent(_spriteSheetId, 0));
         _ecs.getComponent<fug::SpriteComponent>(id)->setOrigin(Vec2f(64.0f, 64.0f));
+        _ecs.addComponent<fug::EventComponent>(id)->addHandler<EventHandler_Creature_CollisionEvent>();
     }
 
     constexpr int nFoods = 250;
