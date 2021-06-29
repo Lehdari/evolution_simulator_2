@@ -59,6 +59,11 @@ Window::Window(
         return;
     }
 
+    // Communicate window size to SpriteSingleton
+    _ecs.getSingleton<fug::SpriteSingleton>()->setWindowSize(
+        (int)_settings.window.width, (int)_settings.window.height);
+
+    // Initialize OpenGL
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, _settings.gl.contextMajor);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, _settings.gl.contextMinor);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, _settings.gl.contextFlags);

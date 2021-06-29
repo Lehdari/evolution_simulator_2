@@ -14,7 +14,11 @@
 
 int main()
 {
-    Window window;
+    Window::Settings settings;
+    settings.window.width = 1920;
+    settings.window.height = 1080;
+
+    Window window(settings);
 
     window.loop();
 
