@@ -105,22 +105,23 @@ void Window::init(void)
         EVOLUTION_SIMULATOR_RES("sprites/sprites.png"), 128, 128);
 
     // Create creatures
-    constexpr int nCreatures = 100;
+    constexpr int nCreatures = 1000;
     for (int i=0; i<nCreatures; ++i) {
         fug::EntityId id = _ecs.getEmptyEntityId();
         _ecs.setComponent(id, fug::Orientation2DComponent(
             Vec2f((RND-0.5f)*256.0f,(RND-0.5f)*256.0f), 0.0f, 1.0f / 64.0f));
-        _ecs.setComponent(id, CreatureComponent(RND*M_PI*2.0f, RND, 300.0+600.0*RND));
+        _ecs.setComponent(id, CreatureComponent(RND*M_PI*2.0f, RND, 600.0+1200.0*RND));
         _ecs.setComponent(id, fug::SpriteComponent(_spriteSheetId, 0));
         _ecs.getComponent<fug::SpriteComponent>(id)->setOrigin(Vec2f(64.0f, 64.0f));
         _ecs.addComponent<fug::EventComponent>(id)->addHandler<EventHandler_Creature_CollisionEvent>();
     }
 
-    constexpr int nFoods = 250;
+    // Create food
+    constexpr int nFoods = 15000;
     for (int i=0; i<nFoods; ++i) {
         fug::EntityId id = _ecs.getEmptyEntityId();
         _ecs.setComponent(id, fug::Orientation2DComponent(
-            Vec2f((RND-0.5f)*256.0f,(RND-0.5f)*256.0f), 0.0f, 0.5f / 64.0f));
+            Vec2f((RND-0.5f)*512.0f,(RND-0.5f)*512.0f), 0.0f, (0.25f+0.5f*RND) / 64.0f));
         _ecs.addComponent<FoodComponent>(id);
         _ecs.setComponent(id, fug::SpriteComponent(_spriteSheetId, 1));
         _ecs.getComponent<fug::SpriteComponent>(id)->setOrigin(Vec2f(64.0f, 64.0f));
