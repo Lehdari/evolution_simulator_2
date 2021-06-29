@@ -128,6 +128,7 @@ private:
     // ECS
     fug::Ecs            _ecs;
     // Systems
+    fug::EventSystem    _eventSystem;
     CreatureSystem      _creatureSystem;
     FoodSystem          _foodSystem;
     fug::SpriteSystem   _spriteSystem;

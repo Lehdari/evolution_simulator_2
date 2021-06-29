@@ -29,6 +29,7 @@ Window::Window(
     _lastTicks          (0),
     _frameTicks         (0),
     _windowContext      (*this),
+    _eventSystem        (_ecs),
     _creatureSystem     (_ecs),
     _foodSystem         (_ecs),
     _spriteSystem       (_ecs),
@@ -186,5 +187,9 @@ void Window::runSystems(void)
 {
     _ecs.runSystem(_creatureSystem);
     _ecs.runSystem(_foodSystem);
+
+    while (_eventSystem.swap())
+        _ecs.runSystem(_eventSystem);
+
     _ecs.runSystem(_spriteSystem);
 }
