@@ -15,6 +15,7 @@
 #include <Viewport.hpp>
 #include <CreatureSystem.hpp>
 #include <FoodSystem.hpp>
+#include <CollisionSystem.hpp>
 #include <string>
 #include <SDL.h>
 #include <glad/glad.h>
@@ -131,6 +132,7 @@ private:
     fug::EventSystem    _eventSystem;
     CreatureSystem      _creatureSystem;
     FoodSystem          _foodSystem;
+    CollisionSystem     _collisionSystem;
     fug::SpriteSystem   _spriteSystem;
 
     // Resources

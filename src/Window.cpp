@@ -32,6 +32,7 @@ Window::Window(
     _eventSystem        (_ecs),
     _creatureSystem     (_ecs),
     _foodSystem         (_ecs),
+    _collisionSystem    (_ecs, _eventSystem),
     _spriteSystem       (_ecs),
     _spriteSheetId      (-1)
 {
@@ -187,6 +188,7 @@ void Window::runSystems(void)
 {
     _ecs.runSystem(_creatureSystem);
     _ecs.runSystem(_foodSystem);
+    _ecs.runSystem(_collisionSystem);
 
     while (_eventSystem.swap())
         _ecs.runSystem(_eventSystem);
