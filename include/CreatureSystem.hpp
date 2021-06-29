@@ -13,10 +13,9 @@
 
 
 #include <ecs/System.hpp>
-#include <CreatureComponent.hpp>
-#include <graphics/Orientation2DComponent.hpp>
-#include <random>
 #include <ecs/Ecs.hpp>
+#include <graphics/Orientation2DComponent.hpp>
+#include <CreatureComponent.hpp>
 
 
 FUG_SYSTEM(CreatureSystem, CreatureComponent, fug::Orientation2DComponent) {
