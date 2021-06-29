@@ -20,6 +20,7 @@ public:
         double  energy = 600.0);
 
     friend class CreatureSystem;
+    friend struct EventHandler_Creature_CollisionEvent;
 
 private:
     float   _direction;
