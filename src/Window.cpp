@@ -30,6 +30,7 @@ Window::Window(
     _frameTicks         (0),
     _windowContext      (*this),
     _creatureSystem     (_ecs),
+    _foodSystem         (_ecs),
     _spriteSystem       (_ecs),
     _spriteSheetId      (-1)
 {
@@ -184,5 +185,6 @@ void Window::handleEvent(SDL_Event& event)
 void Window::runSystems(void)
 {
     _ecs.runSystem(_creatureSystem);
+    _ecs.runSystem(_foodSystem);
     _ecs.runSystem(_spriteSystem);
 }

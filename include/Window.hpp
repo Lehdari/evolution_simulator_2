@@ -14,6 +14,7 @@
 
 #include <Viewport.hpp>
 #include <CreatureSystem.hpp>
+#include <FoodSystem.hpp>
 #include <string>
 #include <SDL.h>
 #include <glad/glad.h>
@@ -128,6 +129,7 @@ private:
     fug::Ecs            _ecs;
     // Systems
     CreatureSystem      _creatureSystem;
+    FoodSystem          _foodSystem;
     fug::SpriteSystem   _spriteSystem;
 
     // Resources
