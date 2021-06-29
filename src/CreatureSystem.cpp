@@ -26,6 +26,7 @@ void CreatureSystem::operator()(
     creatureComponent._energy -= 1.0;
     if (creatureComponent._energy <= 0.0) {
         _ecs.removeEntity(eId);
+        return;
     }
 
     auto& s = creatureComponent._speed;
