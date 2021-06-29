@@ -39,5 +39,6 @@ target_compile_definitions(evolution_simulator
 target_link_libraries(evolution_simulator
     PUBLIC
         fug_ecs
+        fug_engine
         fug_graphics
 )
