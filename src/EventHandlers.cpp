@@ -18,14 +18,18 @@
 void EventHandler_Creature_CollisionEvent::handleEvent(
     fug::Ecs& ecs, const fug::EntityId& eId, const CollisionEvent& event)
 {
+    // TODO move these constants to simulation config
     constexpr float spriteInvScale = 64.0f; // radius in sprite pixels
+    constexpr float maxCreatureMass = 16.0f;
+    constexpr float creatureMassIncreaseFactor = 0.25f; // factor by which mass is sustained when eating food
+    constexpr float maxEnergyMassConstant = 100.0f; // how much energy each creature can hold w.r.t. their mass
+    constexpr float foodMassToEnergyConstant = 10.0f; // ratio by which food mass in converted to creature energy
+
+    auto& cc = *ecs.getComponent<CreatureComponent>(eId);
+    auto& oc1 = *ecs.getComponent<fug::Orientation2DComponent>(eId);
 
     if (ecs.getComponent<CreatureComponent>(event.entityId) != nullptr) {
         // collision object is another creature
-
-        // handles for components
-        auto& cc = *ecs.getComponent<CreatureComponent>(eId);
-        auto& oc1 = *ecs.getComponent<fug::Orientation2DComponent>(eId);
         auto& oc2 = *ecs.getComponent<fug::Orientation2DComponent>(event.entityId);
 
         // direction reflection
@@ -43,6 +47,25 @@ void EventHandler_Creature_CollisionEvent::handleEvent(
     }
     else if (ecs.getComponent<FoodComponent>(event.entityId) != nullptr) {
         // collision object is food
+        float foodMass = 1.0f; // TODO make food mass a property of FoodComponent
+
+        // dMass is the amount of food mass that is to be converted to creature mass
+        float dMass = std::min(cc._genome[3]-cc._mass, foodMass*creatureMassIncreaseFactor);
+        cc._mass += dMass;
+        cc._energy += (foodMass - dMass)*foodMassToEnergyConstant; // rest of the food mass becomes energy
+
+        // cannot grow larger, the food is wasted
+        if (cc._mass >= maxCreatureMass)
+            cc._mass = maxCreatureMass;
+
+        // cannot store more energy, energy is wasted
+        if (cc._energy > maxEnergyMassConstant*cc._mass)
+            cc._energy = maxEnergyMassConstant*cc._mass;
+
+        // update the radius
+        oc1.setScale(sqrtf(cc._mass) / 64.0f);
+
+        // remove the food
         ecs.removeEntity(event.entityId);
     }
 }
