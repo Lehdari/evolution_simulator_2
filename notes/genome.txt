@@ -1,0 +1,6 @@
+Creature Genome:
+
+0:  Acceleration multiplier
+1:  Acceleration bias
+2:  Direction change multiplier
+3:  Creature size (once adulthood has been reached)
