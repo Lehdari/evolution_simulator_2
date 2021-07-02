@@ -12,20 +12,28 @@
 #define EVOLUTION_SIMULATOR_2_CREATURECOMPONENT_HPP
 
 
+#include <Genome.hpp>
+
+
 class CreatureComponent {
 public:
     CreatureComponent(
+        Genome  genome = Genome(),
+        double  energy = 600.0,
         float   direction = 0.0f,
         float   speed = 0.0f,
-        double  energy = 600.0);
+        float   mass = 1.0f);
 
     friend class CreatureSystem;
     friend struct EventHandler_Creature_CollisionEvent;
 
 private:
+    Genome  _genome;
+
+    double  _energy; // creature dies when energy reaches 0
     float   _direction;
     float   _speed;
-    double  _energy;
+    float   _mass;
 };
 
 

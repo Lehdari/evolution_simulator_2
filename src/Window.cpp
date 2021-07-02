@@ -10,6 +10,7 @@
 
 #include <Window.hpp>
 #include <Utils.hpp>
+#include <Genome.hpp>
 #include <CreatureComponent.hpp>
 #include <FoodComponent.hpp>
 #include <WorldSingleton.hpp>
@@ -113,9 +114,13 @@ void Window::init(void)
     constexpr int nCreatures = 1000;
     for (int i=0; i<nCreatures; ++i) {
         fug::EntityId id = _ecs.getEmptyEntityId();
+        float mass = 0.1f+RND*0.5f;
+
         _ecs.setComponent(id, fug::Orientation2DComponent(
-            Vec2f((RND-0.5f)*256.0f,(RND-0.5f)*256.0f), 0.0f, 1.0f / 64.0f));
-        _ecs.setComponent(id, CreatureComponent(RND*M_PI*2.0f, RND, 600.0+1200.0*RND));
+            Vec2f((RND-0.5f)*256.0f,(RND-0.5f)*256.0f), 0.0f, sqrtf(mass) / 64.0f));
+
+        _ecs.setComponent(id, CreatureComponent(Genome(0.5f),
+            mass*100.0f/*TODO move this constant to simulation config*/, RND*M_PI*2.0f, RND, mass));
         _ecs.setComponent(id, fug::SpriteComponent(_spriteSheetId, 0));
         _ecs.getComponent<fug::SpriteComponent>(id)->setOrigin(Vec2f(64.0f, 64.0f));
         _ecs.addComponent<fug::EventComponent>(id)->addHandler<EventHandler_Creature_CollisionEvent>();
