@@ -25,7 +25,7 @@ void CollisionSystem::operator()(const fug::EntityId& eId,
     CreatureComponent& creatureComponent,
     fug::Orientation2DComponent& orientationComponent)
 {
-    constexpr float maxObjectRadius = 1.0f;
+    constexpr float maxObjectRadius = 4.0f;
     constexpr float spriteInvScale = 64.0f; // radius in sprite pixels
 
     static const Vec2f collisionBoxVec(2.0f*maxObjectRadius, 2.0f*maxObjectRadius);
