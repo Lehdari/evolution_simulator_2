@@ -13,6 +13,7 @@
 #include <CollisionEvent.hpp>
 #include <FoodComponent.hpp>
 #include <CreatureComponent.hpp>
+#include <ConfigSingleton.hpp>
 
 
 CollisionSystem::CollisionSystem(fug::Ecs& ecs, fug::EventSystem& eventSystem) :
@@ -25,10 +26,8 @@ void CollisionSystem::operator()(const fug::EntityId& eId,
     CreatureComponent& creatureComponent,
     fug::Orientation2DComponent& orientationComponent)
 {
-    constexpr float maxObjectRadius = 4.0f;
-    constexpr float spriteInvScale = 64.0f; // radius in sprite pixels
-
-    static const Vec2f collisionBoxVec(2.0f*maxObjectRadius, 2.0f*maxObjectRadius);
+    static const Vec2f collisionBoxVec(
+        2.0f*ConfigSingleton::maxObjectRadius, 2.0f*ConfigSingleton::maxObjectRadius);
 
     // find neighbours (potential objects to collide with)
     static Vector<fug::EntityId> entities;
@@ -44,7 +43,7 @@ void CollisionSystem::operator()(const fug::EntityId& eId,
 
         auto& oc2 = *_ecs.getComponent<fug::Orientation2DComponent>(ceId);
         float dis = (orientationComponent.getPosition()-oc2.getPosition()).norm(); // distance to other object
-        float minDis = (orientationComponent.getScale() + oc2.getScale())*spriteInvScale; // distance required
+        float minDis = (orientationComponent.getScale()+oc2.getScale())*ConfigSingleton::spriteRadius; // distance required
         if (dis < minDis) // collision
             _eventSystem.sendEvent(eId, CollisionEvent(ceId));
     }

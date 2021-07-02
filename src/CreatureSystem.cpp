@@ -10,6 +10,7 @@
 
 #include <CreatureSystem.hpp>
 #include <WorldSingleton.hpp>
+#include <ConfigSingleton.hpp>
 #include <Utils.hpp>
 
 
@@ -23,9 +24,7 @@ void CreatureSystem::operator()(
     CreatureComponent& creatureComponent,
     fug::Orientation2DComponent& orientationComponent)
 {
-    // TODO move these constants to simulation config
-    constexpr double    energyUseConstant = 0.1; // energy used every tick, regardless what the creature does
-    constexpr float     speedDragCoefficient = 0.5f;
+    static auto& config = *_ecs.getSingleton<ConfigSingleton>();
 
     // some shorthands for the creature variables
     auto& g = creatureComponent._genome;
@@ -35,7 +34,7 @@ void CreatureSystem::operator()(
     auto& m = creatureComponent._mass;
 
     // creature dynamics
-    float drag = std::clamp(s*s*speedDragCoefficient, 0.0f, s);
+    float drag = std::clamp(s*s*config.creatureDragCoefficient, 0.0f, s);
     s -= std::copysignf(drag, s); // drag
 
     float a = (float)(RNDS*g[0])+g[1]; // acceleration
@@ -45,7 +44,7 @@ void CreatureSystem::operator()(
     d += RNDS*g[2]; // direction change
 
     // constant energy usage
-    e -= energyUseConstant;
+    e -= config.creatureEnergyUseConstant;
 
     // if energy reaches 0, the creature dies
     if (e <= 0.0) {

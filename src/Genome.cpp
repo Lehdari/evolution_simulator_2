@@ -10,6 +10,7 @@
 
 #include <Genome.hpp>
 #include <Utils.hpp>
+#include <ConfigSingleton.hpp>
 
 
 const Genome Genome::minGenome = [](){
@@ -17,7 +18,7 @@ const Genome Genome::minGenome = [](){
 }();
 
 const Genome Genome::maxGenome = [](){
-    return Vector<float>({1.0f, 1.0f, 1.0f, 4.0});
+    return Vector<float>({1.0f, 1.0f, 1.0f, ConfigSingleton::maxCreatureMass});
 }();
 
 Genome::Genome(float amplitude) :

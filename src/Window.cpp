@@ -14,6 +14,7 @@
 #include <CreatureComponent.hpp>
 #include <FoodComponent.hpp>
 #include <WorldSingleton.hpp>
+#include <ConfigSingleton.hpp>
 #include <EventHandlers.hpp>
 
 #include <engine/LogicComponent.hpp>
@@ -110,6 +111,12 @@ void Window::init(void)
     _spriteSheetId = _ecs.getSingleton<fug::SpriteSingleton>()->addSpriteSheetFromFile(
         EVOLUTION_SIMULATOR_RES("sprites/sprites.png"), 128, 128);
 
+    fug::SpriteComponent creatureSpriteComponent(_spriteSheetId, 0);
+    creatureSpriteComponent.setOrigin(Vec2f(ConfigSingleton::spriteRadius, ConfigSingleton::spriteRadius));
+    fug::SpriteComponent foodSpriteComponent(_spriteSheetId, 1);
+    foodSpriteComponent.setOrigin(Vec2f(ConfigSingleton::spriteRadius, ConfigSingleton::spriteRadius));
+    foodSpriteComponent.setColor(Vec3f(0.3f, 0.8f, 0.0f));
+
     // Create creatures
     constexpr int nCreatures = 1000;
     for (int i=0; i<nCreatures; ++i) {
@@ -117,12 +124,12 @@ void Window::init(void)
         float mass = 0.1f+RND*0.5f;
 
         _ecs.setComponent(id, fug::Orientation2DComponent(
-            Vec2f((RND-0.5f)*256.0f,(RND-0.5f)*256.0f), 0.0f, sqrtf(mass) / 64.0f));
+            Vec2f((RND-0.5f)*256.0f,(RND-0.5f)*256.0f), 0.0f,
+            sqrtf(mass) / ConfigSingleton::spriteRadius));
 
         _ecs.setComponent(id, CreatureComponent(Genome(0.5f),
             mass*100.0f/*TODO move this constant to simulation config*/, RND*M_PI*2.0f, RND, mass));
-        _ecs.setComponent(id, fug::SpriteComponent(_spriteSheetId, 0));
-        _ecs.getComponent<fug::SpriteComponent>(id)->setOrigin(Vec2f(64.0f, 64.0f));
+        _ecs.setComponent(id, fug::SpriteComponent(creatureSpriteComponent));
         _ecs.addComponent<fug::EventComponent>(id)->addHandler<EventHandler_Creature_CollisionEvent>();
     }
 
@@ -131,11 +138,10 @@ void Window::init(void)
     for (int i=0; i<nFoods; ++i) {
         fug::EntityId id = _ecs.getEmptyEntityId();
         _ecs.setComponent(id, fug::Orientation2DComponent(
-            Vec2f((RND-0.5f)*512.0f,(RND-0.5f)*512.0f), 0.0f, (0.25f+0.5f*RND) / 64.0f));
+            Vec2f((RND-0.5f)*512.0f,(RND-0.5f)*512.0f), 0.0f,
+            (0.25f+0.5f*RND) / ConfigSingleton::spriteRadius));
         _ecs.addComponent<FoodComponent>(id);
-        _ecs.setComponent(id, fug::SpriteComponent(_spriteSheetId, 1));
-        _ecs.getComponent<fug::SpriteComponent>(id)->setOrigin(Vec2f(64.0f, 64.0f));
-        _ecs.getComponent<fug::SpriteComponent>(id)->setColor(Vec3f(0.3f, 0.8f, 0.0f));
+        _ecs.setComponent(id, fug::SpriteComponent(foodSpriteComponent));
     }
 }
 
