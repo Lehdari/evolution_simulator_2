@@ -15,8 +15,13 @@
 #include <gut_utils/TypeUtils.hpp>
 
 
-class Genome : public Vector<float> {
+class Genome : protected Vector<float> {
 public:
+    // methods exposed from Vector
+    using Vector<float>::operator[];
+    using Vector<float>::begin;
+    using Vector<float>::end;
+
     Genome(float amplitude = 1.0f);
     Genome(Vector<float>&& vector);
 
