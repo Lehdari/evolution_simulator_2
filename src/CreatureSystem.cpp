@@ -100,5 +100,5 @@ void CreatureSystem::operator()(
 
     // add entity to the world singleton
     auto* world = _ecs.getSingleton<WorldSingleton>();
-    world->addEntity(eId, orientationComponent.getPosition());
+    world->addEntity(eId, orientationComponent.getPosition(), WorldSingleton::EntityType::CREATURE);
 }

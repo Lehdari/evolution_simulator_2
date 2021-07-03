@@ -175,7 +175,7 @@ void Window::loop(void)
         // Render
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        _ecs.getSingleton<WorldSingleton>()->resetBVH();
+        _ecs.getSingleton<WorldSingleton>()->reset();
 
         // Run systems
         runSystems();

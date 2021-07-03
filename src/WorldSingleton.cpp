@@ -17,21 +17,28 @@ WorldSingleton::WorldSingleton(float worldSize) :
 {
 }
 
-void WorldSingleton::resetBVH()
+void WorldSingleton::reset()
 {
     _nodes.clear();
     _nodes.resize(1);
+    _numberOfEntities.clear();
 }
 
-void WorldSingleton::addEntity(const fug::EntityId& eId, const Vec2f& position)
+void WorldSingleton::addEntity(const fug::EntityId& eId, const Vec2f& position, EntityType entityType)
 {
     uint64_t morton = createMortonCode(position);
     addNode(0, eId, morton, position);
+    ++_numberOfEntities[entityType];
 }
 
 void WorldSingleton::getEntities(Vector<fug::EntityId>& entities, const Vec2f& begin, const Vec2f& end) const
 {
     getEntitiesBox(0, entities, begin, createMortonCode(begin), end, createMortonCode(end), 15lu);
+}
+
+uint64_t WorldSingleton::getNumberOf(WorldSingleton::EntityType entityType) const
+{
+    return _numberOfEntities.at(entityType);
 }
 
 void WorldSingleton::addNode(uint64_t nId, const fug::EntityId& eId,

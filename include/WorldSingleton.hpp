@@ -16,17 +16,26 @@
 #include <gut_utils/MathTypes.hpp>
 #include <gut_utils/TypeUtils.hpp>
 #include <vector>
+#include <unordered_map>
 
 
 class WorldSingleton {
 public:
+    enum class EntityType {
+        CREATURE,
+        FOOD
+    };
+
     WorldSingleton(float worldSize = 1024.0f);
 
-    void resetBVH();
-    void addEntity(const fug::EntityId& eId, const Vec2f& position);
+    void reset();
+    void addEntity(const fug::EntityId& eId, const Vec2f& position, EntityType entityType);
 
     // get entities inside an AABB
     void getEntities(Vector<fug::EntityId>& entities, const Vec2f& begin, const Vec2f& end) const;
+
+    // get number of entities of specific type
+    uint64_t getNumberOf(EntityType entityType) const;
 
     friend class BVHSystem;
 
@@ -38,8 +47,9 @@ private:
         int64_t         children[4] = { -1, -1, -1, -1 };
     };
 
-    float               _worldSize;
-    Vector<Node>        _nodes;
+    float                                       _worldSize;
+    Vector<Node>                                _nodes;
+    std::unordered_map<EntityType, uint64_t>    _numberOfEntities;
 
     void addNode(uint64_t nId, const fug::EntityId& eId, uint64_t morton, const Vec2f& position);
 

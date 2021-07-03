@@ -22,5 +22,5 @@ void FoodSystem::operator()(const fug::EntityId& eId,
     fug::Orientation2DComponent& orientationComponent)
 {
     auto* world = _ecs.getSingleton<WorldSingleton>();
-    world->addEntity(eId, orientationComponent.getPosition());
+    world->addEntity(eId, orientationComponent.getPosition(), WorldSingleton::EntityType::FOOD);
 }
