@@ -17,8 +17,8 @@
 
 #define EVOLUTION_SIMULATOR_RES(PATH) (std::string(EVOLUTION_SIMULATOR_RES_DIR) + "/" + PATH)
 
-#define RND ((generateRandomNumber()%1000000)*0.000001)
-#define RNDS (((generateRandomNumber()%2000000)*0.000001) - 1.0)
+#define RND ((generateRandomNumber()%8388608)/8388608.0)
+#define RNDS (((generateRandomNumber()%16777216)/8388608.0) - 1.0)
 
 
 inline __attribute__((always_inline)) int64_t generateRandomNumber()
