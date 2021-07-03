@@ -118,13 +118,18 @@ void Window::init(void)
     foodSpriteComponent.setColor(Vec3f(0.3f, 0.8f, 0.0f));
 
     // Create creatures
-    constexpr int nCreatures = 1000;
+    constexpr int nCreatures = 500;
     for (int i=0; i<nCreatures; ++i) {
         fug::EntityId id = _ecs.getEmptyEntityId();
+
+        // get position using rejection sampling
+        Vec2f p(RNDS*1024.0f, RNDS*1024.0f);
+        while (gauss2(p, 128.0f) < RND)
+            p << RNDS*1024.0f, RNDS*1024.0f;
+
         float mass = 0.1f+RND*0.5f;
 
-        _ecs.setComponent(id, fug::Orientation2DComponent(
-            Vec2f((RND-0.5f)*256.0f,(RND-0.5f)*256.0f), 0.0f,
+        _ecs.setComponent(id, fug::Orientation2DComponent(p, 0.0f,
             sqrtf(mass) / ConfigSingleton::spriteRadius));
 
         _ecs.setComponent(id, CreatureComponent(Genome(0.5f),
@@ -134,11 +139,16 @@ void Window::init(void)
     }
 
     // Create food
-    constexpr int nFoods = 15000;
+    constexpr int nFoods = 20000;
     for (int i=0; i<nFoods; ++i) {
         fug::EntityId id = _ecs.getEmptyEntityId();
-        _ecs.setComponent(id, fug::Orientation2DComponent(
-            Vec2f((RND-0.5f)*512.0f,(RND-0.5f)*512.0f), 0.0f,
+
+        // get position using rejection sampling
+        Vec2f p(RNDS*1024.0f, RNDS*1024.0f);
+        while (gauss2(p, 256.0f) < RND)
+            p << RNDS*1024.0f, RNDS*1024.0f;
+
+        _ecs.setComponent(id, fug::Orientation2DComponent(p, 0.0f,
             (0.25f+0.5f*RND) / ConfigSingleton::spriteRadius));
         _ecs.addComponent<FoodComponent>(id);
         _ecs.setComponent(id, fug::SpriteComponent(foodSpriteComponent));
