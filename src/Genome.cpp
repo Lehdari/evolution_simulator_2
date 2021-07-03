@@ -14,7 +14,7 @@
 
 
 const Genome Genome::minGenome = [](){
-    return Vector<float>({0.0f, -1.0f, 0.0f, 0.1});
+    return Vector<float>({0.0f, -1.0f, 0.0f, ConfigSingleton::minCreatureMass});
 }();
 
 const Genome Genome::maxGenome = [](){
