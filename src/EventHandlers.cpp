@@ -46,7 +46,8 @@ void EventHandler_Creature_CollisionEvent::handleEvent(
         float foodMass = 1.0f; // TODO make food mass a property of FoodComponent
 
         // dMass is the amount of food mass that is to be converted to creature mass
-        float dMass = std::min(cc._genome[3]-cc._mass, foodMass*config.creatureMassIncreaseFactor);
+        float dMass = std::min(cc._genome[Genome::CREATURE_SIZE]-cc._mass,
+            foodMass*config.creatureMassIncreaseFactor);
         cc._mass += dMass;
         cc._energy += (foodMass - dMass)*config.foodMassToEnergyConstant; // rest of the food mass becomes energy
 

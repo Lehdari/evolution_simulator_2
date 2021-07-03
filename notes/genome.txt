@@ -1,6 +1,6 @@
 Creature Genome:
 
-0:  Acceleration multiplier
+0:  Acceleration randomness
 1:  Acceleration bias
-2:  Direction change multiplier
+2:  Direction change randomness
 3:  Creature size (once adulthood has been reached)

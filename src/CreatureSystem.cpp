@@ -37,11 +37,11 @@ void CreatureSystem::operator()(
     float drag = std::clamp(s*s*config.creatureDragCoefficient, 0.0f, s);
     s -= std::copysignf(drag, s); // drag
 
-    float a = (float)(RNDS*g[0])+g[1]; // acceleration
+    float a = (float)(RNDS*g[Genome::ACCELERATION_RANDOMNESS])+g[Genome::ACCELERATION_BIAS]; // acceleration
     s += a;
     e -= abs(a)*m; // acceleration energy usage
 
-    d += RNDS*g[2]; // direction change
+    d += RNDS*g[Genome::DIRECTION_RANDOMNESS]; // direction change
 
     // constant energy usage
     e -= config.creatureEnergyUseConstant;

@@ -17,6 +17,13 @@
 
 class Genome : protected Vector<float> {
 public:
+    enum { // indices for addressing the genome
+        ACCELERATION_RANDOMNESS = 0,
+        ACCELERATION_BIAS = 1,
+        DIRECTION_RANDOMNESS = 2,
+        CREATURE_SIZE = 3
+    };
+
     // methods exposed from Vector
     using Vector<float>::operator[];
     using Vector<float>::begin;
