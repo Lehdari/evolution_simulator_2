@@ -32,6 +32,8 @@ public:
     Genome(float amplitude = 1.0f);
     Genome(Vector<float>&& vector);
 
+    void mutate(float probability, float amplitude);
+
     // Minimum and maximum values the genome can get
     static const Genome minGenome;
     static const Genome maxGenome;

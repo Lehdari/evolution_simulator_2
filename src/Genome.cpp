@@ -34,3 +34,11 @@ Genome::Genome(Vector<float>&& vector) :
     Vector<float>   (vector)
 {
 }
+
+void Genome::mutate(float probability, float amplitude)
+{
+    for (size_t i=0; i<size(); ++i) {
+        if (RND < probability)
+            (*this)[i] = std::clamp((*this)[i]+(float)RNDS*amplitude, minGenome[i], maxGenome[i]);
+    }
+}
