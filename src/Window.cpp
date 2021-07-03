@@ -117,6 +117,8 @@ void Window::init(void)
     foodSpriteComponent.setOrigin(Vec2f(ConfigSingleton::spriteRadius, ConfigSingleton::spriteRadius));
     foodSpriteComponent.setColor(Vec3f(0.3f, 0.8f, 0.0f));
 
+    auto& config = *_ecs.getSingleton<ConfigSingleton>();
+
     // Create creatures
     constexpr int nCreatures = 500;
     for (int i=0; i<nCreatures; ++i) {
@@ -133,7 +135,7 @@ void Window::init(void)
             sqrtf(mass) / ConfigSingleton::spriteRadius));
 
         _ecs.setComponent(id, CreatureComponent(Genome(0.5f),
-            mass*100.0f/*TODO move this constant to simulation config*/, RND*M_PI*2.0f, RND, mass));
+            mass*config.massEnergyStorageConstant, RND*M_PI*2.0f, RND, mass));
         _ecs.setComponent(id, fug::SpriteComponent(creatureSpriteComponent));
         _ecs.addComponent<fug::EventComponent>(id)->addHandler<EventHandler_Creature_CollisionEvent>();
     }
