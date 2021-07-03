@@ -27,5 +27,15 @@ inline __attribute__((always_inline)) int64_t generateRandomNumber()
     return rnd();
 }
 
+template <typename T>
+inline __attribute__((always_inline)) T gauss(T x, T sigma) {
+    return std::exp(-((x/sigma)*(x/sigma))/T(2));
+}
+
+template <typename T>
+inline __attribute__((always_inline)) T gauss2(const Eigen::Matrix<T,2,1>& p, T sigma) {
+    return gauss(p(0), sigma) * gauss(p(1), sigma);
+}
+
 
 #endif //EVOLUTION_SIMULATOR_UTILS_HPP
