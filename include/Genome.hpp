@@ -21,7 +21,8 @@ public:
         ACCELERATION_RANDOMNESS = 0,
         ACCELERATION_BIAS = 1,
         DIRECTION_RANDOMNESS = 2,
-        CREATURE_SIZE = 3
+        CREATURE_SIZE = 3,
+        REPRODUCTION_PROBABILITY = 4
     };
 
     // methods exposed from Vector
@@ -38,7 +39,7 @@ public:
     static const Genome minGenome;
     static const Genome maxGenome;
 
-    static constexpr size_t genomeSize = 4;
+    static constexpr size_t genomeSize = 5;
 };
 
 

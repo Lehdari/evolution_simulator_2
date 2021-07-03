@@ -11,7 +11,11 @@
 #include <CreatureSystem.hpp>
 #include <WorldSingleton.hpp>
 #include <ConfigSingleton.hpp>
+#include <EventHandlers.hpp>
 #include <Utils.hpp>
+
+#include <engine/EventComponent.hpp>
+#include <graphics/SpriteComponent.hpp>
 
 
 CreatureSystem::CreatureSystem(fug::Ecs& ecs) :
@@ -45,6 +49,44 @@ void CreatureSystem::operator()(
 
     // constant energy usage
     e -= config.creatureEnergyUseConstant;
+
+    // reproduction
+    double minChildEnergy = ConfigSingleton::minCreatureMass*config.massEnergyStorageConstant;
+    if (e > minChildEnergy && RND > g[Genome::REPRODUCTION_PROBABILITY]) {
+        double childEnergy = minChildEnergy + RND*(e-minChildEnergy);
+
+        float childMass = (float)(childEnergy/config.massEnergyStorageConstant);
+
+        Genome childGenome = g;
+        childGenome.mutate(0.1f, 0.1f);
+
+        fug::EntityId childId = _ecs.getEmptyEntityId();
+
+        // Child components
+        CreatureComponent childCreatureComponent = CreatureComponent(
+            childGenome, childMass*config.massEnergyStorageConstant,
+            creatureComponent._direction, creatureComponent._speed, childMass);
+
+        fug::Orientation2DComponent childOrientationComponent = orientationComponent;
+        childOrientationComponent.setScale(sqrtf(childMass) / ConfigSingleton::spriteRadius);
+        float cpr = ConfigSingleton::spriteRadius *
+            (orientationComponent.getScale() + childOrientationComponent.getScale());
+        float cpd = RND*M_PI*2.0f;
+        childOrientationComponent.translate(Vec2f(cpr*cosf(cpd), cpr*sinf(cpd)));
+
+        fug::SpriteComponent childSpriteComponent = *_ecs.getComponent<fug::SpriteComponent>(eId);
+
+        fug::EventComponent childEventComponent;
+        childEventComponent.addHandler<EventHandler_Creature_CollisionEvent>();
+
+        _ecs.setComponent(childId, std::move(childCreatureComponent));
+        _ecs.setComponent(childId, std::move(childOrientationComponent));
+        _ecs.setComponent(childId, std::move(childSpriteComponent));
+        _ecs.setComponent(childId, std::move(childEventComponent));
+
+        // reduce parent's energy by the amount given to child
+        e -= childEnergy;
+    }
 
     // if energy reaches 0, the creature dies
     if (e <= 0.0) {

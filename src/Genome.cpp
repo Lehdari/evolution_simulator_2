@@ -14,11 +14,11 @@
 
 
 const Genome Genome::minGenome = [](){
-    return Vector<float>({0.0f, -1.0f, 0.0f, ConfigSingleton::minCreatureMass});
+    return Vector<float>({0.0f, -1.0f, 0.0f, ConfigSingleton::minCreatureMass, 0.0f});
 }();
 
 const Genome Genome::maxGenome = [](){
-    return Vector<float>({1.0f, 1.0f, 1.0f, ConfigSingleton::maxCreatureMass});
+    return Vector<float>({1.0f, 1.0f, 1.0f, ConfigSingleton::maxCreatureMass, 1.0f});
 }();
 
 Genome::Genome(float amplitude) :

@@ -4,3 +4,4 @@ Creature Genome:
 1:  Acceleration bias
 2:  Direction change randomness
 3:  Creature size (once adulthood has been reached)
+4:  Reproduction probability
