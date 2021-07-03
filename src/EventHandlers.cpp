@@ -51,8 +51,8 @@ void EventHandler_Creature_CollisionEvent::handleEvent(
         cc._energy += (foodMass - dMass)*config.foodMassToEnergyConstant; // rest of the food mass becomes energy
 
         // cannot store more energy, energy is wasted
-        if (cc._energy > config.maxEnergyMassConstant*cc._mass)
-            cc._energy = config.maxEnergyMassConstant*cc._mass;
+        if (cc._energy > config.massEnergyStorageConstant*cc._mass)
+            cc._energy = config.massEnergyStorageConstant*cc._mass;
 
         // update the radius
         oc1.setScale(sqrtf(cc._mass) / 64.0f);
