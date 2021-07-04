@@ -17,8 +17,8 @@
 #include <ConfigSingleton.hpp>
 #include <EventHandlers.hpp>
 #include <imgui.h>
-#include <imgui_impl_sdl.h>
-#include <imgui_impl_opengl3.h>
+#include <backends/imgui_impl_sdl.h>
+#include <backends/imgui_impl_opengl3.h>
 
 #include <engine/LogicComponent.hpp>
 #include <engine/EventComponent.hpp>
@@ -257,6 +257,10 @@ void Window::updateGUI()
     ImGui::Begin("Simulation Controls");
     ImGui::Text("N. Creatures: %lu\n", world.getNumberOf(WorldSingleton::EntityType::CREATURE));
     ImGui::Text("N. Food: %lu\n", world.getNumberOf(WorldSingleton::EntityType::FOOD));
+    double foodMassToEnergyConstantMin = 1.0;
+    double foodMassToEnergyConstantMax = 1000.0;
+    ImGui::SliderScalar("foodMassToEnergyConstant", ImGuiDataType_Double, &config.foodMassToEnergyConstant,
+        &foodMassToEnergyConstantMin, &foodMassToEnergyConstantMax, "%.3f", ImGuiSliderFlags_Logarithmic);
     ImGui::End();
 }
 
