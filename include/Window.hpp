@@ -112,6 +112,8 @@ public:
 
     void runSystems(void);
 
+    void updateGUI();
+
     // world step function (food creation etc.)
     void updateWorld(void);
 

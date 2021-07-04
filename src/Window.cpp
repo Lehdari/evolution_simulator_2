@@ -16,6 +16,9 @@
 #include <WorldSingleton.hpp>
 #include <ConfigSingleton.hpp>
 #include <EventHandlers.hpp>
+#include <imgui.h>
+#include <imgui_impl_sdl.h>
+#include <imgui_impl_opengl3.h>
 
 #include <engine/LogicComponent.hpp>
 #include <engine/EventComponent.hpp>
@@ -92,6 +95,14 @@ Window::Window(
     glClearColor(0.2f, 0.2f, 0.2f, 1.f);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // Initialize ImGui
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+    ImGui_ImplSDL2_InitForOpenGL(_window, _glCtx);
+    ImGui_ImplOpenGL3_Init("#version 420");
 
     // Initialize world
     init();
@@ -178,10 +189,15 @@ void Window::loop(void)
         // Run systems
         runSystems();
 
+        updateGUI();
         updateWorld();
 
         // Render sprites
         _ecs.getSingleton<fug::SpriteSingleton>()->render(_viewport);
+
+        // Render ImGui
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         // Swap draw and display buffers
         SDL_GL_SwapWindow(_window);
@@ -226,6 +242,23 @@ void Window::runSystems(void)
         _ecs.runSystem(_eventSystem);
 
     _ecs.runSystem(_spriteSystem);
+}
+
+void Window::updateGUI()
+{
+    static auto& world = *_ecs.getSingleton<WorldSingleton>();
+    static auto& config = *_ecs.getSingleton<ConfigSingleton>();
+
+    // Start the Dear ImGui frame
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplSDL2_NewFrame(_window);
+    ImGui::NewFrame();
+
+    ImGui::Begin("Simulation Controls");
+    ImGui::Text("N. Creatures: %lu\n", world.getNumberOf(WorldSingleton::EntityType::CREATURE));
+    ImGui::Text("N. Food: %lu\n", world.getNumberOf(WorldSingleton::EntityType::FOOD));
+    ImGui::SliderFloat("foodMassToEnergyConstant", &config.foodMassToEnergyConstant, 1.0f, 1000.0f, "%.3f", 2.0f);
+    ImGui::End();
 }
 
 void Window::updateWorld(void)
