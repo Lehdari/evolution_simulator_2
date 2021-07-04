@@ -12,8 +12,13 @@
 #define EVOLUTION_SIMULATOR_2_FOODCOMPONENT_HPP
 
 
-struct FoodComponent {
+#include <ConfigSingleton.hpp>
 
+
+struct FoodComponent {
+    double mass;
+
+    FoodComponent(double mass = ConfigSingleton::minFoodMass);
 };
 
 

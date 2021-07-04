@@ -24,6 +24,8 @@ void EventHandler_Creature_CollisionEvent::handleEvent(
     auto& cc = *ecs.getComponent<CreatureComponent>(eId);
     auto& oc1 = *ecs.getComponent<fug::Orientation2DComponent>(eId);
 
+    auto* fc2 = ecs.getComponent<FoodComponent>(event.entityId);
+
     if (ecs.getComponent<CreatureComponent>(event.entityId) != nullptr) {
         // collision object is another creature
         auto& oc2 = *ecs.getComponent<fug::Orientation2DComponent>(event.entityId);
@@ -41,15 +43,12 @@ void EventHandler_Creature_CollisionEvent::handleEvent(
         if (dpNorm < rSum)
             oc1.translate(n * (rSum-dpNorm) * 0.5f);
     }
-    else if (ecs.getComponent<FoodComponent>(event.entityId) != nullptr) {
-        // collision object is food
-        float foodMass = 1.0f; // TODO make food mass a property of FoodComponent
-
+    else if (fc2 != nullptr) {// collision object is food
         // dMass is the amount of food mass that is to be converted to creature mass
         double dMass = std::min(cc._genome[Genome::CREATURE_SIZE]-cc._mass,
-            foodMass*config.creatureMassIncreaseFactor);
+            fc2->mass*config.creatureMassIncreaseFactor);
         cc._mass += dMass;
-        cc._energy += (foodMass - dMass)*config.foodMassToEnergyConstant; // rest of the food mass becomes energy
+        cc._energy += (fc2->mass - dMass)*config.foodMassToEnergyConstant; // rest of the food mass becomes energy
 
         // cannot store more energy, energy is wasted
         if (cc._energy > config.massEnergyStorageConstant*cc._mass)

@@ -267,6 +267,8 @@ void Window::updateGUI()
 void Window::updateWorld(void)
 {
     static auto& world = *_ecs.getSingleton<WorldSingleton>();
+    static auto& config = *_ecs.getSingleton<ConfigSingleton>();
+
     int nFoodsCurrent = world.getNumberOf(WorldSingleton::EntityType::FOOD);
 
     fug::SpriteComponent foodSpriteComponent(_spriteSheetId, 1);
@@ -283,8 +285,8 @@ void Window::updateWorld(void)
             p << RNDS*1024.0f, RNDS*1024.0f;
 
         _ecs.setComponent(id, fug::Orientation2DComponent(p, 0.0f,
-            (0.25f+0.5f*RND) / ConfigSingleton::spriteRadius));
-        _ecs.addComponent<FoodComponent>(id);
+            sqrtf(config.minFoodMass) / ConfigSingleton::spriteRadius));
+        _ecs.setComponent(id, FoodComponent(config.minFoodMass));
         _ecs.setComponent(id, fug::SpriteComponent(foodSpriteComponent));
     }
 

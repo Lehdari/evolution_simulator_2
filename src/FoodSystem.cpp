@@ -10,6 +10,7 @@
 
 #include <FoodSystem.hpp>
 #include <WorldSingleton.hpp>
+#include <ConfigSingleton.hpp>
 
 
 FoodSystem::FoodSystem(fug::Ecs& ecs) :
@@ -21,6 +22,12 @@ void FoodSystem::operator()(const fug::EntityId& eId,
     FoodComponent& foodComponent,
     fug::Orientation2DComponent& orientationComponent)
 {
-    auto* world = _ecs.getSingleton<WorldSingleton>();
-    world->addEntity(eId, orientationComponent.getPosition(), WorldSingleton::EntityType::FOOD);
+    static auto& world = *_ecs.getSingleton<WorldSingleton>();
+
+    if (foodComponent.mass < ConfigSingleton::maxFoodMass)
+        foodComponent.mass += 0.001;
+
+    orientationComponent.setScale(sqrt(foodComponent.mass) / ConfigSingleton::spriteRadius);
+
+    world.addEntity(eId, orientationComponent.getPosition(), WorldSingleton::EntityType::FOOD);
 }
