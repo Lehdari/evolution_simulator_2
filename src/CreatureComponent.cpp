@@ -14,14 +14,14 @@
 CreatureComponent::CreatureComponent(
     Genome  genome,
     double  energy,
+    double  mass,
     float   direction,
-    float   speed,
-    float   mass
+    float   speed
     ) :
     _genome     (std::move(genome)),
     _energy     (energy),
+    _mass       (mass),
     _direction  (direction),
-    _speed      (speed),
-    _mass       (mass)
+    _speed      (speed)
 {
 }

@@ -20,9 +20,9 @@ public:
     CreatureComponent(
         Genome  genome = Genome(),
         double  energy = 600.0,
+        double  mass = 1.0f,
         float   direction = 0.0f,
-        float   speed = 0.0f,
-        float   mass = 1.0f);
+        float   speed = 0.0f);
 
     friend class CreatureSystem;
     friend struct EventHandler_Creature_CollisionEvent;
@@ -31,9 +31,9 @@ private:
     Genome  _genome;
 
     double  _energy; // creature dies when energy reaches 0
+    double  _mass;
     float   _direction;
     float   _speed;
-    float   _mass;
 };
 
 

@@ -140,13 +140,13 @@ void Window::init(void)
         while (gauss2(p, 128.0f) < RND)
             p << RNDS*1024.0f, RNDS*1024.0f;
 
-        float mass = 0.1f+RND*0.5f;
+        double mass = 0.1+RND*0.5;
 
         _ecs.setComponent(id, fug::Orientation2DComponent(p, 0.0f,
             sqrtf(mass) / ConfigSingleton::spriteRadius));
 
         _ecs.setComponent(id, CreatureComponent(Genome(0.5f),
-            mass*config.massEnergyStorageConstant, RND*M_PI*2.0f, RND, mass));
+            mass*config.massEnergyStorageConstant, mass, RND*M_PI*2.0f, RND));
         _ecs.setComponent(id, fug::SpriteComponent(creatureSpriteComponent));
         _ecs.addComponent<fug::EventComponent>(id)->addHandler<EventHandler_Creature_CollisionEvent>();
     }
@@ -257,7 +257,6 @@ void Window::updateGUI()
     ImGui::Begin("Simulation Controls");
     ImGui::Text("N. Creatures: %lu\n", world.getNumberOf(WorldSingleton::EntityType::CREATURE));
     ImGui::Text("N. Food: %lu\n", world.getNumberOf(WorldSingleton::EntityType::FOOD));
-    ImGui::SliderFloat("foodMassToEnergyConstant", &config.foodMassToEnergyConstant, 1.0f, 1000.0f, "%.3f", 2.0f);
     ImGui::End();
 }
 

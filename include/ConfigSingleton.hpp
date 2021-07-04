@@ -13,16 +13,18 @@
 
 
 struct ConfigSingleton {
-    static constexpr float spriteRadius = 64.0f; // sprite radius in pixels
-    static constexpr float minCreatureMass = 0.1f;
-    static constexpr float maxCreatureMass = 256.0f; // maximum mass a creature can grow to
-    static constexpr float maxObjectRadius = 16.0f; // square root of maxCreatureMass
+    static constexpr float  spriteRadius = 64.0f; // sprite radius in pixels
+    static constexpr double minCreatureMass = 0.1;
+    static constexpr double maxCreatureMass = 256.0; // maximum mass a creature can grow to
+    static constexpr double minFoodMass = 0.01; // food starting mass
+    static constexpr double maxFoodMass = 256.0; // maximum mass a food can grow to
+    static constexpr float  maxObjectRadius = 16.0f; // square root of max(maxCreatureMass, maxFoodMass)
 
     double  creatureEnergyUseConstant = 0.05; // energy used every tick, relative to sqrt of mass
     float   creatureDragCoefficient = 0.5f; // viscous drag coefficient for creatures, viscous drag is relative to speed squared
-    float   creatureMassIncreaseFactor = 0.15f; // portion of food mass that is converted to creature mass when eaten (given the creature is still growing)
+    double  creatureMassIncreaseFactor = 0.15; // portion of food mass that is converted to creature mass when eaten (given the creature is still growing)
     double  massEnergyStorageConstant = 250.0; // how much energy each creature can hold w.r.t. their mass
-    float   foodMassToEnergyConstant = 100.0f; // ratio by which food mass in converted to creature energy
+    double  foodMassToEnergyConstant = 100.0; // ratio by which food mass in converted to creature energy
 };
 
 

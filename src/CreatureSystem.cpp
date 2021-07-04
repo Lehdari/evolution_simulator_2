@@ -48,14 +48,14 @@ void CreatureSystem::operator()(
     d += RNDS*g[Genome::DIRECTION_RANDOMNESS]; // direction change
 
     // constant energy usage, relative to sqrt of mass
-    e -= config.creatureEnergyUseConstant*sqrtf(m);
+    e -= config.creatureEnergyUseConstant*sqrt(m);
 
     // reproduction
     double minChildEnergy = ConfigSingleton::minCreatureMass*config.massEnergyStorageConstant;
     if (e > minChildEnergy && RND > g[Genome::REPRODUCTION_PROBABILITY]) {
         double childEnergy = minChildEnergy + RND*(e-minChildEnergy);
 
-        float childMass = (float)(childEnergy/config.massEnergyStorageConstant);
+        double childMass = childEnergy/config.massEnergyStorageConstant;
 
         Genome childGenome = g;
         childGenome.mutate(0.1f, 0.1f);
@@ -64,8 +64,8 @@ void CreatureSystem::operator()(
 
         // Child components
         CreatureComponent childCreatureComponent = CreatureComponent(
-            childGenome, childMass*config.massEnergyStorageConstant,
-            creatureComponent._direction, creatureComponent._speed, childMass);
+            childGenome, childMass*config.massEnergyStorageConstant, childMass,
+            creatureComponent._direction, creatureComponent._speed);
 
         fug::Orientation2DComponent childOrientationComponent = orientationComponent;
         childOrientationComponent.setScale(sqrtf(childMass) / ConfigSingleton::spriteRadius);
