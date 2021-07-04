@@ -15,8 +15,8 @@
 struct ConfigSingleton {
     static constexpr float spriteRadius = 64.0f; // sprite radius in pixels
     static constexpr float minCreatureMass = 0.1f;
-    static constexpr float maxCreatureMass = 16.0f; // maximum mass a creature can grow to
-    static constexpr float maxObjectRadius = 4.0f; // square root of maxCreatureMass
+    static constexpr float maxCreatureMass = 256.0f; // maximum mass a creature can grow to
+    static constexpr float maxObjectRadius = 16.0f; // square root of maxCreatureMass
 
     double  creatureEnergyUseConstant = 0.1; // energy used every tick, regardless what the creature does
     float   creatureDragCoefficient = 0.5f; // viscous drag coefficient for creatures, viscous drag is relative to speed squared
