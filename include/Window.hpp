@@ -112,6 +112,9 @@ public:
 
     void runSystems(void);
 
+    // world step function (food creation etc.)
+    void updateWorld(void);
+
 private:
     Settings            _settings;
     SDL_Window*         _window;

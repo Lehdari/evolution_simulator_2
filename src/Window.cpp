@@ -175,10 +175,10 @@ void Window::loop(void)
         // Render
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        _ecs.getSingleton<WorldSingleton>()->reset();
-
         // Run systems
         runSystems();
+
+        updateWorld();
 
         // Render sprites
         _ecs.getSingleton<fug::SpriteSingleton>()->render(_viewport);
@@ -226,4 +226,31 @@ void Window::runSystems(void)
         _ecs.runSystem(_eventSystem);
 
     _ecs.runSystem(_spriteSystem);
+}
+
+void Window::updateWorld(void)
+{
+    static auto& world = *_ecs.getSingleton<WorldSingleton>();
+    int nFoodsCurrent = world.getNumberOf(WorldSingleton::EntityType::FOOD);
+
+    fug::SpriteComponent foodSpriteComponent(_spriteSheetId, 1);
+    foodSpriteComponent.setOrigin(Vec2f(ConfigSingleton::spriteRadius, ConfigSingleton::spriteRadius));
+    foodSpriteComponent.setColor(Vec3f(0.3f, 0.8f, 0.0f));
+
+    constexpr int nFoods = 20000;
+    for (int i=nFoodsCurrent; i<nFoods; ++i) {
+        fug::EntityId id = _ecs.getEmptyEntityId();
+
+        // get position using rejection sampling
+        Vec2f p(RNDS*1024.0f, RNDS*1024.0f);
+        while (gauss2(p, 256.0f) < RND)
+            p << RNDS*1024.0f, RNDS*1024.0f;
+
+        _ecs.setComponent(id, fug::Orientation2DComponent(p, 0.0f,
+            (0.25f+0.5f*RND) / ConfigSingleton::spriteRadius));
+        _ecs.addComponent<FoodComponent>(id);
+        _ecs.setComponent(id, fug::SpriteComponent(foodSpriteComponent));
+    }
+
+    _ecs.getSingleton<WorldSingleton>()->reset();
 }
