@@ -47,8 +47,8 @@ void CreatureSystem::operator()(
 
     d += RNDS*g[Genome::DIRECTION_RANDOMNESS]; // direction change
 
-    // constant energy usage
-    e -= config.creatureEnergyUseConstant;
+    // constant energy usage, relative to sqrt of mass
+    e -= config.creatureEnergyUseConstant*sqrtf(m);
 
     // reproduction
     double minChildEnergy = ConfigSingleton::minCreatureMass*config.massEnergyStorageConstant;
