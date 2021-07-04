@@ -26,8 +26,9 @@ void CollisionSystem::operator()(const fug::EntityId& eId,
     CreatureComponent& creatureComponent,
     fug::Orientation2DComponent& orientationComponent)
 {
-    static const Vec2f collisionBoxVec(
-        2.0f*ConfigSingleton::maxObjectRadius, 2.0f*ConfigSingleton::maxObjectRadius);
+    float radius = orientationComponent.getScale()*ConfigSingleton::spriteRadius;
+    Vec2f collisionBoxVec(
+        radius+ConfigSingleton::maxObjectRadius, radius+ConfigSingleton::maxObjectRadius);
 
     // find neighbours (potential objects to collide with)
     static Vector<fug::EntityId> entities;
