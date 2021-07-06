@@ -22,7 +22,10 @@ public:
         ACCELERATION_BIAS = 1,
         DIRECTION_RANDOMNESS = 2,
         CREATURE_SIZE = 3,
-        REPRODUCTION_PROBABILITY = 4
+        REPRODUCTION_PROBABILITY = 4,
+        COLOR_R = 5,
+        COLOR_G = 6,
+        COLOR_B = 7
     };
 
     // methods exposed from Vector
@@ -39,7 +42,7 @@ public:
     static const Genome minGenome;
     static const Genome maxGenome;
 
-    static constexpr size_t genomeSize = 5;
+    static constexpr size_t genomeSize = 8;
 };
 
 

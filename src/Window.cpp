@@ -147,7 +147,10 @@ void Window::init(void)
 
         _ecs.setComponent(id, CreatureComponent(Genome(0.5f),
             mass*config.massEnergyStorageConstant, mass, RND*M_PI*2.0f, RND));
+        auto& g = _ecs.getComponent<CreatureComponent>(id)->getGenome();
         _ecs.setComponent(id, fug::SpriteComponent(creatureSpriteComponent));
+        _ecs.getComponent<fug::SpriteComponent>(id)->setColor(Vec3f(
+            g[Genome::COLOR_R], g[Genome::COLOR_G], g[Genome::COLOR_B]));
         _ecs.addComponent<fug::EventComponent>(id)->addHandler<EventHandler_Creature_CollisionEvent>();
     }
 

@@ -5,3 +5,6 @@ Creature Genome:
 2:  Direction change randomness
 3:  Creature size (once adulthood has been reached)
 4:  Reproduction probability
+5:  Color, Red channel
+6:  Color, Green channel
+7:  Color, Blue Channel

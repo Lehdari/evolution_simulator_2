@@ -75,6 +75,8 @@ void CreatureSystem::operator()(
         childOrientationComponent.translate(Vec2f(cpr*cosf(cpd), cpr*sinf(cpd)));
 
         fug::SpriteComponent childSpriteComponent = *_ecs.getComponent<fug::SpriteComponent>(eId);
+        childSpriteComponent.setColor(Vec3f(
+            childGenome[Genome::COLOR_R], childGenome[Genome::COLOR_G], childGenome[Genome::COLOR_B]));
 
         fug::EventComponent childEventComponent;
         childEventComponent.addHandler<EventHandler_Creature_CollisionEvent>();
