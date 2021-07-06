@@ -25,3 +25,8 @@ CreatureComponent::CreatureComponent(
     _speed      (speed)
 {
 }
+
+const Genome& CreatureComponent::getGenome(void) const
+{
+    return _genome;
+}

@@ -24,6 +24,8 @@ public:
         float   direction = 0.0f,
         float   speed = 0.0f);
 
+    const Genome& getGenome(void) const;
+
     friend class CreatureSystem;
     friend struct EventHandler_Creature_CollisionEvent;
 
