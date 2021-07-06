@@ -60,7 +60,9 @@ void CreatureSystem::operator()(
         double childMass = childEnergy/config.massEnergyStorageConstant;
 
         Genome childGenome = g;
-        childGenome.mutate(0.1f, 0.1f);
+        childGenome.mutate(0.5f, 0.001f);
+        childGenome.mutate(0.1f, 0.01f);
+        childGenome.mutate(0.01f, 0.1f);
 
         fug::EntityId childId = _ecs.getEmptyEntityId();
 
