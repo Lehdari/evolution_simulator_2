@@ -140,7 +140,8 @@ void Window::init(void)
         while (gauss2(p, 128.0f) < RND)
             p << RNDS*1024.0f, RNDS*1024.0f;
 
-        double mass = 0.1+RND*0.5;
+        double mass = ConfigSingleton::minCreatureMass + RND*(
+            ConfigSingleton::maxCreatureMass-ConfigSingleton::minCreatureMass);
 
         _ecs.setComponent(id, fug::Orientation2DComponent(p, 0.0f,
             sqrtf(mass) / ConfigSingleton::spriteRadius));
