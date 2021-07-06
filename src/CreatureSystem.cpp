@@ -45,7 +45,9 @@ void CreatureSystem::operator()(
     s += a;
     e -= abs(a)*m; // acceleration energy usage
 
-    d += RNDS*g[Genome::DIRECTION_RANDOMNESS]; // direction change
+    float da = RNDS*M_PI_2*g[Genome::DIRECTION_RANDOMNESS]; // direction change
+    d += da;
+    e -= abs(da)*m*0.5; // direction change energy usage
 
     // constant energy usage, relative to sqrt of mass
     e -= config.creatureEnergyUseConstant*sqrt(m);
