@@ -126,7 +126,7 @@ void Window::init(void)
     creatureSpriteComponent.setOrigin(Vec2f(ConfigSingleton::spriteRadius, ConfigSingleton::spriteRadius));
     fug::SpriteComponent foodSpriteComponent(_spriteSheetId, 1);
     foodSpriteComponent.setOrigin(Vec2f(ConfigSingleton::spriteRadius, ConfigSingleton::spriteRadius));
-    foodSpriteComponent.setColor(Vec3f(0.3f, 0.8f, 0.0f));
+    foodSpriteComponent.setColor(Vec3f(0.2f, 0.6f, 0.0f));
 
     auto& config = *_ecs.getSingleton<ConfigSingleton>();
 
@@ -276,7 +276,7 @@ void Window::updateWorld(void)
 
     fug::SpriteComponent foodSpriteComponent(_spriteSheetId, 1);
     foodSpriteComponent.setOrigin(Vec2f(ConfigSingleton::spriteRadius, ConfigSingleton::spriteRadius));
-    foodSpriteComponent.setColor(Vec3f(0.3f, 0.8f, 0.0f));
+    foodSpriteComponent.setColor(Vec3f(0.2f, 0.6f, 0.0f));
 
     constexpr int nFoods = 20000;
     for (int i=nFoodsCurrent; i<nFoods; ++i) {
