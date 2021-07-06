@@ -43,11 +43,11 @@ void CreatureSystem::operator()(
 
     float a = (float)(RNDS*g[Genome::ACCELERATION_RANDOMNESS])+g[Genome::ACCELERATION_BIAS]; // acceleration
     s += a;
-    e -= abs(a)*m; // acceleration energy usage
+    e -= abs(a)*m*config.creatureMovementEnergyUseConstant; // acceleration energy usage
 
-    float da = RNDS*M_PI_2*g[Genome::DIRECTION_RANDOMNESS]; // direction change
-    d += da;
-    e -= abs(da)*m*0.5; // direction change energy usage
+    float da = RNDS*g[Genome::DIRECTION_RANDOMNESS]; // direction change
+    d += da*(float)M_PI_2;
+    e -= abs(da)*m*config.creatureMovementEnergyUseConstant; // direction change energy usage
 
     // constant energy usage, relative to sqrt of mass
     e -= config.creatureEnergyUseConstant*sqrt(m);
