@@ -17,6 +17,7 @@ int main()
     Window::Settings settings;
     settings.window.width = 1920;
     settings.window.height = 1080;
+    settings.window.name = "Evolution Simulator";
 
     Window window(settings);
 
