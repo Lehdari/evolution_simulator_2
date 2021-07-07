@@ -101,7 +101,12 @@ void CreatureSystem::operator()(
     }
 
     // update orientation component
-    orientationComponent.translate(Vec2f(s*cosf(d), s*sinf(d)));
+    Vec2f p = orientationComponent.getPosition() + Vec2f(s*cosf(d), s*sinf(d));
+    if (p(0) < -ConfigSingleton::worldSize) p(0) = -ConfigSingleton::worldSize;
+    if (p(0) >= ConfigSingleton::worldSize) p(0) = ConfigSingleton::worldSize;
+    if (p(1) < -ConfigSingleton::worldSize) p(1) = -ConfigSingleton::worldSize;
+    if (p(1) >= ConfigSingleton::worldSize) p(1) = ConfigSingleton::worldSize;
+    orientationComponent.setPosition(p);
     orientationComponent.setRotation(d);
 
     // add entity to the world singleton
