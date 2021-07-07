@@ -31,8 +31,16 @@ void WorldSingleton::addEntity(const fug::EntityId& eId, const Vec2f& position, 
     ++_numberOfEntities[entityType];
 }
 
-void WorldSingleton::getEntities(Vector<fug::EntityId>& entities, const Vec2f& begin, const Vec2f& end) const
+void WorldSingleton::getEntities(Vector<fug::EntityId>& entities, Vec2f begin, Vec2f end) const
 {
+    if (begin(0) < -ConfigSingleton::worldSize)
+        begin(0) = ConfigSingleton::worldSize;
+    if (begin(1) < -ConfigSingleton::worldSize)
+        begin(1) = ConfigSingleton::worldSize;
+    if (end(0) >= ConfigSingleton::worldSize)
+        end(0) = ConfigSingleton::worldSize;
+    if (end(1) >= ConfigSingleton::worldSize)
+        end(1) = ConfigSingleton::worldSize;
     getEntitiesBox(0, entities, begin, createMortonCode(begin), end, createMortonCode(end), 15lu);
 }
 

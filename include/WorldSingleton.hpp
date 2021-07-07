@@ -33,7 +33,7 @@ public:
     void addEntity(const fug::EntityId& eId, const Vec2f& position, EntityType entityType);
 
     // get entities inside an AABB
-    void getEntities(Vector<fug::EntityId>& entities, const Vec2f& begin, const Vec2f& end) const;
+    void getEntities(Vector<fug::EntityId>& entities, Vec2f begin, Vec2f end) const;
 
     // get number of entities of specific type
     uint64_t getNumberOf(EntityType entityType) const;
