@@ -12,6 +12,7 @@
 #define EVOLUTION_SIMULATOR_2_WORLDSINGLETON_HPP
 
 
+#include <ConfigSingleton.hpp>
 #include <utils/Types.hpp>
 #include <gut_utils/MathTypes.hpp>
 #include <gut_utils/TypeUtils.hpp>
@@ -26,7 +27,7 @@ public:
         FOOD
     };
 
-    WorldSingleton(float worldSize = 1024.0f);
+    WorldSingleton(float worldSize = ConfigSingleton::worldSize);
 
     void reset();
     void addEntity(const fug::EntityId& eId, const Vec2f& position, EntityType entityType);

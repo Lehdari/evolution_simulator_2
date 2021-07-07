@@ -13,6 +13,7 @@
 
 
 struct ConfigSingleton {
+    static constexpr float  worldSize = 1024.0f; // world size (ranges from -worldSize to worldSize)
     static constexpr float  spriteRadius = 64.0f; // sprite radius in pixels
     static constexpr double minCreatureMass = 0.1;
     static constexpr double maxCreatureMass = 64.0; // maximum mass a creature can grow to
