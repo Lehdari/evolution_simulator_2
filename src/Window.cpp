@@ -265,14 +265,14 @@ void Window::updateGUI()
 
     double foodMassToEnergyConstantMin = 1.0;
     double foodMassToEnergyConstantMax = 1000.0;
-    double targetNCreatures = 250;
+    double targetNCreatures = 1000;
 
     ImGui::Text("N. Creatures: %lu\n", nCreatures);
     ImGui::Text("N. Food: %lu\n", nFood);
 
     // P-controlled foodMassToEnergyConstant (raise or lower how much energy creatures get from food
     // depending on how much of them are alive)
-    config.foodMassToEnergyConstant += (targetNCreatures-(double)nCreatures)*0.001;
+    config.foodMassToEnergyConstant += (targetNCreatures-(double)nCreatures)*0.00001;
     config.foodMassToEnergyConstant = std::clamp(config.foodMassToEnergyConstant,
         foodMassToEnergyConstantMin, foodMassToEnergyConstantMax);
     ImGui::SliderScalar("foodMassToEnergyConstant", ImGuiDataType_Double, &config.foodMassToEnergyConstant,
@@ -292,8 +292,8 @@ void Window::updateWorld(void)
     foodSpriteComponent.setOrigin(Vec2f(ConfigSingleton::spriteRadius, ConfigSingleton::spriteRadius));
     foodSpriteComponent.setColor(Vec3f(0.2f, 0.6f, 0.0f));
 
-    constexpr int nFoods = 20000;
-    for (int i=nFoodsCurrent; i<nFoods; ++i) {
+    int nNewFood = std::max(100/std::max((nFoodsCurrent-10000)/1000, 1), 0);
+    for (int i=0; i<nNewFood; ++i) {
         fug::EntityId id = _ecs.getEmptyEntityId();
 
         // get position using rejection sampling
