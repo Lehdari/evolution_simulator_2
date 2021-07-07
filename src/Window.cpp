@@ -161,9 +161,9 @@ void Window::init(void)
         fug::EntityId id = _ecs.getEmptyEntityId();
 
         // get position using rejection sampling
-        Vec2f p(RNDS*1024.0f, RNDS*1024.0f);
+        Vec2f p(RNDS*ConfigSingleton::worldSize, RNDS*ConfigSingleton::worldSize);
         while (gauss2(p, 256.0f) < RND)
-            p << RNDS*1024.0f, RNDS*1024.0f;
+            p << RNDS*ConfigSingleton::worldSize, RNDS*ConfigSingleton::worldSize;
 
         _ecs.setComponent(id, fug::Orientation2DComponent(p, 0.0f,
             (0.25f+0.5f*RND) / ConfigSingleton::spriteRadius));
@@ -297,9 +297,9 @@ void Window::updateWorld(void)
         fug::EntityId id = _ecs.getEmptyEntityId();
 
         // get position using rejection sampling
-        Vec2f p(RNDS*1024.0f, RNDS*1024.0f);
+        Vec2f p(RNDS*ConfigSingleton::worldSize, RNDS*ConfigSingleton::worldSize);
         while (gauss2(p, 256.0f) < RND)
-            p << RNDS*1024.0f, RNDS*1024.0f;
+            p << RNDS*ConfigSingleton::worldSize, RNDS*ConfigSingleton::worldSize;
 
         _ecs.setComponent(id, fug::Orientation2DComponent(p, 0.0f,
             sqrtf(config.minFoodMass) / ConfigSingleton::spriteRadius));
