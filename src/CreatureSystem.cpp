@@ -103,9 +103,9 @@ void CreatureSystem::operator()(
     // update orientation component
     Vec2f p = orientationComponent.getPosition() + Vec2f(s*cosf(d), s*sinf(d));
     if (p(0) < -ConfigSingleton::worldSize) p(0) = -ConfigSingleton::worldSize;
-    if (p(0) >= ConfigSingleton::worldSize) p(0) = ConfigSingleton::worldSize;
+    if (p(0) >= ConfigSingleton::worldSize) p(0) = ConfigSingleton::worldSize*0.999999761581f;
     if (p(1) < -ConfigSingleton::worldSize) p(1) = -ConfigSingleton::worldSize;
-    if (p(1) >= ConfigSingleton::worldSize) p(1) = ConfigSingleton::worldSize;
+    if (p(1) >= ConfigSingleton::worldSize) p(1) = ConfigSingleton::worldSize*0.999999761581f;
     orientationComponent.setPosition(p);
     orientationComponent.setRotation(d);
 

@@ -52,7 +52,8 @@ private:
     Vector<Node>                                _nodes;
     std::unordered_map<EntityType, uint64_t>    _numberOfEntities;
 
-    void addNode(uint64_t nId, const fug::EntityId& eId, uint64_t morton, const Vec2f& position);
+    void addNode(uint64_t nId, const fug::EntityId& eId, uint64_t morton,
+        const Vec2f& position, int level = 0);
 
     void getEntitiesAll(uint64_t nId, Vector<fug::EntityId>& entities) const;
     void getEntitiesBox(uint64_t nId, Vector<fug::EntityId>& entities,

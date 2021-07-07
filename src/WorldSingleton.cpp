@@ -38,9 +38,9 @@ void WorldSingleton::getEntities(Vector<fug::EntityId>& entities, Vec2f begin, V
     if (begin(1) < -ConfigSingleton::worldSize)
         begin(1) = ConfigSingleton::worldSize;
     if (end(0) >= ConfigSingleton::worldSize)
-        end(0) = ConfigSingleton::worldSize;
+        end(0) = ConfigSingleton::worldSize*0.999999761581f;
     if (end(1) >= ConfigSingleton::worldSize)
-        end(1) = ConfigSingleton::worldSize;
+        end(1) = ConfigSingleton::worldSize*0.999999761581f;
     getEntitiesBox(0, entities, begin, createMortonCode(begin), end, createMortonCode(end), 15lu);
 }
 
@@ -50,8 +50,11 @@ uint64_t WorldSingleton::getNumberOf(WorldSingleton::EntityType entityType) cons
 }
 
 void WorldSingleton::addNode(uint64_t nId, const fug::EntityId& eId,
-    uint64_t morton, const Vec2f& position)
+    uint64_t morton, const Vec2f& position, int level)
 {
+    if (level >= 22)
+        return;
+
     auto* node = &_nodes[nId];
 
     if (node->eId == -1) {
@@ -80,14 +83,13 @@ void WorldSingleton::addNode(uint64_t nId, const fug::EntityId& eId,
     if (node->children[cId] < 0) {
         node->children[cId] = _nodes.size();
         _nodes.emplace_back();
-        node = &_nodes[nId];
         _nodes.back().eId = eId;
         _nodes.back().mortonTail = morton >> 2;
         _nodes.back().position = position;
         return;
     }
 
-    addNode(node->children[cId], eId, morton >> 2, position);
+    addNode(node->children[cId], eId, morton >> 2, position, ++level);
 }
 
 void WorldSingleton::getEntitiesAll(uint64_t nId, Vector<fug::EntityId>& entities) const
