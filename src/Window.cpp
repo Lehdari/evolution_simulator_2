@@ -146,7 +146,7 @@ void Window::init(void)
         _ecs.setComponent(id, fug::Orientation2DComponent(p, 0.0f,
             sqrtf(mass) / ConfigSingleton::spriteRadius));
 
-        _ecs.setComponent(id, CreatureComponent(Genome(0.5f),
+        _ecs.setComponent(id, CreatureComponent(Genome(),
             mass*config.massEnergyStorageConstant, mass, RND*M_PI*2.0f, RND));
         auto& g = _ecs.getComponent<CreatureComponent>(id)->getGenome();
         _ecs.setComponent(id, fug::SpriteComponent(creatureSpriteComponent));

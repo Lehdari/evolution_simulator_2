@@ -55,8 +55,9 @@ void CreatureSystem::operator()(
     // reproduction
     double minChildEnergy = ConfigSingleton::minCreatureMass*config.massEnergyStorageConstant;
     if (e > minChildEnergy && RND > g[Genome::REPRODUCTION_PROBABILITY]) {
-        double childEnergy = minChildEnergy + RND*(e-minChildEnergy);
-
+        double childSize = g[Genome::CHILD_SIZE_MIN]+std::max(0.0,
+            RND*(g[Genome::CHILD_SIZE_MAX]-g[Genome::CHILD_SIZE_MIN]));
+        double childEnergy = minChildEnergy + childSize*(e-minChildEnergy);
         double childMass = childEnergy/config.massEnergyStorageConstant;
 
         Genome childGenome = g;
