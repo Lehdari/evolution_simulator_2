@@ -11,6 +11,7 @@
 #include <CreatureSystem.hpp>
 #include <WorldSingleton.hpp>
 #include <ConfigSingleton.hpp>
+#include <LineSingleton.hpp>
 #include <EventHandlers.hpp>
 #include <Utils.hpp>
 
@@ -102,7 +103,8 @@ void CreatureSystem::operator()(
     }
 
     // update orientation component
-    Vec2f p = orientationComponent.getPosition() + Vec2f(s*cosf(d), s*sinf(d));
+    Vec2f dVec = Vec2f(cosf(d), sinf(d));
+    Vec2f p = orientationComponent.getPosition() + s*dVec;
     if (p(0) < -ConfigSingleton::worldSize) p(0) = -ConfigSingleton::worldSize;
     if (p(0) >= ConfigSingleton::worldSize) p(0) = ConfigSingleton::worldSize;
     if (p(1) < -ConfigSingleton::worldSize) p(1) = -ConfigSingleton::worldSize;
@@ -113,4 +115,8 @@ void CreatureSystem::operator()(
     // add entity to the world singleton
     auto* world = _ecs.getSingleton<WorldSingleton>();
     world->addEntity(eId, orientationComponent.getPosition(), WorldSingleton::EntityType::CREATURE);
+
+    auto* lineSingleton = _ecs.getSingleton<LineSingleton>();
+    float r = orientationComponent.getScale()*ConfigSingleton::spriteRadius;
+    lineSingleton->drawLine(p+r*dVec, p+(r+3.0f)*dVec);
 }

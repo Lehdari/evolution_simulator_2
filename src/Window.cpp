@@ -15,6 +15,7 @@
 #include <FoodComponent.hpp>
 #include <WorldSingleton.hpp>
 #include <ConfigSingleton.hpp>
+#include <LineSingleton.hpp>
 #include <EventHandlers.hpp>
 #include <imgui.h>
 #include <backends/imgui_impl_sdl.h>
@@ -63,10 +64,6 @@ Window::Window(
         printf("Error: SDL Window could not be created! SDL_Error: %s\n", SDL_GetError());
         return;
     }
-
-    // Communicate window size to SpriteSingleton
-    _ecs.getSingleton<fug::SpriteSingleton>()->setWindowSize(
-        (int)_settings.window.width, (int)_settings.window.height);
 
     // Initialize OpenGL
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, _settings.gl.contextMajor);
@@ -119,8 +116,14 @@ Window::~Window()
 void Window::init(void)
 {
     _ecs.getSingleton<fug::SpriteSingleton>()->init();
+    _ecs.getSingleton<fug::SpriteSingleton>()->setWindowSize(
+        (int)_settings.window.width, (int)_settings.window.height);
     _spriteSheetId = _ecs.getSingleton<fug::SpriteSingleton>()->addSpriteSheetFromFile(
         EVOLUTION_SIMULATOR_RES("sprites/sprites.png"), 128, 128);
+
+    _ecs.getSingleton<LineSingleton>()->init();
+    _ecs.getSingleton<LineSingleton>()->setWindowSize(
+        (int)_settings.window.width, (int)_settings.window.height);
 
     fug::SpriteComponent creatureSpriteComponent(_spriteSheetId, 0);
     creatureSpriteComponent.setOrigin(Vec2f(ConfigSingleton::spriteRadius, ConfigSingleton::spriteRadius));
@@ -198,6 +201,7 @@ void Window::loop(void)
 
         // Render sprites
         _ecs.getSingleton<fug::SpriteSingleton>()->render(_viewport);
+        _ecs.getSingleton<LineSingleton>()->render(_viewport);
 
         // Render ImGui
         ImGui::Render();
