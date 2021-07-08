@@ -118,5 +118,6 @@ void CreatureSystem::operator()(
 
     auto* lineSingleton = _ecs.getSingleton<LineSingleton>();
     float r = orientationComponent.getScale()*ConfigSingleton::spriteRadius;
-    lineSingleton->drawLine(p+r*dVec, p+(r+3.0f)*dVec);
+    auto& color = _ecs.getComponent<fug::SpriteComponent>(eId)->getColor();
+    lineSingleton->drawLine(p+r*dVec, p+(r+3.0f)*dVec, color, color);
 }
