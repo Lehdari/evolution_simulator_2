@@ -16,7 +16,6 @@
 #include <utils/Types.hpp>
 #include <gut_utils/MathTypes.hpp>
 #include <gut_utils/TypeUtils.hpp>
-#include <vector>
 #include <unordered_map>
 
 
@@ -27,43 +26,32 @@ public:
         FOOD
     };
 
-    WorldSingleton(float worldSize = ConfigSingleton::worldSize);
+    WorldSingleton();
 
     void reset();
     void addEntity(const fug::EntityId& eId, const Vec2f& position, EntityType entityType);
 
     // get entities inside an AABB
-    void getEntities(Vector<fug::EntityId>& entities, Vec2f begin, Vec2f end) const;
+    void getEntities(Vector<fug::EntityId>& entities, const Vec2f& begin, const Vec2f& end) const;
 
     // get number of entities of specific type
     uint64_t getNumberOf(EntityType entityType) const;
 
-    friend class BVHSystem;
-
 private:
-    struct Node {
-        fug::EntityId   eId = -1;
-        uint64_t        mortonTail;
-        Vec2f           position;
-        int64_t         children[4] = { -1, -1, -1, -1 };
-    };
+    static constexpr float      cellSize = ConfigSingleton::maxObjectRadius*2.0f;
+    static constexpr int64_t    gridSize = int64_t((ConfigSingleton::worldSize*2.0)/cellSize)+1;
 
-    float                                       _worldSize;
-    Vector<Node>                                _nodes;
+    Vector<Vector<fug::EntityId>>               _entityGrid;
     std::unordered_map<EntityType, uint64_t>    _numberOfEntities;
 
-    void addNode(uint64_t nId, const fug::EntityId& eId, uint64_t morton,
-        const Vec2f& position, int level = 0);
-
-    void getEntitiesAll(uint64_t nId, Vector<fug::EntityId>& entities) const;
-    void getEntitiesBox(uint64_t nId, Vector<fug::EntityId>& entities,
-        const Vec2f& begin, uint64_t beginMorton,
-        const Vec2f& end, uint64_t endMorton,
-        uint64_t mode = 0) const;
-
-    inline __attribute__((always_inline)) uint64_t createMortonCode(const Vec2f& p) const;
-    static inline __attribute__((always_inline)) uint64_t binaryExpand(uint32_t n);
+    static inline __attribute__((always_inline)) int64_t posToGridCoord(float p);
 };
+
+
+int64_t WorldSingleton::posToGridCoord(float p)
+{
+    return (int64_t)((p+ConfigSingleton::worldSize)/cellSize);
+}
 
 
 #endif //EVOLUTION_SIMULATOR_2_WORLDSINGLETON_HPP
