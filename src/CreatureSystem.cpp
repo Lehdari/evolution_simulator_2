@@ -173,6 +173,7 @@ void CreatureSystem::processInputs(
 {
     static auto& config = *_ecs.getSingleton<ConfigSingleton>();
     static auto& world = *_ecs.getSingleton<WorldSingleton>();
+    static auto& lineSingleton = *_ecs.getSingleton<LineSingleton>();
 
     // some shorthands for the creature variables
     auto& g = creatureComponent._genome;
@@ -185,9 +186,55 @@ void CreatureSystem::processInputs(
     Vec2f dVec = Vec2f(cosf(d), sinf(d)); // direction vector
     auto& p = orientationComponent.getPosition(); // creature position
     float r = orientationComponent.getScale()*ConfigSingleton::spriteRadius; // creature radius
+    Vec2f wBegin = p+r*dVec;
+    Vec2f wEnd = p+(r+10.0f)*dVec; // TODO variable whisker length
+    Vec2f wd = wEnd-wBegin;
 
-    auto* lineSingleton = _ecs.getSingleton<LineSingleton>();
-    float r = orientationComponent.getScale()*ConfigSingleton::spriteRadius;
+    // fetch potential contacts
+    static Vector<fug::EntityId> wEntities;
+    wEntities.clear();
+    world.getEntities(wEntities,
+        Vec2f(std::min(wBegin(0), wEnd(0))-ConfigSingleton::maxObjectRadius,
+        std::min(wBegin(1), wEnd(1))-ConfigSingleton::maxObjectRadius),
+        Vec2f(std::max(wBegin(0), wEnd(0))+ConfigSingleton::maxObjectRadius,
+        std::max(wBegin(1), wEnd(1))+ConfigSingleton::maxObjectRadius));
+
     auto& color = _ecs.getComponent<fug::SpriteComponent>(eId)->getColor();
-    lineSingleton->drawLine(p+r*dVec, p+(r+3.0f)*dVec, color, color);
+    auto cColor = color; // in case of contact, color end of whisker with the contact entity color
+
+    // search for (closest) contact
+    float t = 1.0f; // t stores ray length to the nearest contact
+    for (auto& wEId : wEntities) {
+        if (eId == wEId) // do not self-collide
+            continue;
+
+        // position and radius of potential contact
+        auto* woc = _ecs.getComponent<fug::Orientation2DComponent>(wEId);
+        Vec2f wp = woc->getPosition();
+        float wr = woc->getScale()*ConfigSingleton::spriteRadius;
+
+        // helper vector required in lot of subsequent quadratic term calculations
+        Vec2f wbp = wBegin-wp;
+
+        // quadratic terms of 2D ray-circle intersection
+        float wa = wd(0)*wd(0) + wd(1)*wd(1);
+        float wb = 2.0f*(wd(0)*wbp(0) + wd(1)*wbp(1));
+        float wc = wbp(0)*wbp(0) + wbp(1)*wbp(1) - wr*wr;
+
+        // no intersection when determinant is < 0
+        float wDet = wb*wb - 4.0f*wa*wc;
+        if (wDet < 0.0f)
+            continue;
+
+        // solve quadratic (only negative used since it's always the closer one)
+        float tCand = (-wb-sqrtf(wDet))/(2.0f*wa);
+        if (tCand < 0.0f || tCand >= t) // skip if contact is behind (<0) or further away than the current
+            continue;
+
+        // closer contact found
+        t = tCand;
+        cColor = _ecs.getComponent<fug::SpriteComponent>(wEId)->getColor();
+    }
+
+    lineSingleton.drawLine(wBegin, wBegin + wd*t, color, cColor);
 }
