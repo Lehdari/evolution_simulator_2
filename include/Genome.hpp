@@ -27,7 +27,11 @@ public:
         CHILD_SIZE_MAX = 6,
         COLOR_R = 7,
         COLOR_G = 8,
-        COLOR_B = 9
+        COLOR_B = 9,
+        MUTATION_PROBABILITY_1 = 10,
+        MUTATION_AMPLITUDE_1 = 11,
+        MUTATION_PROBABILITY_2 = 12,
+        MUTATION_AMPLITUDE_2 = 13
     };
 
     // methods exposed from Vector
@@ -44,7 +48,7 @@ public:
     static const Genome minGenome;
     static const Genome maxGenome;
 
-    static constexpr size_t genomeSize = 10;
+    static constexpr size_t genomeSize = 14;
 };
 
 
