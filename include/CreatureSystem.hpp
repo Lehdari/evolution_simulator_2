@@ -20,7 +20,16 @@
 
 FUG_SYSTEM(CreatureSystem, CreatureComponent, fug::Orientation2DComponent) {
 public:
+    enum class Stage {
+        DYNAMICS,
+        REPRODUCTION,
+        ADD_TO_WORLD,
+        PROCESS_INPUTS
+    };
+
     CreatureSystem(fug::Ecs& ecs);
+
+    void setStage(Stage stage);
 
     void operator()(const fug::EntityId& eId,
         CreatureComponent& creatureComponent,
@@ -28,6 +37,24 @@ public:
 
 private:
     fug::Ecs&   _ecs;
+    Stage       _stage;
+
+    void dynamics(const fug::EntityId& eId,
+        CreatureComponent& creatureComponent,
+        fug::Orientation2DComponent& orientationComponent);
+
+    void reproduction(const fug::EntityId& eId,
+        CreatureComponent& creatureComponent,
+        fug::Orientation2DComponent& orientationComponent);
+
+    void addToworld(const fug::EntityId& eId,
+        CreatureComponent& creatureComponent,
+        fug::Orientation2DComponent& orientationComponent);
+
+    void processInputs(const fug::EntityId& eId,
+        CreatureComponent& creatureComponent,
+        fug::Orientation2DComponent& orientationComponent);
+
 };
 
 

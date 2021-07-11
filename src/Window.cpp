@@ -242,8 +242,21 @@ void Window::handleEvent(SDL_Event& event)
 
 void Window::runSystems(void)
 {
+    _creatureSystem.setStage(CreatureSystem::Stage::DYNAMICS);
     _ecs.runSystem(_creatureSystem);
+    _creatureSystem.setStage(CreatureSystem::Stage::REPRODUCTION);
+    _ecs.runSystem(_creatureSystem);
+
+    _ecs.getSingleton<WorldSingleton>()->reset();
+
+    _creatureSystem.setStage(CreatureSystem::Stage::ADD_TO_WORLD);
+    _ecs.runSystem(_creatureSystem);
+
     _ecs.runSystem(_foodSystem);
+
+    _creatureSystem.setStage(CreatureSystem::Stage::PROCESS_INPUTS);
+    _ecs.runSystem(_creatureSystem);
+
     _ecs.runSystem(_collisionSystem);
 
     while (_eventSystem.swap())
@@ -310,6 +323,4 @@ void Window::updateWorld(void)
         _ecs.setComponent(id, FoodComponent(config.minFoodMass));
         _ecs.setComponent(id, fug::SpriteComponent(foodSpriteComponent));
     }
-
-    _ecs.getSingleton<WorldSingleton>()->reset();
 }

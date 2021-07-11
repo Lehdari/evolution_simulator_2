@@ -20,11 +20,38 @@
 
 
 CreatureSystem::CreatureSystem(fug::Ecs& ecs) :
-    _ecs    (ecs)
+    _ecs    (ecs),
+    _stage  (Stage::DYNAMICS)
 {
 }
 
+void CreatureSystem::setStage(CreatureSystem::Stage stage)
+{
+    _stage = stage;
+}
+
 void CreatureSystem::operator()(
+    const fug::EntityId& eId,
+    CreatureComponent& creatureComponent,
+    fug::Orientation2DComponent& orientationComponent)
+{
+    switch (_stage) {
+        case Stage::DYNAMICS:
+            dynamics(eId, creatureComponent, orientationComponent);
+            break;
+        case Stage::REPRODUCTION:
+            reproduction(eId, creatureComponent, orientationComponent);
+            break;
+        case Stage::ADD_TO_WORLD:
+            addToworld(eId, creatureComponent, orientationComponent);
+            break;
+        case Stage::PROCESS_INPUTS:
+            processInputs(eId, creatureComponent, orientationComponent);
+            break;
+    }
+}
+
+void CreatureSystem::dynamics(
     const fug::EntityId& eId,
     CreatureComponent& creatureComponent,
     fug::Orientation2DComponent& orientationComponent)
@@ -52,6 +79,37 @@ void CreatureSystem::operator()(
 
     // constant energy usage, relative to sqrt of mass
     e -= config.creatureEnergyUseConstant*sqrt(m);
+
+    // if energy reaches 0, the creature dies
+    if (e <= 0.0) {
+        _ecs.removeEntity(eId);
+        return;
+    }
+
+    // update orientation component
+    Vec2f dVec = Vec2f(cosf(d), sinf(d));
+    Vec2f p = orientationComponent.getPosition() + s*dVec;
+    if (p(0) < -ConfigSingleton::worldSize) p(0) = -ConfigSingleton::worldSize;
+    if (p(0) >= ConfigSingleton::worldSize) p(0) = ConfigSingleton::worldSize;
+    if (p(1) < -ConfigSingleton::worldSize) p(1) = -ConfigSingleton::worldSize;
+    if (p(1) >= ConfigSingleton::worldSize) p(1) = ConfigSingleton::worldSize;
+    orientationComponent.setPosition(p);
+    orientationComponent.setRotation(d);
+}
+
+void CreatureSystem::reproduction(
+    const fug::EntityId& eId,
+    CreatureComponent& creatureComponent,
+    fug::Orientation2DComponent& orientationComponent)
+{
+    static auto& config = *_ecs.getSingleton<ConfigSingleton>();
+
+    // some shorthands for the creature variables
+    auto& g = creatureComponent._genome;
+    auto& e = creatureComponent._energy;
+    auto& s = creatureComponent._speed;
+    auto& d = creatureComponent._direction;
+    auto& m = creatureComponent._mass;
 
     // reproduction
     double minChildEnergy = ConfigSingleton::minCreatureMass*config.massEnergyStorageConstant;
@@ -94,26 +152,39 @@ void CreatureSystem::operator()(
         // reduce parent's energy by the amount given to child
         e -= childEnergy;
     }
+}
 
-    // if energy reaches 0, the creature dies
-    if (e <= 0.0) {
-        _ecs.removeEntity(eId);
-        return;
-    }
-
-    // update orientation component
-    Vec2f dVec = Vec2f(cosf(d), sinf(d));
-    Vec2f p = orientationComponent.getPosition() + s*dVec;
-    if (p(0) < -ConfigSingleton::worldSize) p(0) = -ConfigSingleton::worldSize;
-    if (p(0) >= ConfigSingleton::worldSize) p(0) = ConfigSingleton::worldSize;
-    if (p(1) < -ConfigSingleton::worldSize) p(1) = -ConfigSingleton::worldSize;
-    if (p(1) >= ConfigSingleton::worldSize) p(1) = ConfigSingleton::worldSize;
-    orientationComponent.setPosition(p);
-    orientationComponent.setRotation(d);
+void CreatureSystem::addToworld(
+    const fug::EntityId& eId,
+    CreatureComponent& creatureComponent,
+    fug::Orientation2DComponent& orientationComponent)
+{
+    static auto& config = *_ecs.getSingleton<ConfigSingleton>();
+    static auto& world = *_ecs.getSingleton<WorldSingleton>();
 
     // add entity to the world singleton
-    auto* world = _ecs.getSingleton<WorldSingleton>();
-    world->addEntity(eId, orientationComponent.getPosition(), WorldSingleton::EntityType::CREATURE);
+    world.addEntity(eId, orientationComponent.getPosition(), WorldSingleton::EntityType::CREATURE);
+}
+
+void CreatureSystem::processInputs(
+    const fug::EntityId& eId,
+    CreatureComponent& creatureComponent,
+    fug::Orientation2DComponent& orientationComponent)
+{
+    static auto& config = *_ecs.getSingleton<ConfigSingleton>();
+    static auto& world = *_ecs.getSingleton<WorldSingleton>();
+
+    // some shorthands for the creature variables
+    auto& g = creatureComponent._genome;
+    auto& e = creatureComponent._energy;
+    auto& s = creatureComponent._speed;
+    auto& d = creatureComponent._direction;
+    auto& m = creatureComponent._mass;
+
+    // whisker
+    Vec2f dVec = Vec2f(cosf(d), sinf(d)); // direction vector
+    auto& p = orientationComponent.getPosition(); // creature position
+    float r = orientationComponent.getScale()*ConfigSingleton::spriteRadius; // creature radius
 
     auto* lineSingleton = _ecs.getSingleton<LineSingleton>();
     float r = orientationComponent.getScale()*ConfigSingleton::spriteRadius;
