@@ -110,8 +110,6 @@ public:
 
     void handleEvent(SDL_Event& event);
 
-    void runSystems(void);
-
     void updateGUI();
 
     // world step function (food creation etc.)

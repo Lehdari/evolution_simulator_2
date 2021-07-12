@@ -193,11 +193,8 @@ void Window::loop(void)
         // Render
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Run systems
-        runSystems();
-
-        updateGUI();
         updateWorld();
+        updateGUI();
 
         // Render sprites
         _ecs.getSingleton<fug::SpriteSingleton>()->render(_viewport);
@@ -240,31 +237,6 @@ void Window::handleEvent(SDL_Event& event)
     }
 }
 
-void Window::runSystems(void)
-{
-    _creatureSystem.setStage(CreatureSystem::Stage::DYNAMICS);
-    _ecs.runSystem(_creatureSystem);
-    _creatureSystem.setStage(CreatureSystem::Stage::REPRODUCTION);
-    _ecs.runSystem(_creatureSystem);
-
-    _ecs.getSingleton<WorldSingleton>()->reset();
-
-    _creatureSystem.setStage(CreatureSystem::Stage::ADD_TO_WORLD);
-    _ecs.runSystem(_creatureSystem);
-
-    _ecs.runSystem(_foodSystem);
-
-    _creatureSystem.setStage(CreatureSystem::Stage::PROCESS_INPUTS);
-    _ecs.runSystem(_creatureSystem);
-
-    _ecs.runSystem(_collisionSystem);
-
-    while (_eventSystem.swap())
-        _ecs.runSystem(_eventSystem);
-
-    _ecs.runSystem(_spriteSystem);
-}
-
 void Window::updateGUI()
 {
     static auto& world = *_ecs.getSingleton<WorldSingleton>();
@@ -303,24 +275,50 @@ void Window::updateWorld(void)
     static auto& world = *_ecs.getSingleton<WorldSingleton>();
     static auto& config = *_ecs.getSingleton<ConfigSingleton>();
 
-    int nFoodsCurrent = world.getNumberOf(WorldSingleton::EntityType::FOOD);
+    _creatureSystem.setStage(CreatureSystem::Stage::COGNITION);
+    _ecs.runSystem(_creatureSystem);
+    _creatureSystem.setStage(CreatureSystem::Stage::DYNAMICS);
+    _ecs.runSystem(_creatureSystem);
+    _creatureSystem.setStage(CreatureSystem::Stage::REPRODUCTION);
+    _ecs.runSystem(_creatureSystem);
 
-    fug::SpriteComponent foodSpriteComponent(_spriteSheetId, 1);
-    foodSpriteComponent.setOrigin(Vec2f(ConfigSingleton::spriteRadius, ConfigSingleton::spriteRadius));
-    foodSpriteComponent.setColor(Vec3f(0.2f, 0.6f, 0.0f));
+    _ecs.getSingleton<WorldSingleton>()->reset();
 
-    int nNewFood = std::max(100/std::max((nFoodsCurrent-10000)/1000, 1), 0);
-    for (int i=0; i<nNewFood; ++i) {
-        fug::EntityId id = _ecs.getEmptyEntityId();
+    _creatureSystem.setStage(CreatureSystem::Stage::ADD_TO_WORLD);
+    _ecs.runSystem(_creatureSystem);
 
-        // get position using rejection sampling
-        Vec2f p(RNDS*ConfigSingleton::worldSize, RNDS*ConfigSingleton::worldSize);
-        while (gauss2(p, 256.0f) < RND)
-            p << RNDS*ConfigSingleton::worldSize, RNDS*ConfigSingleton::worldSize;
+    {   // Create new food
+        int nFoodsCurrent = world.getNumberOf(WorldSingleton::EntityType::FOOD);
 
-        _ecs.setComponent(id, fug::Orientation2DComponent(p, 0.0f,
-            sqrtf(config.minFoodMass) / ConfigSingleton::spriteRadius));
-        _ecs.setComponent(id, FoodComponent(config.minFoodMass));
-        _ecs.setComponent(id, fug::SpriteComponent(foodSpriteComponent));
+        fug::SpriteComponent foodSpriteComponent(_spriteSheetId, 1);
+        foodSpriteComponent.setOrigin(Vec2f(ConfigSingleton::spriteRadius, ConfigSingleton::spriteRadius));
+        foodSpriteComponent.setColor(Vec3f(0.2f, 0.6f, 0.0f));
+
+        int nNewFood = std::max(100 / std::max((nFoodsCurrent - 10000) / 1000, 1), 0);
+        for (int i = 0; i < nNewFood; ++i) {
+            fug::EntityId id = _ecs.getEmptyEntityId();
+
+            // get position using rejection sampling
+            Vec2f p(RNDS * ConfigSingleton::worldSize, RNDS * ConfigSingleton::worldSize);
+            while (gauss2(p, 256.0f) < RND)
+                p << RNDS * ConfigSingleton::worldSize, RNDS * ConfigSingleton::worldSize;
+
+            _ecs.setComponent(id, fug::Orientation2DComponent(p, 0.0f,
+                sqrtf(config.minFoodMass) / ConfigSingleton::spriteRadius));
+            _ecs.setComponent(id, FoodComponent(config.minFoodMass));
+            _ecs.setComponent(id, fug::SpriteComponent(foodSpriteComponent));
+        }
     }
+
+    _ecs.runSystem(_foodSystem);
+
+    _creatureSystem.setStage(CreatureSystem::Stage::PROCESS_INPUTS);
+    _ecs.runSystem(_creatureSystem);
+
+    _ecs.runSystem(_collisionSystem);
+
+    while (_eventSystem.swap())
+        _ecs.runSystem(_eventSystem);
+
+    _ecs.runSystem(_spriteSystem);
 }
