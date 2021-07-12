@@ -50,7 +50,7 @@ void WorldSingleton::getEntities(Vector<fug::EntityId>& entities,
     }
 }
 
-uint64_t WorldSingleton::getNumberOf(WorldSingleton::EntityType entityType) const
+uint64_t WorldSingleton::getNumberOf(WorldSingleton::EntityType entityType)
 {
-    return _numberOfEntities.at(entityType);
+    return _numberOfEntities[entityType];
 }

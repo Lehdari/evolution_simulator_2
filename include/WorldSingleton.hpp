@@ -35,7 +35,7 @@ public:
     void getEntities(Vector<fug::EntityId>& entities, const Vec2f& begin, const Vec2f& end) const;
 
     // get number of entities of specific type
-    uint64_t getNumberOf(EntityType entityType) const;
+    uint64_t getNumberOf(EntityType entityType);
 
 private:
     static constexpr float      cellSize = ConfigSingleton::maxObjectRadius*2.0f;
