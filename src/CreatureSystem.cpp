@@ -36,6 +36,9 @@ void CreatureSystem::operator()(
     fug::Orientation2DComponent& orientationComponent)
 {
     switch (_stage) {
+        case Stage::COGNITION:
+            cognition(eId, creatureComponent, orientationComponent);
+            break;
         case Stage::DYNAMICS:
             dynamics(eId, creatureComponent, orientationComponent);
             break;
@@ -49,6 +52,21 @@ void CreatureSystem::operator()(
             processInputs(eId, creatureComponent, orientationComponent);
             break;
     }
+}
+
+void CreatureSystem::cognition(
+    const fug::EntityId& eId,
+    CreatureComponent& creatureComponent,
+    fug::Orientation2DComponent& orientationComponent)
+{
+    auto& g = creatureComponent._genome;
+
+    if (_cognitionOutputs.size() < eId+1)
+        _cognitionOutputs.resize(eId+1);
+
+    _cognitionOutputs[eId] <<
+        (float)(RNDS*g[Genome::ACCELERATION_RANDOMNESS])+g[Genome::ACCELERATION_BIAS],
+        RNDS*g[Genome::DIRECTION_RANDOMNESS];
 }
 
 void CreatureSystem::dynamics(
@@ -69,11 +87,11 @@ void CreatureSystem::dynamics(
     float drag = std::clamp(s*s*config.creatureDragCoefficient, 0.0f, s);
     s -= std::copysignf(drag, s); // drag
 
-    float a = (float)(RNDS*g[Genome::ACCELERATION_RANDOMNESS])+g[Genome::ACCELERATION_BIAS]; // acceleration
+    float a = _cognitionOutputs[eId](0); // acceleration
     s += a;
     e -= abs(a)*m*config.creatureMovementEnergyUseConstant; // acceleration energy usage
 
-    float da = RNDS*g[Genome::DIRECTION_RANDOMNESS]; // direction change
+    float da = _cognitionOutputs[eId](1); // direction change
     d += da*(float)M_PI_2;
     e -= abs(da)*m*config.creatureMovementEnergyUseConstant; // direction change energy usage
 

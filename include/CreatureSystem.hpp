@@ -21,6 +21,7 @@
 FUG_SYSTEM(CreatureSystem, CreatureComponent, fug::Orientation2DComponent) {
 public:
     enum class Stage {
+        COGNITION,
         DYNAMICS,
         REPRODUCTION,
         ADD_TO_WORLD,
@@ -38,6 +39,16 @@ public:
 private:
     fug::Ecs&   _ecs;
     Stage       _stage;
+
+    static constexpr uint64_t   _cognitionInputsSize = 1;
+    static constexpr uint64_t   _cognitionOutputsSize = 2;
+
+    Vector<Eigen::Matrix<float, _cognitionInputsSize, 1>>   _cognitionInputs;
+    Vector<Eigen::Matrix<float, _cognitionOutputsSize, 1>>   _cognitionOutputs;
+
+    void cognition(const fug::EntityId& eId,
+        CreatureComponent& creatureComponent,
+        fug::Orientation2DComponent& orientationComponent);
 
     void dynamics(const fug::EntityId& eId,
         CreatureComponent& creatureComponent,
