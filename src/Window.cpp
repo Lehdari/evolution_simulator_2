@@ -134,13 +134,13 @@ void Window::init(void)
     auto& config = *_ecs.getSingleton<ConfigSingleton>();
 
     // Create creatures
-    constexpr int nCreatures = 500;
+    constexpr int nCreatures = 2000;
     for (int i=0; i<nCreatures; ++i) {
         fug::EntityId id = _ecs.getEmptyEntityId();
 
         // get position using rejection sampling
         Vec2f p(RNDS*1024.0f, RNDS*1024.0f);
-        while (gauss2(p, 128.0f) < RND)
+        while (gauss2(p, 256.0f) < RND)
             p << RNDS*1024.0f, RNDS*1024.0f;
 
         double mass = ConfigSingleton::minCreatureMass + RND*(
@@ -159,7 +159,7 @@ void Window::init(void)
     }
 
     // Create food
-    constexpr int nFoods = 20000;
+    constexpr int nFoods = 10000;
     for (int i=0; i<nFoods; ++i) {
         fug::EntityId id = _ecs.getEmptyEntityId();
 
@@ -168,9 +168,11 @@ void Window::init(void)
         while (gauss2(p, 256.0f) < RND)
             p << RNDS*ConfigSingleton::worldSize, RNDS*ConfigSingleton::worldSize;
 
+        double mass = ConfigSingleton::minFoodMass + RND*(
+            ConfigSingleton::maxFoodMass-ConfigSingleton::minFoodMass);
+        _ecs.setComponent(id, FoodComponent(mass));
         _ecs.setComponent(id, fug::Orientation2DComponent(p, 0.0f,
-            (0.25f+0.5f*RND) / ConfigSingleton::spriteRadius));
-        _ecs.addComponent<FoodComponent>(id);
+            sqrt(mass) / ConfigSingleton::spriteRadius));
         _ecs.setComponent(id, fug::SpriteComponent(foodSpriteComponent));
     }
 }
@@ -254,7 +256,7 @@ void Window::updateGUI()
 
     double foodMassToEnergyConstantMin = 1.0;
     double foodMassToEnergyConstantMax = 1000.0;
-    double targetNCreatures = 1000;
+    double targetNCreatures = 500;
 
     ImGui::Text("N. Creatures: %lu\n", nCreatures);
     ImGui::Text("N. Food: %lu\n", nFood);
@@ -282,14 +284,13 @@ void Window::updateWorld(void)
     _creatureSystem.setStage(CreatureSystem::Stage::REPRODUCTION);
     _ecs.runSystem(_creatureSystem);
 
+    int nFoodsCurrent = world.getNumberOf(WorldSingleton::EntityType::FOOD);
     _ecs.getSingleton<WorldSingleton>()->reset();
 
     _creatureSystem.setStage(CreatureSystem::Stage::ADD_TO_WORLD);
     _ecs.runSystem(_creatureSystem);
 
     {   // Create new food
-        int nFoodsCurrent = world.getNumberOf(WorldSingleton::EntityType::FOOD);
-
         fug::SpriteComponent foodSpriteComponent(_spriteSheetId, 1);
         foodSpriteComponent.setOrigin(Vec2f(ConfigSingleton::spriteRadius, ConfigSingleton::spriteRadius));
         foodSpriteComponent.setColor(Vec3f(0.2f, 0.6f, 0.0f));
