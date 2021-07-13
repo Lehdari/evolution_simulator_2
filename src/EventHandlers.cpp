@@ -21,41 +21,38 @@ void EventHandler_Creature_CollisionEvent::handleEvent(
 {
     static auto& config = *ecs.getSingleton<ConfigSingleton>();
 
-    auto& cc = *ecs.getComponent<CreatureComponent>(eId);
+    auto& cc1 = *ecs.getComponent<CreatureComponent>(eId);
     auto& oc1 = *ecs.getComponent<fug::Orientation2DComponent>(eId);
 
+    auto* cc2 = ecs.getComponent<CreatureComponent>(event.entityId);
     auto* fc2 = ecs.getComponent<FoodComponent>(event.entityId);
 
     if (ecs.getComponent<CreatureComponent>(event.entityId) != nullptr) {
         // collision object is another creature
         auto& oc2 = *ecs.getComponent<fug::Orientation2DComponent>(event.entityId);
+        auto& m1 = cc1._mass;
+        auto& m2 = cc2->_mass;
+        double massSum = m1+m2;
 
         // direction reflection
-        Vec2f dp = oc1.getPosition()-oc2.getPosition();
-        float dpNorm = dp.norm();
-        Vec2f n = dp / dpNorm;
-        Vec2f d(cosf(cc._direction), sinf(cc._direction));
-        Vec2f r = d - 2.0f * (d.dot(n)) * n;
-        cc._direction = atan2f(r(1), r(0));
+        Vec2f d = oc1.getPosition()-oc2.getPosition();
+        Vec2f pv = -d+d.normalized()*(oc1.getScale() + oc2.getScale())*ConfigSingleton::spriteRadius;
 
-        // unstuck entities inside one another
-        float rSum = (oc1.getScale() + oc2.getScale())*ConfigSingleton::spriteRadius;
-        if (dpNorm < rSum)
-            oc1.translate(n * (rSum-dpNorm) * 0.5f);
+        oc1.translate(pv*(m2/massSum));
     }
     else if (fc2 != nullptr) {// collision object is food
         // dMass is the amount of food mass that is to be converted to creature mass
-        double dMass = std::min(cc._genome[Genome::CREATURE_SIZE]-cc._mass,
+        double dMass = std::min(cc1._genome[Genome::CREATURE_SIZE]-cc1._mass,
             fc2->mass*config.creatureMassIncreaseFactor);
-        cc._mass += dMass;
-        cc._energy += (fc2->mass - dMass)*config.foodMassToEnergyConstant; // rest of the food mass becomes energy
+        cc1._mass += dMass;
+        cc1._energy += (fc2->mass - dMass)*config.foodMassToEnergyConstant; // rest of the food mass becomes energy
 
         // cannot store more energy, energy is wasted
-        if (cc._energy > config.massEnergyStorageConstant*cc._mass)
-            cc._energy = config.massEnergyStorageConstant*cc._mass;
+        if (cc1._energy > config.massEnergyStorageConstant*cc1._mass)
+            cc1._energy = config.massEnergyStorageConstant*cc1._mass;
 
         // update the radius
-        oc1.setScale(sqrtf(cc._mass) / 64.0f);
+        oc1.setScale(sqrtf(cc1._mass) / 64.0f);
 
         // remove the food
         ecs.removeEntity(event.entityId);
