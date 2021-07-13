@@ -12,6 +12,7 @@
 #define EVOLUTION_SIMULATOR_2_CREATURECOMPONENT_HPP
 
 
+#include <gut_utils/MathUtils.hpp>
 #include <Genome.hpp>
 
 
@@ -30,12 +31,24 @@ public:
     friend struct EventHandler_Creature_CollisionEvent;
 
 private:
+    static constexpr uint64_t   cognitionInputsSize = 10;
+    static constexpr uint64_t   cognitionOutputsSize = 2;
+
+    using CogMat = Eigen::Matrix<float, cognitionOutputsSize, cognitionInputsSize>;
+    using CogInputVec = Eigen::Matrix<float, cognitionInputsSize, 1>;
+    using CogOutputVec = Eigen::Matrix<float, cognitionOutputsSize, 1>;
+
     Genome  _genome;
 
     double  _energy; // creature dies when energy reaches 0
     double  _mass;
     float   _direction;
     float   _speed;
+
+    // Cognition
+    CogMat          _cogMat;
+    CogInputVec     _cogInput;
+    CogOutputVec    _cogOutput;
 };
 
 

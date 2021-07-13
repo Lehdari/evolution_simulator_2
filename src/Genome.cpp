@@ -14,25 +14,45 @@
 
 
 const Genome Genome::minGenome = [](){
-    return Vector<float>({0.0f, -1.0f, 0.0f,
+    Vector<float> g({
         ConfigSingleton::minCreatureMass,
-        0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 0.0f, 0.0f});
+        0.01f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f,
+        0.01f, 0.01f, 0.0f, 0.0f
+    });
+
+    // cognition portion of the genome
+    Vector<float> c(genomeSize-COGNITION_BEGIN, -1.0f);
+    g.insert(g.end(), c.begin(), c.end());
+
+    return g;
 }();
 
 const Genome Genome::maxGenome = [](){
-    return Vector<float>({1.0f, 1.0f, 1.0f,
+    Vector<float> g({
         ConfigSingleton::maxCreatureMass,
-        1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-        1.0f, 1.0f, 1.0f, 1.0f});
+        0.1f, 1.0f, 0.99f,
+        1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f, 1.0f
+    });
+
+    // cognition portion of the genome
+    Vector<float> c(genomeSize-COGNITION_BEGIN, 1.0f);
+    g.insert(g.end(), c.begin(), c.end());
+
+    return g;
 }();
 
-Genome::Genome(float amplitude) :
+Genome::Genome(float amplitude, float cognitionAmplitude) :
     Vector<float>   (genomeSize)
 {
     for (size_t i=0; i<genomeSize; ++i) {
-        (*this)[i] = (minGenome[i] + maxGenome[i])*0.5f +
-            (float)RNDS*(maxGenome[i] - minGenome[i])*0.5f*amplitude;
+        if (i < COGNITION_BEGIN)
+            (*this)[i] = (minGenome[i] + maxGenome[i])*0.5f +
+                (float)RNDS*(maxGenome[i] - minGenome[i])*0.5f*amplitude;
+        else
+            (*this)[i] = (minGenome[i] + maxGenome[i])*0.5f +
+                (float)RNDS*(maxGenome[i] - minGenome[i])*0.5f*cognitionAmplitude;
     }
 }
 

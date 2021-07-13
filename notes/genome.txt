@@ -1,16 +1,13 @@
 Creature Genome:
 
-0:  Acceleration randomness
-1:  Acceleration bias
-2:  Direction change randomness
-3:  Creature size (once adulthood has been reached)
-4:  Reproduction probability
-5:  Minimum child size (relative)
-6:  Maximum child size (relative)
-7:  Color, Red channel
-8:  Color, Green channel
-9:  Color, Blue Channel
-10: Mutation probability, 1st pass
-11: Mutation amplitude, 1st pass
-12: Mutation probability, 2nd pass
-13: Mutation amplitude, 2nd pass
+0:  Creature size (once adulthood has been reached)
+1:  Reproduction probability
+2:  Minimum child size (relative)
+3:  Maximum child size (relative)
+4:  Color, Red channel
+5:  Color, Green channel
+6:  Color, Blue Channel
+7: Mutation probability, 1st pass
+8: Mutation amplitude, 1st pass
+9: Mutation probability, 2nd pass
+10: Mutation amplitude, 2nd pass

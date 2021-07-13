@@ -24,6 +24,11 @@ CreatureComponent::CreatureComponent(
     _direction  (direction),
     _speed      (speed)
 {
+    for (int j=0; j<cognitionInputsSize; ++j) {
+        for (int i=0; i<cognitionOutputsSize; ++i) {
+            _cogMat(i, j) = _genome[Genome::COGNITION_BEGIN + j*cognitionOutputsSize + i];
+        }
+    }
 }
 
 const Genome& CreatureComponent::getGenome(void) const

@@ -14,6 +14,7 @@
 #include <LineSingleton.hpp>
 #include <EventHandlers.hpp>
 #include <Utils.hpp>
+#include <FoodComponent.hpp>
 
 #include <engine/EventComponent.hpp>
 #include <graphics/SpriteComponent.hpp>
@@ -61,12 +62,9 @@ void CreatureSystem::cognition(
 {
     auto& g = creatureComponent._genome;
 
-    if (_cognitionOutputs.size() < eId+1)
-        _cognitionOutputs.resize(eId+1);
-
-    _cognitionOutputs[eId] <<
-        (float)(RNDS*g[Genome::ACCELERATION_RANDOMNESS])+g[Genome::ACCELERATION_BIAS],
-        RNDS*g[Genome::DIRECTION_RANDOMNESS];
+    static const CreatureComponent::CogOutputVec cogOnes = CreatureComponent::CogOutputVec::Ones();
+    creatureComponent._cogOutput =
+        tanh((creatureComponent._cogMat * creatureComponent._cogInput).array());
 }
 
 void CreatureSystem::dynamics(
@@ -87,11 +85,11 @@ void CreatureSystem::dynamics(
     float drag = std::clamp(s*s*config.creatureDragCoefficient, 0.0f, s);
     s -= std::copysignf(drag, s); // drag
 
-    float a = _cognitionOutputs[eId](0); // acceleration
+    float a = creatureComponent._cogOutput(0); // acceleration
     s += a;
     e -= abs(a)*m*config.creatureMovementEnergyUseConstant; // acceleration energy usage
 
-    float da = _cognitionOutputs[eId](1); // direction change
+    float da = creatureComponent._cogOutput(1); // direction change
     d += da*(float)M_PI_2;
     e -= abs(da)*m*config.creatureMovementEnergyUseConstant; // direction change energy usage
 
@@ -201,12 +199,13 @@ void CreatureSystem::processInputs(
     auto& m = creatureComponent._mass;
 
     // whisker
-    Vec2f dVec = Vec2f(cosf(d), sinf(d)); // direction vector
+    float t = 15.0f; // whisker length
+    float wd = d; // whisker direction
+    Vec2f wv = Vec2f(cosf(wd), sinf(wd)); // direction vector
     auto& p = orientationComponent.getPosition(); // creature position
     float r = orientationComponent.getScale()*ConfigSingleton::spriteRadius; // creature radius
-    Vec2f wBegin = p+r*dVec;
-    Vec2f wEnd = p+(r+10.0f)*dVec; // TODO variable whisker length
-    Vec2f wd = wEnd-wBegin;
+    Vec2f wBegin = p+r*wv;
+    Vec2f wEnd = p+(r+t)*wv; // TODO variable whisker length
 
     // fetch potential contacts
     static Vector<fug::EntityId> wEntities;
@@ -220,8 +219,8 @@ void CreatureSystem::processInputs(
     auto& color = _ecs.getComponent<fug::SpriteComponent>(eId)->getColor();
     auto cColor = color; // in case of contact, color end of whisker with the contact entity color
 
-    // search for (closest) contact
-    float t = 1.0f; // t stores ray length to the nearest contact
+    // search for (closest) contact, t stores ray length to the nearest contact (so far)
+    fug::EntityId cEId = -1; // contact entity ID
     for (auto& wEId : wEntities) {
         if (eId == wEId) // do not self-collide
             continue;
@@ -235,8 +234,8 @@ void CreatureSystem::processInputs(
         Vec2f wbp = wBegin-wp;
 
         // quadratic terms of 2D ray-circle intersection
-        float wa = wd(0)*wd(0) + wd(1)*wd(1);
-        float wb = 2.0f*(wd(0)*wbp(0) + wd(1)*wbp(1));
+        float wa = wv(0)*wv(0) + wv(1)*wv(1);
+        float wb = 2.0f*(wv(0)*wbp(0) + wv(1)*wbp(1));
         float wc = wbp(0)*wbp(0) + wbp(1)*wbp(1) - wr*wr;
 
         // no intersection when determinant is < 0
@@ -252,7 +251,30 @@ void CreatureSystem::processInputs(
         // closer contact found
         t = tCand;
         cColor = _ecs.getComponent<fug::SpriteComponent>(wEId)->getColor();
+        cEId = wEId;
     }
 
-    lineSingleton.drawLine(wBegin, wBegin + wd*t, color, cColor);
+    creatureComponent._cogInput = CreatureComponent::CogInputVec::Zero();
+    creatureComponent._cogInput(0) = 1.0f; // bias term
+    creatureComponent._cogInput(1) = (float)m;
+    creatureComponent._cogInput(2) = (float)(e / config.massEnergyStorageConstant);
+    creatureComponent._cogInput(3) = t;
+    if (cEId >= 0) {
+        auto* ccc = _ecs.getComponent<CreatureComponent>(cEId);
+        auto* cfc = _ecs.getComponent<FoodComponent>(cEId);
+
+        if (ccc == nullptr) {
+            // contact is food
+            creatureComponent._cogInput(4) = 1.0f;
+            creatureComponent._cogInput(6) = (float)cfc->mass;
+        }
+        else {
+            // contact is creature
+            creatureComponent._cogInput(5) = 1.0f;
+            creatureComponent._cogInput(6) = (float)ccc->_mass;
+            creatureComponent._cogInput.block<3,1>(7,0) = cColor;
+        }
+    }
+
+    lineSingleton.drawLine(wBegin, wBegin + wv*t, color, cColor);
 }
