@@ -24,9 +24,17 @@ CreatureComponent::CreatureComponent(
     _direction  (direction),
     _speed      (speed)
 {
-    for (int j=0; j<cognitionInputsSize; ++j) {
-        for (int i=0; i<cognitionOutputsSize; ++i) {
-            _cogMat(i, j) = _genome[Genome::COGNITION_BEGIN + j*cognitionOutputsSize + i];
+    for (int j=0; j<CreatureCognition::inputsSize+1; ++j) {
+        for (int i=0; i<CreatureCognition::hidden1Size; ++i) {
+            _cognition.layer1(i, j) =
+                _genome[Genome::COGNITION_BEGIN + j*CreatureCognition::hidden1Size + i];
+        }
+    }
+
+    for (int j=0; j<CreatureCognition::hidden1Size+1; ++j) {
+        for (int i=0; i<CreatureCognition::outputsSize; ++i) {
+            _cognition.layer2(i, j) =
+                _genome[Genome::COGNITION_LAYER2_BEGIN + j*CreatureCognition::outputsSize + i];
         }
     }
 }

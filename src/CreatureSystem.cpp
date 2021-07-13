@@ -62,9 +62,17 @@ void CreatureSystem::cognition(
 {
     auto& g = creatureComponent._genome;
 
-    static const CreatureComponent::CogOutputVec cogOnes = CreatureComponent::CogOutputVec::Ones();
-    creatureComponent._cogOutput =
-        tanh((creatureComponent._cogMat * creatureComponent._cogInput).array());
+    // input bias term
+    creatureComponent._cognition.input(CreatureCognition::inputsSize) = 1.0f;
+
+    // Layer 1 + ReLU
+    Eigen::Matrix<float, CreatureCognition::hidden1Size+1, 1> layer1Output;
+    layer1Output.block<CreatureCognition::hidden1Size, 1>(0,0) =
+        (creatureComponent._cognition.layer1 * creatureComponent._cognition.input).cwiseMax(0.0);
+    layer1Output(CreatureCognition::hidden1Size) = 1.0f; // layer 1 output bias term
+
+    // Layer 2 + tanh
+    creatureComponent._cognition.output = tanh((creatureComponent._cognition.layer2 * layer1Output).array());
 }
 
 void CreatureSystem::dynamics(
@@ -81,15 +89,17 @@ void CreatureSystem::dynamics(
     auto& d = creatureComponent._direction;
     auto& m = creatureComponent._mass;
 
+    auto& cognitionOutput = creatureComponent._cognition.output;
+
     // creature dynamics
     float drag = std::clamp(s*s*config.creatureDragCoefficient, 0.0f, s);
     s -= std::copysignf(drag, s); // drag
 
-    float a = creatureComponent._cogOutput(0); // acceleration
+    float a = cognitionOutput(0); // acceleration
     s += a;
     e -= abs(a)*m*config.creatureMovementEnergyUseConstant; // acceleration energy usage
 
-    float da = creatureComponent._cogOutput(1); // direction change
+    float da = cognitionOutput(1); // direction change
     d += da*(float)M_PI_2;
     e -= abs(da)*m*config.creatureMovementEnergyUseConstant; // direction change energy usage
 
@@ -254,25 +264,25 @@ void CreatureSystem::processInputs(
         cEId = wEId;
     }
 
-    creatureComponent._cogInput = CreatureComponent::CogInputVec::Zero();
-    creatureComponent._cogInput(0) = 1.0f; // bias term
-    creatureComponent._cogInput(1) = (float)m;
-    creatureComponent._cogInput(2) = (float)(e / config.massEnergyStorageConstant);
-    creatureComponent._cogInput(3) = t;
+    auto& cognitionInput = creatureComponent._cognition.input;
+    cognitionInput = CreatureCognition::InputVec::Zero();
+    cognitionInput(0) = (float)m;
+    cognitionInput(1) = (float)(e / config.massEnergyStorageConstant);
+    cognitionInput(2) = t;
     if (cEId >= 0) {
         auto* ccc = _ecs.getComponent<CreatureComponent>(cEId);
         auto* cfc = _ecs.getComponent<FoodComponent>(cEId);
 
         if (ccc == nullptr) {
             // contact is food
-            creatureComponent._cogInput(4) = 1.0f;
-            creatureComponent._cogInput(6) = (float)cfc->mass;
+            cognitionInput(3) = 1.0f;
+            cognitionInput(5) = (float)cfc->mass;
         }
         else {
             // contact is creature
-            creatureComponent._cogInput(5) = 1.0f;
-            creatureComponent._cogInput(6) = (float)ccc->_mass;
-            creatureComponent._cogInput.block<3,1>(7,0) = cColor;
+            cognitionInput(4) = 1.0f;
+            cognitionInput(5) = (float)ccc->_mass;
+            cognitionInput.block<3,1>(6,0) = cColor;
         }
     }
 

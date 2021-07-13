@@ -22,7 +22,7 @@ const Genome Genome::minGenome = [](){
     });
 
     // cognition portion of the genome
-    Vector<float> c(genomeSize-COGNITION_BEGIN, -1.0f);
+    Vector<float> c(genomeSize-COGNITION_BEGIN, -10.0f);
     g.insert(g.end(), c.begin(), c.end());
 
     return g;
@@ -37,7 +37,7 @@ const Genome Genome::maxGenome = [](){
     });
 
     // cognition portion of the genome
-    Vector<float> c(genomeSize-COGNITION_BEGIN, 1.0f);
+    Vector<float> c(genomeSize-COGNITION_BEGIN, 10.0f);
     g.insert(g.end(), c.begin(), c.end());
 
     return g;

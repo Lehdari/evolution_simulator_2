@@ -13,11 +13,13 @@
 
 
 #include <gut_utils/TypeUtils.hpp>
+#include <CreatureCognition.hpp>
 
 
 class Genome : protected Vector<float> {
 public:
-    static constexpr size_t genomeSize = 31;
+    static constexpr size_t genomeHeaderSize = 11;
+    static constexpr size_t genomeSize = CreatureCognition::totalGenomeSize(genomeHeaderSize);
 
     enum { // indices for addressing the genome
         CREATURE_SIZE = 0,
@@ -30,8 +32,9 @@ public:
         MUTATION_PROBABILITY_1 = 7,
         MUTATION_AMPLITUDE_1 = 8,
         MUTATION_PROBABILITY_2 = 9,
-        MUTATION_AMPLITUDE_2 = 10,
-        COGNITION_BEGIN = 11,
+        MUTATION_AMPLITUDE_2 = 10, // header ends here
+        COGNITION_BEGIN = genomeHeaderSize,
+        COGNITION_LAYER2_BEGIN = CreatureCognition::genomeLayer2Begin(genomeHeaderSize),
         COGNITION_END = genomeSize
     };
 
@@ -40,7 +43,7 @@ public:
     using Vector<float>::begin;
     using Vector<float>::end;
 
-    Genome(float amplitude = 1.0f, float cognitionAmplitude = 0.0001f);
+    Genome(float amplitude = 1.0f, float cognitionAmplitude = 0.001f);
     Genome(Vector<float>&& vector);
 
     void mutate(float probability, float amplitude);
