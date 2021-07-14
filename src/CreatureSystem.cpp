@@ -97,14 +97,14 @@ void CreatureSystem::dynamics(
 
     float a = cognitionOutput(0); // acceleration
     s += a;
-    e -= abs(a)*m*config.creatureMovementEnergyUseConstant; // acceleration energy usage
+    e -= abs(a)*m*config.creatureAccelerationEnergyUseConstant; // acceleration energy usage
 
     float da = cognitionOutput(1); // direction change
-    d += da*(float)M_PI_2;
-    e -= abs(da)*m*config.creatureMovementEnergyUseConstant; // direction change energy usage
+    d += da*(float)M_PI_4;
+    e -= (da*da)*m*config.creatureTurnEnergyUseConstant; // direction change energy usage
 
     // constant energy usage, relative to sqrt of mass
-    e -= config.creatureEnergyUseConstant*sqrt(m);
+    e -= config.creatureEnergyUseConstant*sqrt(m+1.0);
 
     // if energy reaches 0, the creature dies
     if (e <= 0.0) {
