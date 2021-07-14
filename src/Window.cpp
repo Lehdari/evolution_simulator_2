@@ -134,7 +134,7 @@ void Window::init(void)
     auto& config = *_ecs.getSingleton<ConfigSingleton>();
 
     // Create creatures
-    constexpr int nCreatures = 2000;
+    constexpr int nCreatures = 500;
     for (int i=0; i<nCreatures; ++i) {
         fug::EntityId id = _ecs.getEmptyEntityId();
 
@@ -150,7 +150,7 @@ void Window::init(void)
             sqrtf(mass) / ConfigSingleton::spriteRadius));
 
         _ecs.setComponent(id, CreatureComponent(Genome(),
-            mass*config.massEnergyStorageConstant, mass, RND*M_PI*2.0f, RND));
+            0.1f*mass*config.massEnergyStorageConstant, mass, RND*M_PI*2.0f, RND));
         auto& g = _ecs.getComponent<CreatureComponent>(id)->getGenome();
         _ecs.setComponent(id, fug::SpriteComponent(creatureSpriteComponent));
         _ecs.getComponent<fug::SpriteComponent>(id)->setColor(Vec3f(
@@ -159,7 +159,7 @@ void Window::init(void)
     }
 
     // Create food
-    constexpr int nFoods = 10000;
+    constexpr int nFoods = 2500;
     for (int i=0; i<nFoods; ++i) {
         fug::EntityId id = _ecs.getEmptyEntityId();
 
