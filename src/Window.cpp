@@ -134,7 +134,7 @@ void Window::init(void)
     auto& config = *_ecs.getSingleton<ConfigSingleton>();
 
     // Create creatures
-    constexpr int nCreatures = 500;
+    constexpr int nCreatures = 200;
     for (int i=0; i<nCreatures; ++i) {
         fug::EntityId id = _ecs.getEmptyEntityId();
 
@@ -150,7 +150,7 @@ void Window::init(void)
             sqrtf(mass) / ConfigSingleton::spriteRadius));
 
         _ecs.setComponent(id, CreatureComponent(Genome(),
-            0.1f*mass*config.massEnergyStorageConstant, mass, RND*M_PI*2.0f, RND));
+            0.25*mass*config.massEnergyStorageConstant, mass, RND*M_PI*2.0f, RND));
         auto& g = _ecs.getComponent<CreatureComponent>(id)->getGenome();
         _ecs.setComponent(id, fug::SpriteComponent(creatureSpriteComponent));
         _ecs.getComponent<fug::SpriteComponent>(id)->setColor(Vec3f(
@@ -159,7 +159,7 @@ void Window::init(void)
     }
 
     // Create food
-    constexpr int nFoods = 2500;
+    constexpr int nFoods = 2000;
     for (int i=0; i<nFoods; ++i) {
         fug::EntityId id = _ecs.getEmptyEntityId();
 
@@ -253,8 +253,8 @@ void Window::updateGUI()
     auto nCreatures = world.getNumberOf(WorldSingleton::EntityType::CREATURE);
     auto nFood = world.getNumberOf(WorldSingleton::EntityType::FOOD);
 
-    double foodMassToEnergyConstantMin = 1.0;
-    double foodMassToEnergyConstantMax = 1000.0;
+    static double foodMassToEnergyConstantMin = 1.0;
+    static double foodMassToEnergyConstantMax = 1000.0;
     double targetNCreatures = 500;
 
     ImGui::Text("N. Creatures: %lu\n", nCreatures);
@@ -267,6 +267,16 @@ void Window::updateGUI()
         foodMassToEnergyConstantMin, foodMassToEnergyConstantMax);
     ImGui::SliderScalar("foodMassToEnergyConstant", ImGuiDataType_Double, &config.foodMassToEnergyConstant,
         &foodMassToEnergyConstantMin, &foodMassToEnergyConstantMax, "%.3f", ImGuiSliderFlags_Logarithmic);
+
+    static double foodPerTickMin = 0.001;
+    static double foodPerTickMax = 100.0;
+    ImGui::SliderScalar("foodPerTick", ImGuiDataType_Double, &config.foodPerTick,
+        &foodPerTickMin, &foodPerTickMax, "%.5f", ImGuiSliderFlags_Logarithmic);
+
+    static double foodGrowthRateMin = 0.0001;
+    static double foodGrowthRateMax = 0.1;
+    ImGui::SliderScalar("foodGrowthRate", ImGuiDataType_Double, &config.foodGrowthRate,
+        &foodGrowthRateMin, &foodGrowthRateMax, "%.5f", ImGuiSliderFlags_Logarithmic);
 
     ImGui::End();
 }
@@ -289,8 +299,9 @@ void Window::updateWorld(void)
         foodSpriteComponent.setOrigin(Vec2f(ConfigSingleton::spriteRadius, ConfigSingleton::spriteRadius));
         foodSpriteComponent.setColor(Vec3f(0.2f, 0.6f, 0.0f));
 
-        int nNewFood = std::max(100 / std::max((nFoodsCurrent - 10000) / 1000, 1), 0);
-        for (int i = 0; i < nNewFood; ++i) {
+        static double nNewFood = 0.0;
+        nNewFood += config.foodPerTick;
+        for (int i = 0; i < (int)nNewFood; ++i) {
             fug::EntityId id = _ecs.getEmptyEntityId();
 
             // get position using rejection sampling
@@ -303,6 +314,7 @@ void Window::updateWorld(void)
             _ecs.setComponent(id, FoodComponent(config.minFoodMass));
             _ecs.setComponent(id, fug::SpriteComponent(foodSpriteComponent));
         }
+        nNewFood -= (int)nNewFood;
     }
 
     _foodSystem.setStage(FoodSystem::Stage::GROW);

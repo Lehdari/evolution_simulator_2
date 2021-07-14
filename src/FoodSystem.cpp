@@ -41,8 +41,10 @@ void FoodSystem::grow(
     const fug::EntityId& eId, FoodComponent& foodComponent,
     fug::Orientation2DComponent& orientationComponent)
 {
+    static auto& config = *_ecs.getSingleton<ConfigSingleton>();
+
     if (foodComponent.mass < ConfigSingleton::maxFoodMass)
-        foodComponent.mass += 0.001;
+        foodComponent.mass += config.foodGrowthRate;
 
     orientationComponent.setScale(sqrt(foodComponent.mass) / ConfigSingleton::spriteRadius);
 }
