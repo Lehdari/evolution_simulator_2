@@ -18,16 +18,42 @@ FoodSystem::FoodSystem(fug::Ecs& ecs) :
 {
 }
 
+void FoodSystem::setStage(FoodSystem::Stage stage)
+{
+    _stage = stage;
+}
+
 void FoodSystem::operator()(const fug::EntityId& eId,
     FoodComponent& foodComponent,
     fug::Orientation2DComponent& orientationComponent)
 {
-    static auto& world = *_ecs.getSingleton<WorldSingleton>();
+    switch (_stage) {
+        case Stage::GROW:
+            grow(eId, foodComponent, orientationComponent);
+            break;
+        case Stage::ADD_TO_WORLD:
+            addToWorld(eId, foodComponent, orientationComponent);
+            break;
+    }
+}
 
+void FoodSystem::grow(
+    const fug::EntityId& eId, FoodComponent& foodComponent,
+    fug::Orientation2DComponent& orientationComponent)
+{
     if (foodComponent.mass < ConfigSingleton::maxFoodMass)
         foodComponent.mass += 0.001;
 
     orientationComponent.setScale(sqrt(foodComponent.mass) / ConfigSingleton::spriteRadius);
+}
 
+void FoodSystem::addToWorld(
+    const fug::EntityId& eId, FoodComponent& foodComponent,
+    fug::Orientation2DComponent& orientationComponent)
+{
+    static auto& config = *_ecs.getSingleton<ConfigSingleton>();
+    static auto& world = *_ecs.getSingleton<WorldSingleton>();
+
+    // add entity to the world singleton
     world.addEntity(eId, orientationComponent.getPosition(), WorldSingleton::EntityType::FOOD);
 }

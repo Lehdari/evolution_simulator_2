@@ -285,11 +285,6 @@ void Window::updateWorld(void)
     _ecs.runSystem(_creatureSystem);
 
     int nFoodsCurrent = world.getNumberOf(WorldSingleton::EntityType::FOOD);
-    _ecs.getSingleton<WorldSingleton>()->reset();
-
-    _creatureSystem.setStage(CreatureSystem::Stage::ADD_TO_WORLD);
-    _ecs.runSystem(_creatureSystem);
-
     {   // Create new food
         fug::SpriteComponent foodSpriteComponent(_spriteSheetId, 1);
         foodSpriteComponent.setOrigin(Vec2f(ConfigSingleton::spriteRadius, ConfigSingleton::spriteRadius));
@@ -311,15 +306,31 @@ void Window::updateWorld(void)
         }
     }
 
+    _foodSystem.setStage(FoodSystem::Stage::GROW);
     _ecs.runSystem(_foodSystem);
 
-    _creatureSystem.setStage(CreatureSystem::Stage::PROCESS_INPUTS);
-    _ecs.runSystem(_creatureSystem);
+    addEntitiesToWorld();
 
     _ecs.runSystem(_collisionSystem);
 
     while (_eventSystem.swap())
         _ecs.runSystem(_eventSystem);
 
+    addEntitiesToWorld();
+
+    _creatureSystem.setStage(CreatureSystem::Stage::PROCESS_INPUTS);
+    _ecs.runSystem(_creatureSystem);
+
     _ecs.runSystem(_spriteSystem);
+}
+
+void Window::addEntitiesToWorld(void)
+{
+    _ecs.getSingleton<WorldSingleton>()->reset();
+
+    _creatureSystem.setStage(CreatureSystem::Stage::ADD_TO_WORLD);
+    _ecs.runSystem(_creatureSystem);
+
+    _foodSystem.setStage(FoodSystem::Stage::ADD_TO_WORLD);
+    _ecs.runSystem(_foodSystem);
 }

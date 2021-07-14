@@ -22,12 +22,28 @@ FUG_SYSTEM(FoodSystem, FoodComponent, fug::Orientation2DComponent) {
 public:
     FoodSystem(fug::Ecs& ecs);
 
+    enum class Stage {
+        GROW,
+        ADD_TO_WORLD
+    };
+
+    void setStage(Stage stage);
+
     void operator()(const fug::EntityId& eId,
         FoodComponent& foodComponent,
         fug::Orientation2DComponent& orientationComponent);
 
 private:
     fug::Ecs&   _ecs;
+    Stage       _stage;
+
+    void grow(const fug::EntityId& eId,
+        FoodComponent& foodComponent,
+        fug::Orientation2DComponent& orientationComponent);
+
+    void addToWorld(const fug::EntityId& eId,
+        FoodComponent& foodComponent,
+        fug::Orientation2DComponent& orientationComponent);
 };
 
 

@@ -115,6 +115,8 @@ public:
     // world step function (food creation etc.)
     void updateWorld(void);
 
+    void addEntitiesToWorld(void);
+
 private:
     Settings            _settings;
     SDL_Window*         _window;
