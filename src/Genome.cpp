@@ -16,9 +16,9 @@
 const Genome Genome::minGenome = [](){
     Vector<float> g({
         ConfigSingleton::minCreatureMass,
-        0.01f, 0.0f, 0.0f,
+        0.0f, 0.0f,
         0.0f, 0.0f, 0.0f,
-        0.01f, 0.01f, 0.0f, 0.0f
+        0.01f, 0.0001f, 0.0f, 0.0f
     });
 
     // cognition portion of the genome
@@ -31,7 +31,7 @@ const Genome Genome::minGenome = [](){
 const Genome Genome::maxGenome = [](){
     Vector<float> g({
         ConfigSingleton::maxCreatureMass,
-        0.1f, 1.0f, 0.99f,
+        1.0f, 0.99f,
         1.0f, 1.0f, 1.0f,
         1.0f, 1.0f, 1.0f, 1.0f
     });

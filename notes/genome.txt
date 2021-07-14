@@ -1,13 +1,12 @@
 Creature Genome:
 
 0:  Creature size (once adulthood has been reached)
-1:  Reproduction probability
-2:  Minimum child size (relative)
-3:  Maximum child size (relative)
-4:  Color, Red channel
-5:  Color, Green channel
-6:  Color, Blue Channel
-7: Mutation probability, 1st pass
-8: Mutation amplitude, 1st pass
-9: Mutation probability, 2nd pass
-10: Mutation amplitude, 2nd pass
+1:  Minimum child size (relative)
+2:  Maximum child size (relative)
+3:  Color, Red channel
+4:  Color, Green channel
+5:  Color, Blue Channel
+6: Mutation probability, 1st pass
+7: Mutation amplitude, 1st pass
+8: Mutation probability, 2nd pass
+9: Mutation amplitude, 2nd pass

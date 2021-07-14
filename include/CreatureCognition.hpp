@@ -15,7 +15,7 @@
 struct CreatureCognition {
     static constexpr uint64_t   inputsSize = 9;
     static constexpr uint64_t   hidden1Size = 8;
-    static constexpr uint64_t   outputsSize = 2;
+    static constexpr uint64_t   outputsSize = 3;
 
     using Layer1 = Eigen::Matrix<float, hidden1Size, inputsSize+1>; // +1 for bias term
     using Layer2 = Eigen::Matrix<float, outputsSize, hidden1Size+1>;
