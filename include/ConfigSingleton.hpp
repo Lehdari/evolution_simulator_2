@@ -27,6 +27,7 @@ struct ConfigSingleton {
     double  creatureMassIncreaseFactor = 0.1; // portion of food mass that is converted to creature mass when eaten (given the creature is still growing)
     double  massEnergyStorageConstant = 500.0; // how much energy each creature can hold w.r.t. their mass
     double  foodMassToEnergyConstant = 100.0; // ratio by which food mass in converted to creature energy
+    double  creatureFeedRate = 0.1; // multiplier for eating speed, relative to creature mass
 };
 
 
