@@ -257,7 +257,7 @@ void CreatureSystem::processInputs(
 
         // solve quadratic (only negative used since it's always the closer one)
         float tCand = (-wb-sqrtf(wDet))/(2.0f*wa);
-        if (tCand < 0.0f || tCand >= t) // skip if contact is behind (<0) or further away than the current
+        if (tCand < -r || tCand >= t) // skip if contact is behind or further away than the current closest
             continue;
 
         // closer contact found
@@ -265,6 +265,9 @@ void CreatureSystem::processInputs(
         cColor = _ecs.getComponent<fug::SpriteComponent>(wEId)->getColor();
         cEId = wEId;
     }
+
+    if (t < 0.0f)
+        t = 0.0f;
 
     auto& cognitionInput = creatureComponent._cognition.input;
     cognitionInput = CreatureCognition::InputVec::Zero();
