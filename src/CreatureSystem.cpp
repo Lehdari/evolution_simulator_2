@@ -60,19 +60,8 @@ void CreatureSystem::cognition(
     CreatureComponent& creatureComponent,
     fug::Orientation2DComponent& orientationComponent)
 {
-    auto& g = creatureComponent._genome;
-
     // input bias term
-    creatureComponent._cognition.input(CreatureCognition::inputsSize) = 1.0f;
-
-    // Layer 1 + ReLU
-    Eigen::Matrix<float, CreatureCognition::hidden1Size+1, 1> layer1Output;
-    layer1Output.block<CreatureCognition::hidden1Size, 1>(0,0) =
-        (creatureComponent._cognition.layer1 * creatureComponent._cognition.input).cwiseMax(0.0);
-    layer1Output(CreatureCognition::hidden1Size) = 1.0f; // layer 1 output bias term
-
-    // Layer 2 + tanh
-    creatureComponent._cognition.output = tanh((creatureComponent._cognition.layer2 * layer1Output).array());
+    creatureComponent._cognition.forward();
 }
 
 void CreatureSystem::dynamics(

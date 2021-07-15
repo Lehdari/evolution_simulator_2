@@ -12,7 +12,14 @@
 #define EVOLUTION_SIMULATOR_2_CREATURECOGNITION_HPP
 
 
-struct CreatureCognition {
+#include <Eigen/Dense>
+
+
+class Genome;
+
+
+class CreatureCognition {
+public:
     static constexpr uint64_t   inputsSize = 9;
     static constexpr uint64_t   hidden1Size = 8;
     static constexpr uint64_t   outputsSize = 3;
@@ -22,10 +29,9 @@ struct CreatureCognition {
     using InputVec = Eigen::Matrix<float, inputsSize+1, 1>;
     using OutputVec = Eigen::Matrix<float, outputsSize, 1>;
 
-    Layer1      layer1 = Layer1::Zero();
-    Layer2      layer2 = Layer2::Zero();
-    InputVec    input = InputVec::Zero();
-    OutputVec   output = OutputVec::Zero();
+    CreatureCognition(const Genome& genome);
+
+    const OutputVec& forward();
 
     static constexpr size_t totalGenomeSize(size_t genomeHeaderSize)
     {
@@ -36,6 +42,14 @@ struct CreatureCognition {
     {
         return genomeHeaderSize + (inputsSize+1)*hidden1Size;
     }
+
+    friend class CreatureSystem;
+
+private:
+    Layer1      layer1 = Layer1::Zero();
+    Layer2      layer2 = Layer2::Zero();
+    InputVec    input = InputVec::Zero();
+    OutputVec   output = OutputVec::Zero();
 };
 
 
