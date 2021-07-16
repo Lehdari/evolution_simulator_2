@@ -130,7 +130,7 @@ void CreatureSystem::reproduction(
 
     // reproduction
     double minChildEnergy = ConfigSingleton::minCreatureMass*config.massEnergyStorageConstant;
-    if (e > minChildEnergy && RNDS < cognitionOutput(2)) {
+    if (e > minChildEnergy && RND*10.0f < (cognitionOutput(2)+1.0f)*0.5f) {
         double childSize = g[Genome::CHILD_SIZE_MIN]+std::max(0.0,
             RND*(g[Genome::CHILD_SIZE_MAX]-g[Genome::CHILD_SIZE_MIN]));
         double childEnergy = minChildEnergy + childSize*(e-minChildEnergy);
