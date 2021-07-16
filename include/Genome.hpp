@@ -36,6 +36,11 @@ public:
         COGNITION_END = genomeSize
     };
 
+    enum class MutationMode {
+        ADDITIVE,
+        MULTIPLICATIVE
+    };
+
     // methods exposed from Vector
     using Vector<float>::operator[];
     using Vector<float>::begin;
@@ -44,7 +49,7 @@ public:
     Genome(float amplitude = 1.0f, float cognitionAmplitude = 0.01f);
     Genome(Vector<float>&& vector);
 
-    void mutate(float probability, float amplitude);
+    void mutate(float probability, float amplitude, MutationMode mode);
 
     // Minimum and maximum values the genome can get
     static const Genome minGenome;

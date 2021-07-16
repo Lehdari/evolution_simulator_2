@@ -18,7 +18,7 @@ const Genome Genome::minGenome = [](){
         ConfigSingleton::minCreatureMass,
         0.0f, 0.0f,
         0.0f, 0.0f, 0.0f,
-        0.01f, 0.0001f, 0.0f, 0.0f
+        0.01f, 0.001f, 0.01f, 0.001f
     });
 
     // cognition portion of the genome
@@ -61,10 +61,18 @@ Genome::Genome(Vector<float>&& vector) :
 {
 }
 
-void Genome::mutate(float probability, float amplitude)
+void Genome::mutate(float probability, float amplitude, MutationMode mode)
 {
     for (size_t i=0; i<size(); ++i) {
-        if (RND < probability)
-            (*this)[i] = std::clamp((*this)[i]+(float)RNDS*amplitude, minGenome[i], maxGenome[i]);
+        if (RND < probability) {
+            switch (mode) {
+                case MutationMode::ADDITIVE:
+                    (*this)[i] = std::clamp((*this)[i]+(float)RNDS*amplitude, minGenome[i], maxGenome[i]);
+                    break;
+                case MutationMode::MULTIPLICATIVE:
+                    (*this)[i] = std::clamp((*this)[i]*(1.0f+(float)RNDS*amplitude), minGenome[i], maxGenome[i]);
+                    break;
+            }
+        }
     }
 }
