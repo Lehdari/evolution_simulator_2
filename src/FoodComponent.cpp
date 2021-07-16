@@ -11,7 +11,8 @@
 #include <FoodComponent.hpp>
 
 
-FoodComponent::FoodComponent(double mass) :
+FoodComponent::FoodComponent(Type type, double mass) :
+    type    (type),
     mass    (mass)
 {
 }

@@ -16,9 +16,15 @@
 
 
 struct FoodComponent {
-    double mass;
+    enum class Type {
+        PLANT,
+        MEAT
+    };
 
-    FoodComponent(double mass = ConfigSingleton::minFoodMass);
+    Type    type;
+    double  mass;
+
+    FoodComponent(Type type = Type::PLANT, double mass = ConfigSingleton::minFoodMass);
 };
 
 

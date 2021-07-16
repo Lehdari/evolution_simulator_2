@@ -16,6 +16,7 @@
 #include <WorldSingleton.hpp>
 #include <ConfigSingleton.hpp>
 #include <LineSingleton.hpp>
+#include <ResourceSingleton.hpp>
 #include <EventHandlers.hpp>
 #include <imgui.h>
 #include <backends/imgui_impl_sdl.h>
@@ -125,6 +126,8 @@ void Window::init(void)
     _ecs.getSingleton<LineSingleton>()->setWindowSize(
         (int)_settings.window.width, (int)_settings.window.height);
 
+    _ecs.getSingleton<ResourceSingleton>()->init(_spriteSheetId);
+
     fug::SpriteComponent creatureSpriteComponent(_spriteSheetId, 0);
     creatureSpriteComponent.setOrigin(Vec2f(ConfigSingleton::spriteRadius, ConfigSingleton::spriteRadius));
     fug::SpriteComponent foodSpriteComponent(_spriteSheetId, 1);
@@ -136,8 +139,6 @@ void Window::init(void)
     // Create creatures
     constexpr int nCreatures = 200;
     for (int i=0; i<nCreatures; ++i) {
-        fug::EntityId id = _ecs.getEmptyEntityId();
-
         // get position using rejection sampling
         Vec2f p(RNDS*1024.0f, RNDS*1024.0f);
         while (gauss2(p, 256.0f) < RND)
@@ -146,34 +147,19 @@ void Window::init(void)
         double mass = ConfigSingleton::minCreatureMass + RND*(
             ConfigSingleton::maxCreatureMass-ConfigSingleton::minCreatureMass);
 
-        _ecs.setComponent(id, fug::Orientation2DComponent(p, 0.0f,
-            sqrtf(mass) / ConfigSingleton::spriteRadius));
-
-        _ecs.setComponent(id, CreatureComponent(Genome(),
-            0.25*mass*config.massEnergyStorageConstant, mass, RND*M_PI*2.0f, RND));
-        auto& g = _ecs.getComponent<CreatureComponent>(id)->getGenome();
-        _ecs.setComponent(id, fug::SpriteComponent(creatureSpriteComponent));
-        _ecs.getComponent<fug::SpriteComponent>(id)->setColor(Vec3f(
-            g[Genome::COLOR_R], g[Genome::COLOR_G], g[Genome::COLOR_B]));
-        _ecs.addComponent<fug::EventComponent>(id)->addHandler<EventHandler_Creature_CollisionEvent>();
+        createCreature(_ecs, Genome(), mass, 0.25, p, RND*M_PI*2.0f, RND);
     }
 
     // Create food
     constexpr int nFoods = 2000;
     for (int i=0; i<nFoods; ++i) {
-        fug::EntityId id = _ecs.getEmptyEntityId();
-
         // get position using rejection sampling
         Vec2f p(RNDS*ConfigSingleton::worldSize, RNDS*ConfigSingleton::worldSize);
         while (gauss2(p, 256.0f) < RND)
             p << RNDS*ConfigSingleton::worldSize, RNDS*ConfigSingleton::worldSize;
 
-        double mass = ConfigSingleton::minFoodMass + RND*(
-            ConfigSingleton::maxFoodMass-ConfigSingleton::minFoodMass);
-        _ecs.setComponent(id, FoodComponent(mass));
-        _ecs.setComponent(id, fug::Orientation2DComponent(p, 0.0f,
-            sqrt(mass) / ConfigSingleton::spriteRadius));
-        _ecs.setComponent(id, fug::SpriteComponent(foodSpriteComponent));
+        double mass = RNDRANGE(ConfigSingleton::minFoodMass, ConfigSingleton::maxFoodMass);
+        createFood(_ecs, FoodComponent::Type::PLANT, mass, p);
     }
 }
 
@@ -293,26 +279,16 @@ void Window::updateWorld(void)
     _creatureSystem.setStage(CreatureSystem::Stage::REPRODUCTION);
     _ecs.runSystem(_creatureSystem);
 
-    int nFoodsCurrent = world.getNumberOf(WorldSingleton::EntityType::FOOD);
     {   // Create new food
-        fug::SpriteComponent foodSpriteComponent(_spriteSheetId, 1);
-        foodSpriteComponent.setOrigin(Vec2f(ConfigSingleton::spriteRadius, ConfigSingleton::spriteRadius));
-        foodSpriteComponent.setColor(Vec3f(0.2f, 0.6f, 0.0f));
-
         static double nNewFood = 0.0;
         nNewFood += config.foodPerTick;
         for (int i = 0; i < (int)nNewFood; ++i) {
-            fug::EntityId id = _ecs.getEmptyEntityId();
-
             // get position using rejection sampling
             Vec2f p(RNDS * ConfigSingleton::worldSize, RNDS * ConfigSingleton::worldSize);
             while (gauss2(p, 256.0f) < RND)
                 p << RNDS * ConfigSingleton::worldSize, RNDS * ConfigSingleton::worldSize;
 
-            _ecs.setComponent(id, fug::Orientation2DComponent(p, 0.0f,
-                sqrtf(config.minFoodMass) / ConfigSingleton::spriteRadius));
-            _ecs.setComponent(id, FoodComponent(config.minFoodMass));
-            _ecs.setComponent(id, fug::SpriteComponent(foodSpriteComponent));
+            createFood(_ecs, FoodComponent::Type::PLANT, ConfigSingleton::minFoodMass, p);
         }
         nNewFood -= (int)nNewFood;
     }
