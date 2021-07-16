@@ -259,7 +259,7 @@ void CreatureSystem::processInputs(
         t = 0.0f;
 
     auto& cognitionInput = creatureComponent._cognition.input;
-    cognitionInput = CreatureCognition::InputVec::Zero();
+    cognitionInput = CreatureCognition::Input::Zero();
     cognitionInput(0) = (float)m;
     cognitionInput(1) = (float)(e / config.massEnergyStorageConstant);
     cognitionInput(2) = t;

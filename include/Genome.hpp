@@ -19,7 +19,7 @@
 class Genome : protected Vector<float> {
 public:
     static constexpr size_t genomeHeaderSize = 10;
-    static constexpr size_t genomeSize = CreatureCognition::totalGenomeSize(genomeHeaderSize);
+    static constexpr size_t genomeSize = genomeHeaderSize+CreatureCognition::totalSize;
 
     enum { // indices for addressing the genome
         CREATURE_SIZE = 0,
@@ -33,7 +33,6 @@ public:
         MUTATION_PROBABILITY_2 = 8,
         MUTATION_AMPLITUDE_2 = 9, // header ends here
         COGNITION_BEGIN = genomeHeaderSize,
-        COGNITION_LAYER2_BEGIN = CreatureCognition::genomeLayer2Begin(genomeHeaderSize),
         COGNITION_END = genomeSize
     };
 
@@ -42,7 +41,7 @@ public:
     using Vector<float>::begin;
     using Vector<float>::end;
 
-    Genome(float amplitude = 1.0f, float cognitionAmplitude = 0.0001f);
+    Genome(float amplitude = 1.0f, float cognitionAmplitude = 0.01f);
     Genome(Vector<float>&& vector);
 
     void mutate(float probability, float amplitude);
