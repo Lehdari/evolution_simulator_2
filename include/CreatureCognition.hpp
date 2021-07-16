@@ -20,7 +20,7 @@ class Genome;
 
 class CreatureCognition {
 public:
-    static constexpr uint64_t   inputSize = 9;
+    static constexpr uint64_t   inputSize = 10;
     static constexpr uint64_t   outputSize = 3;
     static constexpr uint64_t   memorySize = 4;
 

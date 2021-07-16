@@ -3,13 +3,14 @@ Creature cognition spec
 Inputs:
 0:  Self mass
 1:  Self energy (divided by massEnergyStorageConstant)
-2:  Whisker length
-3:  Whisker contacted food (true: 1.0, false: 0.0)
-4:  Whisker contacted creature (true: 1.0, false: 0.0)
-5:  Contacted entity mass (if applies, 0.0 otherwise)
-6:  Contacted creature color, red channel (if applies, 0.0 otherwise)
-7:  Contacted creature color, green channel (if applies, 0.0 otherwise)
-8:  Contacted creature color, blue channel (if applies, 0.0 otherwise)
+3:  Self speed
+4:  Whisker length
+5:  Whisker contacted food (true: 1.0, false: 0.0)
+6:  Whisker contacted creature (true: 1.0, false: 0.0)
+7:  Contacted entity mass (if applies, 0.0 otherwise)
+8:  Contacted creature color, red channel (if applies, 0.0 otherwise)
+9:  Contacted creature color, green channel (if applies, 0.0 otherwise)
+10:  Contacted creature color, blue channel (if applies, 0.0 otherwise)
 
 Outputs:
 0:  Acceleration

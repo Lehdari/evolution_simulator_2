@@ -262,21 +262,22 @@ void CreatureSystem::processInputs(
     cognitionInput = CreatureCognition::Input::Zero();
     cognitionInput(0) = (float)m;
     cognitionInput(1) = (float)(e / config.massEnergyStorageConstant);
-    cognitionInput(2) = t;
+    cognitionInput(2) = s;
+    cognitionInput(3) = t;
     if (cEId >= 0) {
         auto* ccc = _ecs.getComponent<CreatureComponent>(cEId);
         auto* cfc = _ecs.getComponent<FoodComponent>(cEId);
 
         if (ccc == nullptr) {
             // contact is food
-            cognitionInput(3) = 1.0f;
-            cognitionInput(5) = (float)cfc->mass;
+            cognitionInput(4) = 1.0f;
+            cognitionInput(6) = (float)cfc->mass;
         }
         else {
             // contact is creature
-            cognitionInput(4) = 1.0f;
-            cognitionInput(5) = (float)ccc->_mass;
-            cognitionInput.block<3,1>(6,0) = cColor;
+            cognitionInput(5) = 1.0f;
+            cognitionInput(6) = (float)ccc->_mass;
+            cognitionInput.block<3,1>(7,0) = cColor;
         }
     }
 
