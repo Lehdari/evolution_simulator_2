@@ -39,6 +39,7 @@ private:
     double              _mass;
     float               _direction;
     float               _speed;
+    double              _age;
 
     CreatureCognition   _cognition;
 };

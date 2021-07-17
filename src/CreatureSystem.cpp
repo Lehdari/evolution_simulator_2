@@ -80,17 +80,20 @@ void CreatureSystem::dynamics(
 
     auto& cognitionOutput = creatureComponent._cognition.output;
 
-    // creature dynamics
+    creatureComponent._age += 1.0;
+    // aging simulated as increased energy use over time. inversely proportional to mass
+    double ageMovementEnergyUseFactor = pow(1.000077, creatureComponent._age / m);
+
     float drag = std::clamp(s*s*config.creatureDragCoefficient, 0.0f, s);
     s -= std::copysignf(drag, s); // drag
 
     float a = cognitionOutput(0); // acceleration
     s += a;
-    e -= abs(a)*m*config.creatureAccelerationEnergyUseConstant; // acceleration energy usage
+    e -= abs(a)*m*config.creatureAccelerationEnergyUseConstant*ageMovementEnergyUseFactor; // acceleration energy usage
 
     float da = cognitionOutput(1); // direction change
     d += da*(float)M_PI_4;
-    e -= (da*da)*m*config.creatureTurnEnergyUseConstant; // direction change energy usage
+    e -= (da*da)*m*config.creatureTurnEnergyUseConstant*ageMovementEnergyUseFactor; // direction change energy usage
 
     // constant energy usage, relative to sqrt of mass
     e -= config.creatureEnergyUseConstant*sqrt(m+1.0);

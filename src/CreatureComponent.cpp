@@ -23,6 +23,7 @@ CreatureComponent::CreatureComponent(
     _mass       (mass),
     _direction  (direction),
     _speed      (speed),
+    _age        (0.0),
     _cognition  (_genome)
 {
 }

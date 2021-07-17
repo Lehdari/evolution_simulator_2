@@ -21,19 +21,19 @@ struct ConfigSingleton {
     static constexpr double maxFoodMass = 16.0; // maximum mass a food can grow to
     static constexpr float  maxObjectRadius = 8.0f; // square root of max(maxCreatureMass, maxFoodMass)
 
-    double  creatureEnergyUseConstant = 0.5; // energy used every tick, relative to sqrt of mass
-    double  creatureAccelerationEnergyUseConstant = 0.025; // multiplier for energy used in acceleration
-    double  creatureTurnEnergyUseConstant = 0.2; // multiplier for energy used in turning (relative to square of the turn amount)
+    double  creatureEnergyUseConstant = 0.25; // energy used every tick, relative to sqrt of mass
+    double  creatureAccelerationEnergyUseConstant = 0.02; // multiplier for energy used in acceleration
+    double  creatureTurnEnergyUseConstant = 0.15; // multiplier for energy used in turning (relative to square of the turn amount)
     float   creatureDragCoefficient = 0.5f; // viscous drag coefficient for creatures, viscous drag is relative to speed squared
-    double  creatureMassIncreaseFactor = 0.1; // portion of food mass that is converted to creature mass when eaten (given the creature is still growing)
+    double  creatureMassIncreaseFactor = 0.15; // portion of food mass that is converted to creature mass when eaten (given the creature is still growing)
     double  creatureFeedRate = 0.25; // multiplier for eating speed, relative to creature mass
     double  massEnergyStorageConstant = 500.0; // how much energy each creature can hold w.r.t. their mass
     double  foodPlantMassToEnergyConstant = 100.0; // ratio by which plant food mass in converted to creature energy
     double  foodMeatMassToEnergyConstant = 400.0; // ratio by which meat food mass in converted to creature energy
 
     double  foodPerTick = 5.0; // number of food entities added each tick
-    double  foodGrowthRate = 0.002; // amount of mass added to each growing food (plant) entity each tick
-    double  foodSpoilRate = 0.005; // amount of mass reduced from each rotting food (meat) entity each tick
+    double  foodGrowthRate = 0.004; // amount of mass added to each growing food (plant) entity each tick
+    double  foodSpoilRate = 0.006; // amount of mass reduced from each rotting food (meat) entity each tick
 };
 
 
