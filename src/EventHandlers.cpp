@@ -57,7 +57,17 @@ void EventHandler_Creature_CollisionEvent::handleEvent(
         double dMass = std::min(cc1._genome[Genome::CREATURE_SIZE]-cc1._mass,
             feedMass*config.creatureMassIncreaseFactor);
         cc1._mass += dMass;
-        cc1._energy += (feedMass - dMass)*config.foodMassToEnergyConstant; // rest of the food mass becomes energy
+
+        double energyConstant = 0.0;
+        switch (fc2->type) {
+            case FoodComponent::Type::PLANT:
+                energyConstant = config.foodPlantMassToEnergyConstant;
+                break;
+            case FoodComponent::Type::MEAT:
+                energyConstant = config.foodMeatMassToEnergyConstant;
+                break;
+        }
+        cc1._energy += (feedMass - dMass)*energyConstant; // rest of the food mass becomes energy
 
         // cannot store more energy, energy is wasted
         if (cc1._energy > config.massEnergyStorageConstant*cc1._mass)

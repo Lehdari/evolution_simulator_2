@@ -43,8 +43,17 @@ void FoodSystem::grow(
 {
     static auto& config = *_ecs.getSingleton<ConfigSingleton>();
 
-    if (foodComponent.mass < ConfigSingleton::maxFoodMass)
-        foodComponent.mass += config.foodGrowthRate;
+    switch (foodComponent.type) {
+        case FoodComponent::Type::PLANT:
+            if (foodComponent.mass < ConfigSingleton::maxFoodMass)
+                foodComponent.mass += config.foodGrowthRate;
+            break;
+        case FoodComponent::Type::MEAT:
+            foodComponent.mass -= config.foodSpoilRate;
+            if (foodComponent.mass <= 0.0)
+                _ecs.removeEntity(eId);
+            break;
+    }
 
     orientationComponent.setScale(sqrt(foodComponent.mass) / ConfigSingleton::spriteRadius);
 }

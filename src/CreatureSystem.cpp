@@ -97,6 +97,7 @@ void CreatureSystem::dynamics(
 
     // if energy reaches 0, the creature dies
     if (e <= 0.0) {
+        createFood(_ecs, FoodComponent::Type::MEAT, m, orientationComponent.getPosition());
         _ecs.removeEntity(eId);
         return;
     }
@@ -128,13 +129,15 @@ void CreatureSystem::reproduction(
 
     auto& cognitionOutput = creatureComponent._cognition.output;
 
-    // reproduction
-    double minChildEnergy = ConfigSingleton::minCreatureMass*config.massEnergyStorageConstant;
+    // energy required for production of an unit of mass
+    double reproductionEnergyConstant = config.massEnergyStorageConstant+config.foodMeatMassToEnergyConstant;
+    double minChildEnergy = ConfigSingleton::minCreatureMass*reproductionEnergyConstant;
+
     if (e > minChildEnergy && RND*10.0f < (cognitionOutput(2)+1.0f)*0.5f) {
         double childSize = g[Genome::CHILD_SIZE_MIN]+std::max(0.0,
             RND*(g[Genome::CHILD_SIZE_MAX]-g[Genome::CHILD_SIZE_MIN]));
         double childEnergy = minChildEnergy + childSize*(e-minChildEnergy);
-        double childMass = childEnergy/config.massEnergyStorageConstant;
+        double childMass = childEnergy/reproductionEnergyConstant;
 
         Genome childGenome = g;
         childGenome.mutate(g[Genome::MUTATION_PROBABILITY_1], g[Genome::MUTATION_AMPLITUDE_1],
@@ -279,8 +282,9 @@ void CreatureSystem::processInputs(
             // contact is creature
             cognitionInput(5) = 1.0f;
             cognitionInput(6) = (float)ccc->_mass;
-            cognitionInput.block<3,1>(7,0) = cColor;
         }
+
+        cognitionInput.block<3,1>(7,0) = cColor;
     }
 
     lineSingleton.drawLine(wBegin, wBegin + wv*t, color, cColor);
