@@ -15,3 +15,14 @@ Inputs:
 Outputs:
 0:  Acceleration
 1:  Direction delta
+
+Attack Inputs:
+0:  Contacted creature color, red channel
+1:  Contacted creature color, green channel
+2:  Contacted creature color, blue channel
+3:  Contacted creature mass
+4:  Self mass
+5:  Self energy (divided by massEnergyStorageConstant)
+
+Attack Outputs:
+0:  Attack intensity (-1: damage with 0 energy, 1: damage with all energy)

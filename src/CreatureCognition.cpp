@@ -12,56 +12,79 @@
 #include <Genome.hpp>
 
 
+#define INIT_LAYER_FIRST(TYPE, NAME) \
+    constexpr uint64_t NAME ## Begin = Genome::genomeHeaderSize; \
+        for (int j=0; j<Dims<TYPE>::input; ++j) \
+            for (int i=0; i<Dims<TYPE>::output; ++i) \
+                NAME(i, j) = genome[NAME ## Begin + j*Dims<TYPE>::output + i];
+
+#define INIT_LAYER(PREVTYPE, PREVNAME, TYPE, NAME) \
+    constexpr uint64_t NAME ## Begin = PREVNAME ## Begin + Dims<PREVTYPE>::total; \
+        for (int j=0; j<Dims<TYPE>::input; ++j) \
+            for (int i=0; i<Dims<TYPE>::output; ++i) \
+                NAME(i, j) = genome[NAME ## Begin + j*Dims<TYPE>::output + i];
+
+
 CreatureCognition::CreatureCognition(const Genome& genome)
 {
-    constexpr uint64_t layer1Begin = Genome::genomeHeaderSize;
-    for (int j=0; j<Dims<Layer1>::input; ++j)
-        for (int i=0; i<Dims<Layer1>::output; ++i)
-            layer1(i, j) = genome[layer1Begin + j*Dims<Layer1>::output + i];
+    INIT_LAYER_FIRST(Layer1, _layer1)
+    INIT_LAYER(Layer1, _layer1, Layer2, _layer2)
+    INIT_LAYER(Layer2, _layer2, Layer3, _layer3)
+    INIT_LAYER(Layer2, _layer2, Layer3MemoryValue, _layer3MemoryValue)
+    INIT_LAYER(Layer2, _layer2, Layer3MemoryGate, _layer3MemoryGate)
+    INIT_LAYER(Layer3, _layer3, Layer4, _layer4)
+    INIT_LAYER(Layer4, _layer4, Layer5, _layer5)
 
-    constexpr uint64_t layer2Begin = layer1Begin + Dims<Layer1>::total;
-    for (int j=0; j<Dims<Layer2>::input; ++j)
-        for (int i=0; i<Dims<Layer2>::output; ++i)
-            layer2(i, j) = genome[layer2Begin + j*Dims<Layer2>::output + i];
-
-    constexpr uint64_t layer2MemoryValueBegin = layer2Begin + Dims<Layer2>::total;
-    for (int j=0; j<Dims<Layer2MemoryValue>::input; ++j)
-        for (int i=0; i<Dims<Layer2MemoryValue>::output; ++i)
-            layer2MemoryValue(i, j) = genome[layer2MemoryValueBegin + j*Dims<Layer2MemoryValue>::output + i];
-
-    constexpr uint64_t layer2MemoryGateBegin = layer2MemoryValueBegin + Dims<Layer2MemoryValue>::total;
-    for (int j=0; j<Dims<Layer2MemoryGate>::input; ++j)
-        for (int i=0; i<Dims<Layer2MemoryGate>::output; ++i)
-            layer2MemoryGate(i, j) = genome[layer2MemoryGateBegin + j*Dims<Layer2MemoryGate>::output + i];
-
-    constexpr uint64_t layer3Begin = layer2MemoryGateBegin + Dims<Layer2MemoryGate>::total;
-    for (int j=0; j<Dims<Layer3>::input; ++j)
-        for (int i=0; i<Dims<Layer3>::output; ++i)
-            layer3(i, j) = genome[layer3Begin + j*Dims<Layer3>::output + i];
+    INIT_LAYER(Layer5, _layer5, AttackLayer1, _attackLayer1)
+    INIT_LAYER(AttackLayer1, _attackLayer1, AttackLayer2, _attackLayer2)
 }
 
 const CreatureCognition::Output& CreatureCognition::forward()
 {
     // Layer 1 + tanh
-    input(inputSize) = 1.0f; // layer 1 bias term
+    _input(inputSize) = 1.0f; // layer 1 bias term
     Eigen::Matrix<float, Dims<Layer2>::input,1> layer2Input;
-    layer2Input.block<Dims<Layer1>::output,1>(0,0) = tanh((layer1 * input).array()); // layer 1 output
+    layer2Input.block<Dims<Layer1>::output,1>(0,0) = tanh((_layer1 * _input).array()); // layer 1 output
 
     // Layer 2 + tanh
-    layer2Input.block<memorySize,1>(Dims<Layer1>::output,0) = memory; // last tick memory input
+    layer2Input.block<memorySize,1>(Dims<Layer1>::output,0) = _memory; // last tick memory input
     layer2Input(Dims<Layer2>::input-1) = 1.0f; // layer 2 bias term
-
     Eigen::Matrix<float, Dims<Layer3>::input,1> layer3Input;
-    layer3Input.block<Dims<Layer2>::output,1>(0,0) = tanh((layer2 * layer2Input).array()); // layer 2 output
-
-    // Update memory
-    Memory memoryGate = 1.0 / (1.0 + exp((layer2MemoryGate * layer2Input).array()));
-    Memory memoryValue = tanh((layer2MemoryValue * layer2Input).array());
-    memory = memoryValue.array()*memoryGate.array() + memory.array()*(1.0-memoryGate.array());
+    layer3Input.block<Dims<Layer2>::output,1>(0,0) = tanh((_layer2 * layer2Input).array()); // layer 2 output
 
     // Layer 3 + tanh
-    layer3Input.block<memorySize,1>(Dims<Layer2>::output,0) = memory; // updated memory input
-    layer3Input(Dims<Layer3>::input-1) = 1.0f; // layer 2 bias term
-    output = tanh((layer3 * layer3Input).array());
-    return output;
+    layer3Input(Dims<Layer3>::input-1) = 1.0f; // layer 3 bias term
+    Eigen::Matrix<float, Dims<Layer4>::input,1> layer4Input;
+    layer4Input.block<Dims<Layer3>::output,1>(0,0) = tanh((_layer3 * layer3Input).array()); // layer 3 output
+
+    // Update memory
+    Memory memoryGate = 1.0 / (1.0 + exp((_layer3MemoryGate * layer3Input).array()));
+    Memory memoryValue = tanh((_layer3MemoryValue * layer3Input).array());
+    _memory = memoryValue.array()*memoryGate.array() + _memory.array()*(1.0-memoryGate.array());
+
+    // Layer 4 + tanh
+    layer4Input.block<memorySize,1>(Dims<Layer3>::output,0) = _memory; // updated memory input
+    layer4Input(Dims<Layer4>::input-1) = 1.0f; // layer 4 bias term
+    Eigen::Matrix<float, Dims<Layer5>::input,1> layer5Input;
+    layer5Input.block<Dims<Layer4>::output,1>(0,0) = tanh((_layer4 * layer4Input).array()); // layer 4 output
+
+    // Layer 5 + tanh
+    layer5Input(Dims<Layer5>::input-1) = 1.0f; // layer 5 bias term
+    _output = tanh((_layer5 * layer5Input).array());
+
+    return _output;
+}
+
+CreatureCognition::AttackOutput CreatureCognition::attack(
+    CreatureCognition::AttackInput& input) const
+{
+    // Attack Layer 1 + tanh
+    input(attackInputSize) = 1.0f; // attack layer 1 bias term
+    Eigen::Matrix<float, Dims<AttackLayer2>::input,1> layer2Input;
+    layer2Input.block<Dims<AttackLayer1>::output,1>(0,0) = tanh((_attackLayer1 * input).array());
+
+    // Attack Layer 2 + tanh
+    layer2Input.block<memorySize,1>(Dims<AttackLayer1>::output,0) = _memory; // updated memory input
+    layer2Input(Dims<AttackLayer2>::input-1) = 1.0f; // attack layer 2 bias term
+    return tanh((_attackLayer2 * layer2Input).array());
 }

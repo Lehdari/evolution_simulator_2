@@ -22,10 +22,17 @@ class CreatureCognition {
 public:
     static constexpr uint64_t   inputSize = 10;
     static constexpr uint64_t   outputSize = 3;
-    static constexpr uint64_t   memorySize = 4;
+    static constexpr uint64_t   memorySize = 8;
 
-    static constexpr uint64_t   hidden1Size = 8;
-    static constexpr uint64_t   hidden2Size = 8;
+    static constexpr uint64_t   attackInputSize = 6;
+    static constexpr uint64_t   attackOutputSize = 1;
+
+    static constexpr uint64_t   hidden1Size = 16;
+    static constexpr uint64_t   hidden2Size = 16;
+    static constexpr uint64_t   hidden3Size = 16;
+    static constexpr uint64_t   hidden4Size = 8;
+
+    static constexpr uint64_t   attackHidden1Size = 8;
 
 
     template <int InputSize, int OutputSize>
@@ -44,39 +51,54 @@ public:
 
     using Layer1 = Layer<inputSize+1, hidden1Size>; // +1 for bias term
     using Layer2 = Layer<hidden1Size+memorySize+1, hidden2Size>;
-    using Layer2MemoryValue = Layer<hidden1Size+memorySize+1, memorySize>;
-    using Layer2MemoryGate = Layer<hidden1Size+memorySize+1, memorySize>;
-    using Layer3 = Layer<hidden2Size+memorySize+1, outputSize>;
+    using Layer3 = Layer<hidden2Size+1, hidden3Size>;
+    using Layer3MemoryValue = Layer<hidden2Size+1, memorySize>;
+    using Layer3MemoryGate = Layer<hidden2Size+1, memorySize>;
+    using Layer4 = Layer<hidden3Size+memorySize+1, hidden4Size>;
+    using Layer5 = Layer<hidden4Size+1, outputSize>;
+    using AttackLayer1 = Layer<attackInputSize+1, attackHidden1Size>;
+    using AttackLayer2 = Layer<attackHidden1Size+memorySize+1, attackOutputSize>;
+
     using Input = Eigen::Matrix<float, inputSize+1, 1>;
     using Output = Eigen::Matrix<float, outputSize, 1>;
     using Memory = Eigen::Matrix<float, memorySize, 1>;
-
+    using AttackInput = Eigen::Matrix<float, attackInputSize+1, 1>;
+    using AttackOutput = Eigen::Matrix<float, attackOutputSize, 1>;
 
     CreatureCognition(const Genome& genome);
 
     const Output& forward();
 
+    AttackOutput attack(AttackInput& input) const;
 
     static constexpr uint64_t totalSize =
         Dims<Layer1>::total +
         Dims<Layer2>::total +
-        Dims<Layer2MemoryValue>::total +
-        Dims<Layer2MemoryGate>::total +
-        Dims<Layer3>::total;
+        Dims<Layer3>::total +
+        Dims<Layer3MemoryValue>::total +
+        Dims<Layer3MemoryGate>::total +
+        Dims<Layer4>::total +
+        Dims<Layer5>::total +
+        Dims<AttackLayer1>::total +
+        Dims<AttackLayer2>::total;
 
 
     friend class CreatureSystem;
 
 private:
-    Layer1              layer1 = Layer1::Zero();
-    Layer2              layer2 = Layer2::Zero();
-    Layer2MemoryValue   layer2MemoryValue = Layer2MemoryValue::Zero();
-    Layer2MemoryGate    layer2MemoryGate = Layer2MemoryGate::Zero();
-    Layer3              layer3 = Layer3::Zero();
+    Layer1              _layer1 = Layer1::Zero();
+    Layer2              _layer2 = Layer2::Zero();
+    Layer3              _layer3 = Layer3::Zero();
+    Layer3MemoryValue   _layer3MemoryValue = Layer3MemoryValue::Zero();
+    Layer3MemoryGate    _layer3MemoryGate = Layer3MemoryGate::Zero();
+    Layer4              _layer4 = Layer4::Zero();
+    Layer5              _layer5 = Layer5::Zero();
+    AttackLayer1        _attackLayer1 = AttackLayer1::Zero();
+    AttackLayer2        _attackLayer2 = AttackLayer2::Zero();
 
-    Input               input = Input::Zero();
-    Output              output = Output::Zero();
-    Memory              memory = Memory::Zero();
+    Input               _input = Input::Zero();
+    Output              _output = Output::Zero();
+    Memory              _memory = Memory::Zero();
 };
 
 

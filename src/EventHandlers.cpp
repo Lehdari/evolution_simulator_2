@@ -14,6 +14,7 @@
 #include <ConfigSingleton.hpp>
 #include <ecs/Ecs.hpp>
 #include <graphics/Orientation2DComponent.hpp>
+#include <graphics/SpriteComponent.hpp>
 
 
 void EventHandler_Creature_CollisionEvent::handleEvent(
@@ -40,6 +41,20 @@ void EventHandler_Creature_CollisionEvent::handleEvent(
 
         // direction reflection
         oc1.translate(pv*(m2/massSum));
+
+        // attack
+        CreatureCognition::AttackInput attackInput = CreatureCognition::AttackInput::Zero();
+        auto* sc2 = ecs.getComponent<fug::SpriteComponent>(event.entityId);
+        attackInput.block<3,1>(0,0) = sc2->getColor();
+        attackInput(3) = (float)cc2->_mass;
+        attackInput(4) = (float)cc1._mass;
+        attackInput(5) = (float)(cc1._energy / config.massEnergyStorageConstant);
+
+        auto attackOutput = cc1._cognition.attack(attackInput);
+        double damage = (attackOutput(0)+1.0f)*0.5*cc1._energy;
+        double damageMassFactor = cc1._mass / cc2->_mass;
+        cc2->_energy -= damage*damageMassFactor;
+        cc1._energy -= damage;
     }
     else if (fc2 != nullptr) {// collision object is food
         double feedMass = cc1._mass*config.creatureFeedRate;

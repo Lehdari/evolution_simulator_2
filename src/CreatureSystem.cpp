@@ -78,7 +78,7 @@ void CreatureSystem::dynamics(
     auto& d = creatureComponent._direction;
     auto& m = creatureComponent._mass;
 
-    auto& cognitionOutput = creatureComponent._cognition.output;
+    auto& cognitionOutput = creatureComponent._cognition._output;
 
     creatureComponent._age += 1.0;
     // aging simulated as increased energy use over time. inversely proportional to mass
@@ -130,7 +130,7 @@ void CreatureSystem::reproduction(
     auto& d = creatureComponent._direction;
     auto& m = creatureComponent._mass;
 
-    auto& cognitionOutput = creatureComponent._cognition.output;
+    auto& cognitionOutput = creatureComponent._cognition._output;
 
     // energy required for production of an unit of mass
     double reproductionEnergyConstant = config.massEnergyStorageConstant+config.foodMeatMassToEnergyConstant;
@@ -266,7 +266,7 @@ void CreatureSystem::processInputs(
     if (t < 0.0f)
         t = 0.0f;
 
-    auto& cognitionInput = creatureComponent._cognition.input;
+    auto& cognitionInput = creatureComponent._cognition._input;
     cognitionInput = CreatureCognition::Input::Zero();
     cognitionInput(0) = (float)m;
     cognitionInput(1) = (float)(e / config.massEnergyStorageConstant);
