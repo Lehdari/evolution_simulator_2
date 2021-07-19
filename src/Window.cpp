@@ -234,20 +234,8 @@ void Window::updateGUI()
     auto nCreatures = world.getNumberOf(WorldSingleton::EntityType::CREATURE);
     auto nFood = world.getNumberOf(WorldSingleton::EntityType::FOOD);
 
-    static double foodMassToEnergyConstantMin = 1.0;
-    static double foodMassToEnergyConstantMax = 1000.0;
-    double targetNCreatures = 500;
-
     ImGui::Text("N. Creatures: %lu\n", nCreatures);
     ImGui::Text("N. Food: %lu\n", nFood);
-
-    // P-controlled foodMassToEnergyConstant (raise or lower how much energy creatures get from food
-    // depending on how much of them are alive)
-    config.foodMassToEnergyConstant += (targetNCreatures-(double)nCreatures)*0.00001;
-    config.foodMassToEnergyConstant = std::clamp(config.foodMassToEnergyConstant,
-        foodMassToEnergyConstantMin, foodMassToEnergyConstantMax);
-    ImGui::SliderScalar("foodMassToEnergyConstant", ImGuiDataType_Double, &config.foodMassToEnergyConstant,
-        &foodMassToEnergyConstantMin, &foodMassToEnergyConstantMax, "%.3f", ImGuiSliderFlags_Logarithmic);
 
     static double foodPerTickMin = 0.001;
     static double foodPerTickMax = 100.0;
