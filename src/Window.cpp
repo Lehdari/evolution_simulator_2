@@ -165,8 +165,6 @@ void Window::init(void)
 
 void Window::loop(void)
 {
-    static int frame = 0;
-
     // Application main loop
     while (!_quit) {
         // Event handling
@@ -174,9 +172,6 @@ void Window::loop(void)
         while (SDL_PollEvent(&event) != 0) {
             handleEvent(event);
         }
-
-        if (++frame >= 4)
-            frame = 0;
 
         // Render
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
