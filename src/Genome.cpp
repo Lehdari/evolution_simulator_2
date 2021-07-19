@@ -18,7 +18,7 @@ const Genome Genome::minGenome = [](){
         ConfigSingleton::minCreatureMass, 0.0f,
         0.0f, 0.0f,
         0.0f, 0.0f, 0.0f,
-        0.01f, 0.001f, 0.01f, 0.001f
+        0.01f, 0.01f, 0.01f, 0.01f
     });
 
     // cognition portion of the genome
