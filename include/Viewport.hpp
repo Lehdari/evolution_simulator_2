@@ -34,6 +34,8 @@ public:
      */
     void zoom(float scale, const Vec2f& pivot, float minScale=0.5f, float maxScale=300.0f);
 
+    Vec2f toWorld(const Vec2f& position);
+
     const Mat3f& getViewport() const;
 
     operator const Mat3f&() const;

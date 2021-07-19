@@ -58,6 +58,11 @@ void Viewport::zoom(float scale, const Vec2f& pivot, float minScale, float maxSc
     _viewport(1,1) = -s;
 }
 
+Vec2f Viewport::toWorld(const Vec2f& position)
+{
+    return (_viewport.inverse() * Vec3f(position(0), position(1), 1.0)).block<2,1>(0,0);
+}
+
 const Mat3f& Viewport::getViewport() const
 {
     return _viewport;
