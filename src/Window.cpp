@@ -276,6 +276,22 @@ void Window::updateWorld(void)
         nNewFood -= (int)nNewFood;
     }
 
+    if (world.getNumberOf(WorldSingleton::EntityType::CREATURE) < 1000) {
+        for (int i = 0l; i < 1000; ++i) {   // create a new creatures
+            if (RND > 0.0001) continue;
+
+            Vec2f p(RNDS * 1024.0f, RNDS * 1024.0f);
+            while (gauss2(p, 256.0f) < RND)
+                p << RNDS * 1024.0f, RNDS * 1024.0f;
+
+            double mass = ConfigSingleton::minCreatureMass + RND * (
+                ConfigSingleton::maxCreatureMass - ConfigSingleton::minCreatureMass);
+
+            createCreature(_ecs, Genome(1.0f, RNDRANGE(0.001f, 0.005f)),
+                mass, 1.0, p, RND * M_PI * 2.0f, RND);
+        }
+    }
+
     _foodSystem.setStage(FoodSystem::Stage::GROW);
     _ecs.runSystem(_foodSystem);
 
