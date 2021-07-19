@@ -47,7 +47,7 @@ public:
     using Vector<float>::begin;
     using Vector<float>::end;
 
-    Genome(float amplitude = 1.0f, float cognitionAmplitude = 0.01f);
+    Genome(float amplitude = 1.0f, float cognitionAmplitude = 0.001f);
     Genome(Vector<float>&& vector);
 
     void mutate(float probability, float amplitude, MutationMode mode);
