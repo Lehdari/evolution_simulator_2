@@ -211,11 +211,11 @@ void CreatureSystem::processInputs(
     auto& m = creatureComponent.mass;
 
     // whisker
-    float t = 15.0f; // whisker length
+    float r = orientationComponent.getScale()*ConfigSingleton::spriteRadius; // creature radius
+    float t = 5.0f+5.0f*r; // whisker length
     float wd = d; // whisker direction
     Vec2f wv = Vec2f(cosf(wd), sinf(wd)); // direction vector
     auto& p = orientationComponent.getPosition(); // creature position
-    float r = orientationComponent.getScale()*ConfigSingleton::spriteRadius; // creature radius
     Vec2f wBegin = p+r*wv;
     Vec2f wEnd = p+(r+t)*wv; // TODO variable whisker length
 
