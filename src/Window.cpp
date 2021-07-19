@@ -264,43 +264,50 @@ void Window::updateGUI()
     ImGui_ImplSDL2_NewFrame(_window);
     ImGui::NewFrame();
 
-    ImGui::Begin("Simulation Controls");
+    {   // Main simulation controls
+        ImGui::Begin("Simulation Controls");
 
-    auto nCreatures = world.getNumberOf(WorldSingleton::EntityType::CREATURE);
-    auto nFood = world.getNumberOf(WorldSingleton::EntityType::FOOD);
+        auto nCreatures = world.getNumberOf(WorldSingleton::EntityType::CREATURE);
+        auto nFood = world.getNumberOf(WorldSingleton::EntityType::FOOD);
 
-    ImGui::Text("N. Creatures: %lu\n", nCreatures);
-    ImGui::Text("N. Food: %lu\n", nFood);
+        ImGui::Text("N. Creatures: %lu\n", nCreatures);
+        ImGui::Text("N. Food: %lu\n", nFood);
 
-    static double foodPerTickMin = 0.001;
-    static double foodPerTickMax = 100.0;
-    ImGui::SliderScalar("foodPerTick", ImGuiDataType_Double, &config.foodPerTick,
-        &foodPerTickMin, &foodPerTickMax, "%.5f", ImGuiSliderFlags_Logarithmic);
+        static double foodPerTickMin = 0.001;
+        static double foodPerTickMax = 100.0;
+        ImGui::SliderScalar("foodPerTick", ImGuiDataType_Double, &config.foodPerTick,
+            &foodPerTickMin, &foodPerTickMax, "%.5f", ImGuiSliderFlags_Logarithmic);
 
-    static double foodGrowthRateMin = 0.0001;
-    static double foodGrowthRateMax = 0.1;
-    ImGui::SliderScalar("foodGrowthRate", ImGuiDataType_Double, &config.foodGrowthRate,
-        &foodGrowthRateMin, &foodGrowthRateMax, "%.5f", ImGuiSliderFlags_Logarithmic);
+        static double foodGrowthRateMin = 0.0001;
+        static double foodGrowthRateMax = 0.1;
+        ImGui::SliderScalar("foodGrowthRate", ImGuiDataType_Double, &config.foodGrowthRate,
+            &foodGrowthRateMin, &foodGrowthRateMax, "%.5f", ImGuiSliderFlags_Logarithmic);
 
-    ImGui::Checkbox("Paused", &_paused);
+        ImGui::Checkbox("Paused", &_paused);
+        ImGui::End();
+    }
 
     if (_activeCreature >= 0) {
+        // Selected creature controls
         auto* cc = _ecs.getComponent<CreatureComponent>(_activeCreature);
         auto* sc = _ecs.getComponent<fug::SpriteComponent>(_activeCreature);
 
         if (cc != nullptr && sc != nullptr) {
+            ImGui::Begin("Creature");
+
             ImGui::Text("Creature %lu", _activeCreature);
             ImGui::Text("Energy: %0.5f", cc->energy);
 
             Vec3f color = sc->getColor();
             ImGui::ColorPicker3("Creature color", color.data());
             sc->setColor(color);
+
+            ImGui::End();
         }
-        else
+        else // creature has been removed
             _activeCreature = -1;
     }
 
-    ImGui::End();
 }
 
 void Window::updateWorld(void)
