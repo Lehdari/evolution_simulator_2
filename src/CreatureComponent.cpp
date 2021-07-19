@@ -18,17 +18,12 @@ CreatureComponent::CreatureComponent(
     float   direction,
     float   speed
     ) :
-    _genome     (std::move(genome)),
-    _energy     (energy),
-    _mass       (mass),
-    _direction  (direction),
-    _speed      (speed),
-    _age        (0.0),
-    _cognition  (_genome)
+    genome     (std::move(genome)),
+    energy     (energy),
+    mass       (mass),
+    direction  (direction),
+    speed      (speed),
+    age        (0.0),
+    cognition  (this->genome)
 {
-}
-
-const Genome& CreatureComponent::getGenome(void) const
-{
-    return _genome;
 }

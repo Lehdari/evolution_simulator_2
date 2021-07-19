@@ -35,29 +35,30 @@ void EventHandler_Creature_CollisionEvent::handleEvent(
 
     if (ecs.getComponent<CreatureComponent>(event.entityId) != nullptr) {
         // collision object is another creature
-        auto& m1 = cc1._mass;
-        auto& m2 = cc2->_mass;
+        auto& m1 = cc1.mass;
+        auto& m2 = cc2->mass;
         double massSum = m1+m2;
 
         // direction reflection
         oc1.translate(pv*(m2/massSum));
-
+#if 1
         // attack
         CreatureCognition::AttackInput attackInput = CreatureCognition::AttackInput::Zero();
         auto* sc2 = ecs.getComponent<fug::SpriteComponent>(event.entityId);
         attackInput.block<3,1>(0,0) = sc2->getColor();
-        attackInput(3) = (float)cc2->_mass;
-        attackInput(4) = (float)cc1._mass;
-        attackInput(5) = (float)(cc1._energy / config.massEnergyStorageConstant);
+        attackInput(3) = (float)cc2->mass;
+        attackInput(4) = (float)cc1.mass;
+        attackInput(5) = (float)(cc1.energy / config.massEnergyStorageConstant);
 
-        auto attackOutput = cc1._cognition.attack(attackInput);
-        double damage = (attackOutput(0)+1.0f)*0.5*cc1._energy;
-        double damageMassFactor = cc1._mass / cc2->_mass;
-        cc2->_energy -= damage*damageMassFactor;
-        cc1._energy -= damage;
+        auto attackOutput = cc1.cognition.attack(attackInput);
+        double damage = (attackOutput(0)+1.0f)*0.5*cc1.energy;
+        double damageMassFactor = cc1.mass / cc2->mass;
+        cc2->energy -= damage*damageMassFactor;
+        cc1.energy -= damage;
+#endif
     }
     else if (fc2 != nullptr) {// collision object is food
-        double feedMass = cc1._mass*config.creatureFeedRate;
+        double feedMass = cc1.mass*config.creatureFeedRate;
         if (feedMass >= fc2->mass) { // food gets completely eaten
             feedMass = fc2->mass;
             ecs.removeEntity(event.entityId);
@@ -73,25 +74,25 @@ void EventHandler_Creature_CollisionEvent::handleEvent(
         double energyConstant = 0.0;
         switch (fc2->type) {
             case FoodComponent::Type::PLANT:
-                metabolicConstant = cc1._genome[Genome::METABOLIC_CONSTANT];
+                metabolicConstant = cc1.genome[Genome::METABOLIC_CONSTANT];
                 energyConstant = metabolicConstant*config.foodPlantMassToEnergyConstant;
                 break;
             case FoodComponent::Type::MEAT:
-                metabolicConstant = 1.0f-cc1._genome[Genome::METABOLIC_CONSTANT];
+                metabolicConstant = 1.0f-cc1.genome[Genome::METABOLIC_CONSTANT];
                 energyConstant = metabolicConstant*config.foodMeatMassToEnergyConstant;
                 break;
         }
 
-        double dMass = std::min(cc1._genome[Genome::CREATURE_SIZE]-cc1._mass,
+        double dMass = std::min(cc1.genome[Genome::CREATURE_SIZE]-cc1.mass,
             feedMass*metabolicConstant*config.creatureMassIncreaseFactor);
-        cc1._mass += dMass;
-        cc1._energy += (feedMass - dMass)*energyConstant; // rest of the food mass becomes energy
+        cc1.mass += dMass;
+        cc1.energy += (feedMass - dMass)*energyConstant; // rest of the food mass becomes energy
 
         // cannot store more energy, energy is wasted
-        if (cc1._energy > config.massEnergyStorageConstant*cc1._mass)
-            cc1._energy = config.massEnergyStorageConstant*cc1._mass;
+        if (cc1.energy > config.massEnergyStorageConstant*cc1.mass)
+            cc1.energy = config.massEnergyStorageConstant*cc1.mass;
 
         // update the radius
-        oc1.setScale(sqrtf((float)cc1._mass) / ConfigSingleton::spriteRadius);
+        oc1.setScale(sqrtf((float)cc1.mass) / ConfigSingleton::spriteRadius);
     }
 }

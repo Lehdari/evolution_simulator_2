@@ -61,7 +61,7 @@ void CreatureSystem::cognition(
     fug::Orientation2DComponent& orientationComponent)
 {
     // input bias term
-    creatureComponent._cognition.forward();
+    creatureComponent.cognition.forward();
 }
 
 void CreatureSystem::dynamics(
@@ -72,17 +72,17 @@ void CreatureSystem::dynamics(
     static auto& config = *_ecs.getSingleton<ConfigSingleton>();
 
     // some shorthands for the creature variables
-    auto& g = creatureComponent._genome;
-    auto& e = creatureComponent._energy;
-    auto& s = creatureComponent._speed;
-    auto& d = creatureComponent._direction;
-    auto& m = creatureComponent._mass;
+    auto& g = creatureComponent.genome;
+    auto& e = creatureComponent.energy;
+    auto& s = creatureComponent.speed;
+    auto& d = creatureComponent.direction;
+    auto& m = creatureComponent.mass;
 
-    auto& cognitionOutput = creatureComponent._cognition._output;
+    auto& cognitionOutput = creatureComponent.cognition._output;
 
-    creatureComponent._age += 1.0;
+    creatureComponent.age += 1.0;
     // aging simulated as increased energy use over time. inversely proportional to mass
-    double ageMovementEnergyUseFactor = pow(1.000077, creatureComponent._age / m);
+    double ageMovementEnergyUseFactor = pow(1.000077, creatureComponent.age / m);
 
     float drag = std::clamp(s*s*config.creatureDragCoefficient, 0.0f, s);
     s -= std::copysignf(drag, s); // drag
@@ -124,13 +124,13 @@ void CreatureSystem::reproduction(
     static auto& config = *_ecs.getSingleton<ConfigSingleton>();
 
     // some shorthands for the creature variables
-    auto& g = creatureComponent._genome;
-    auto& e = creatureComponent._energy;
-    auto& s = creatureComponent._speed;
-    auto& d = creatureComponent._direction;
-    auto& m = creatureComponent._mass;
+    auto& g = creatureComponent.genome;
+    auto& e = creatureComponent.energy;
+    auto& s = creatureComponent.speed;
+    auto& d = creatureComponent.direction;
+    auto& m = creatureComponent.mass;
 
-    auto& cognitionOutput = creatureComponent._cognition._output;
+    auto& cognitionOutput = creatureComponent.cognition._output;
 
     // energy required for production of an unit of mass
     double reproductionEnergyConstant = config.massEnergyStorageConstant+config.foodMeatMassToEnergyConstant;
@@ -153,7 +153,7 @@ void CreatureSystem::reproduction(
         // Child components
         CreatureComponent childCreatureComponent = CreatureComponent(
             childGenome, childMass*config.massEnergyStorageConstant, childMass,
-            creatureComponent._direction, creatureComponent._speed);
+            creatureComponent.direction, creatureComponent.speed);
 
         fug::Orientation2DComponent childOrientationComponent = orientationComponent;
         childOrientationComponent.setScale(sqrtf(childMass) / ConfigSingleton::spriteRadius);
@@ -201,11 +201,11 @@ void CreatureSystem::processInputs(
     static auto& lineSingleton = *_ecs.getSingleton<LineSingleton>();
 
     // some shorthands for the creature variables
-    auto& g = creatureComponent._genome;
-    auto& e = creatureComponent._energy;
-    auto& s = creatureComponent._speed;
-    auto& d = creatureComponent._direction;
-    auto& m = creatureComponent._mass;
+    auto& g = creatureComponent.genome;
+    auto& e = creatureComponent.energy;
+    auto& s = creatureComponent.speed;
+    auto& d = creatureComponent.direction;
+    auto& m = creatureComponent.mass;
 
     // whisker
     float t = 15.0f; // whisker length
@@ -266,7 +266,7 @@ void CreatureSystem::processInputs(
     if (t < 0.0f)
         t = 0.0f;
 
-    auto& cognitionInput = creatureComponent._cognition._input;
+    auto& cognitionInput = creatureComponent.cognition._input;
     cognitionInput = CreatureCognition::Input::Zero();
     cognitionInput(0) = (float)m;
     cognitionInput(1) = (float)(e / config.massEnergyStorageConstant);
@@ -284,7 +284,7 @@ void CreatureSystem::processInputs(
         else {
             // contact is creature
             cognitionInput(5) = 1.0f;
-            cognitionInput(6) = (float)ccc->_mass;
+            cognitionInput(6) = (float)ccc->mass;
         }
 
         cognitionInput.block<3,1>(7,0) = cColor;

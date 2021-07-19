@@ -17,31 +17,24 @@
 #include <CreatureCognition.hpp>
 
 
-class CreatureComponent {
+struct CreatureComponent {
 public:
     CreatureComponent(
         Genome  genome = Genome(),
         double  energy = 600.0,
-        double  mass = 1.0f,
+        double  mass = 1.0,
         float   direction = 0.0f,
         float   speed = 0.0f);
 
-    const Genome& getGenome(void) const;
+    Genome              genome;
 
-    friend class CreatureSystem;
-    friend struct EventHandler_Creature_CollisionEvent;
+    double              energy; // creature dies when energy reaches 0
+    double              mass;
+    float               direction;
+    float               speed;
+    double              age;
 
-
-private:
-    Genome              _genome;
-
-    double              _energy; // creature dies when energy reaches 0
-    double              _mass;
-    float               _direction;
-    float               _speed;
-    double              _age;
-
-    CreatureCognition   _cognition;
+    CreatureCognition   cognition;
 };
 
 
