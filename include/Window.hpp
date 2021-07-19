@@ -123,8 +123,10 @@ private:
     SDL_GLContext       _glCtx;
 
     bool                _quit; // flag for quitting the application
+    bool                _paused; // flag for pausing the simulation
     Viewport            _viewport;
     Vec2f               _cursorPosition;
+    fug::EntityId       _activeCreature;
 
     uint32_t            _lastTicks;
     uint32_t            _frameTicks;

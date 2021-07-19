@@ -33,8 +33,10 @@ Window::Window(
     _settings           (settings),
     _window             (nullptr),
     _quit               (false),
+    _paused             (false),
     _viewport           (Vec2f(_settings.window.width*0.5f, _settings.window.height*0.5f), 32.0f),
     _cursorPosition     (0.0f, 0.0f),
+    _activeCreature     (-1),
     _lastTicks          (0),
     _frameTicks         (0),
     _windowContext      (*this),
@@ -176,10 +178,15 @@ void Window::loop(void)
         // Render
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        updateWorld();
+        if (!_paused)
+            updateWorld();
         updateGUI();
 
+        _creatureSystem.setStage(CreatureSystem::Stage::PROCESS_INPUTS);
+        _ecs.runSystem(_creatureSystem);
+
         // Render sprites
+        _ecs.runSystem(_spriteSystem);
         _ecs.getSingleton<fug::SpriteSingleton>()->render(_viewport);
         _ecs.getSingleton<LineSingleton>()->render(_viewport);
 
@@ -198,6 +205,8 @@ void Window::loop(void)
 
 void Window::handleEvent(SDL_Event& event)
 {
+    static auto& world = *_ecs.getSingleton<WorldSingleton>();
+
     switch (event.type) {
         case SDL_WINDOWEVENT:
             switch (event.window.event) {
@@ -207,15 +216,41 @@ void Window::handleEvent(SDL_Event& event)
             }
             break;
         case SDL_KEYDOWN:
-            if (event.key.keysym.sym == SDLK_ESCAPE)
-                _quit = true;
-            break;
+            switch (event.key.keysym.sym) {
+                case SDLK_ESCAPE:
+                    _quit = true;
+                    break;
+                case SDLK_PAUSE:
+                    _paused = !_paused;
+                    break;
+            }
         case SDL_MOUSEWHEEL:
             _viewport.zoom(std::pow(1.414213562373f, (float)event.wheel.y), _cursorPosition);
             break;
         case SDL_MOUSEMOTION:
             _cursorPosition << (float)event.motion.x, (float)event.motion.y;
             break;
+        case SDL_MOUSEBUTTONDOWN:
+            switch (event.button.button) {
+                case SDL_BUTTON_LEFT: {
+                    Vec2f clickWorldPos = _viewport.toWorld(_cursorPosition);
+                    static Vec2f maxRadiusVec(
+                        ConfigSingleton::maxObjectRadius, ConfigSingleton::maxObjectRadius);
+                    // Find the clicked creature (if any)
+                    Vector<fug::EntityId> entities;
+                    world.getEntities(entities, clickWorldPos-maxRadiusVec, clickWorldPos+maxRadiusVec);
+                    for (auto& eId : entities) {
+                        if (_ecs.getComponent<FoodComponent>(eId) != nullptr)
+                            continue;
+                        auto* oc = _ecs.getComponent<fug::Orientation2DComponent>(eId);
+                        if ((oc->getPosition()-clickWorldPos).norm() <
+                            oc->getScale()*ConfigSingleton::spriteRadius) {
+                            _activeCreature = eId;
+                            break;
+                        }
+                    }
+                } break;
+            }
     }
 }
 
@@ -246,6 +281,24 @@ void Window::updateGUI()
     static double foodGrowthRateMax = 0.1;
     ImGui::SliderScalar("foodGrowthRate", ImGuiDataType_Double, &config.foodGrowthRate,
         &foodGrowthRateMin, &foodGrowthRateMax, "%.5f", ImGuiSliderFlags_Logarithmic);
+
+    ImGui::Checkbox("Paused", &_paused);
+
+    if (_activeCreature >= 0) {
+        auto* cc = _ecs.getComponent<CreatureComponent>(_activeCreature);
+        auto* sc = _ecs.getComponent<fug::SpriteComponent>(_activeCreature);
+
+        if (cc != nullptr && sc != nullptr) {
+            ImGui::Text("Creature %lu", _activeCreature);
+            ImGui::Text("Energy: %0.5f", cc->energy);
+
+            Vec3f color = sc->getColor();
+            ImGui::ColorPicker3("Creature color", color.data());
+            sc->setColor(color);
+        }
+        else
+            _activeCreature = -1;
+    }
 
     ImGui::End();
 }
@@ -303,11 +356,6 @@ void Window::updateWorld(void)
         _ecs.runSystem(_eventSystem);
 
     addEntitiesToWorld();
-
-    _creatureSystem.setStage(CreatureSystem::Stage::PROCESS_INPUTS);
-    _ecs.runSystem(_creatureSystem);
-
-    _ecs.runSystem(_spriteSystem);
 }
 
 void Window::addEntitiesToWorld(void)
