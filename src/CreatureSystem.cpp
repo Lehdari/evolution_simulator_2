@@ -159,9 +159,10 @@ void CreatureSystem::reproduction(
 
         fug::Orientation2DComponent childOrientationComponent = orientationComponent;
         childOrientationComponent.setScale(sqrtf(childMass) / ConfigSingleton::spriteRadius);
-        float cpr = ConfigSingleton::spriteRadius *
+        // Birth child either on the left or on the right side
+        float cpr = ConfigSingleton::spriteRadius * 1.05f *
             (orientationComponent.getScale() + childOrientationComponent.getScale());
-        float cpd = RND*M_PI*2.0f;
+        float cpd = RND < 0.5 ? d + M_PI_2 : d - M_PI_2;
         childOrientationComponent.translate(Vec2f(cpr*cosf(cpd), cpr*sinf(cpd)));
 
         fug::SpriteComponent childSpriteComponent = *_ecs.getComponent<fug::SpriteComponent>(eId);
