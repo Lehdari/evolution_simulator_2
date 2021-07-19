@@ -88,12 +88,14 @@ void CreatureSystem::dynamics(
     s -= std::copysignf(drag, s); // drag
 
     float a = cognitionOutput(0); // acceleration
-    s += a;
+    s += a*10.0f;
+    float r = orientationComponent.getScale()*ConfigSingleton::spriteRadius;
+    s = std::clamp(s, -sqrtf(r), sqrtf(r));
     e -= abs(a)*m*config.creatureAccelerationEnergyUseConstant*ageMovementEnergyUseFactor; // acceleration energy usage
 
     float da = cognitionOutput(1); // direction change
     d += da*(float)M_PI_4;
-    e -= (da*da)*m*config.creatureTurnEnergyUseConstant*ageMovementEnergyUseFactor; // direction change energy usage
+    e -= abs(da)*m*config.creatureTurnEnergyUseConstant*ageMovementEnergyUseFactor; // direction change energy usage
 
     // constant energy usage, relative to sqrt of mass
     e -= config.creatureEnergyUseConstant*sqrt(m+1.0);
