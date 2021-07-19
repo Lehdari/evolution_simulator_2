@@ -69,19 +69,22 @@ void EventHandler_Creature_CollisionEvent::handleEvent(
         }
 
         // dMass is the amount of food mass that is to be converted to creature mass, rest becomes energy
-        double dMass = std::min(cc1._genome[Genome::CREATURE_SIZE]-cc1._mass,
-            feedMass*config.creatureMassIncreaseFactor);
-        cc1._mass += dMass;
-
+        float metabolicConstant = 0.0;
         double energyConstant = 0.0;
         switch (fc2->type) {
             case FoodComponent::Type::PLANT:
-                energyConstant = config.foodPlantMassToEnergyConstant;
+                metabolicConstant = cc1._genome[Genome::METABOLIC_CONSTANT];
+                energyConstant = metabolicConstant*config.foodPlantMassToEnergyConstant;
                 break;
             case FoodComponent::Type::MEAT:
-                energyConstant = config.foodMeatMassToEnergyConstant;
+                metabolicConstant = 1.0f-cc1._genome[Genome::METABOLIC_CONSTANT];
+                energyConstant = metabolicConstant*config.foodMeatMassToEnergyConstant;
                 break;
         }
+
+        double dMass = std::min(cc1._genome[Genome::CREATURE_SIZE]-cc1._mass,
+            feedMass*metabolicConstant*config.creatureMassIncreaseFactor);
+        cc1._mass += dMass;
         cc1._energy += (feedMass - dMass)*energyConstant; // rest of the food mass becomes energy
 
         // cannot store more energy, energy is wasted

@@ -25,7 +25,7 @@ struct ConfigSingleton {
     double  creatureAccelerationEnergyUseConstant = 0.02; // multiplier for energy used in acceleration
     double  creatureTurnEnergyUseConstant = 0.15; // multiplier for energy used in turning (relative to square of the turn amount)
     float   creatureDragCoefficient = 0.5f; // viscous drag coefficient for creatures, viscous drag is relative to speed squared
-    double  creatureMassIncreaseFactor = 0.15; // portion of food mass that is converted to creature mass when eaten (given the creature is still growing)
+    double  creatureMassIncreaseFactor = 0.25; // portion of food mass that is converted to creature mass when eaten (given the creature is still growing)
     double  creatureFeedRate = 0.25; // multiplier for eating speed, relative to creature mass
     double  massEnergyStorageConstant = 500.0; // how much energy each creature can hold w.r.t. their mass
     double  foodPlantMassToEnergyConstant = 100.0; // ratio by which plant food mass in converted to creature energy

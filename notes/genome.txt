@@ -1,6 +1,7 @@
 Creature Genome:
 
 0:  Creature size (once adulthood has been reached)
+1:  Creature metabolic constant (1: 100% from plants, 0% from meat, 0: vice versa)
 1:  Minimum child size (relative)
 2:  Maximum child size (relative)
 3:  Color, Red channel
