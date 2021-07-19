@@ -137,7 +137,7 @@ void Window::init(void)
     auto& config = *_ecs.getSingleton<ConfigSingleton>();
 
     // Create creatures
-    constexpr int nCreatures = 200;
+    constexpr int nCreatures = 2000;
     for (int i=0; i<nCreatures; ++i) {
         // get position using rejection sampling
         Vec2f p(RNDS*1024.0f, RNDS*1024.0f);
@@ -147,11 +147,11 @@ void Window::init(void)
         double mass = ConfigSingleton::minCreatureMass + RND*(
             ConfigSingleton::maxCreatureMass-ConfigSingleton::minCreatureMass);
 
-        createCreature(_ecs, Genome(), mass, 0.25, p, RND*M_PI*2.0f, RND);
+        createCreature(_ecs, Genome(), mass, 1.0, p, RND*M_PI*2.0f, RND);
     }
 
     // Create food
-    constexpr int nFoods = 2000;
+    constexpr int nFoods = 5000;
     for (int i=0; i<nFoods; ++i) {
         // get position using rejection sampling
         Vec2f p(RNDS*ConfigSingleton::worldSize, RNDS*ConfigSingleton::worldSize);
