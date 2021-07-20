@@ -22,13 +22,13 @@ class CreatureCognition {
 public:
     static constexpr uint64_t   inputSize = 10;
     static constexpr uint64_t   outputSize = 3;
-    static constexpr uint64_t   memorySize = 8;
+    static constexpr uint64_t   memorySize = 16;
 
     static constexpr uint64_t   attackInputSize = 6;
     static constexpr uint64_t   attackOutputSize = 1;
 
     static constexpr uint64_t   hidden1Size = 16;
-    static constexpr uint64_t   hidden2Size = 16;
+    static constexpr uint64_t   hidden2Size = 32;
     static constexpr uint64_t   hidden3Size = 16;
     static constexpr uint64_t   hidden4Size = 8;
 
