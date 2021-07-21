@@ -88,3 +88,8 @@ CreatureCognition::AttackOutput CreatureCognition::attack(
     layer2Input(Dims<AttackLayer2>::input-1) = 1.0f; // attack layer 2 bias term
     return tanh((_attackLayer2 * layer2Input).array());
 }
+
+const CreatureCognition::Memory& CreatureCognition::getMemory() const
+{
+    return _memory;
+}

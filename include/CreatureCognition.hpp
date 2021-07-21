@@ -71,6 +71,8 @@ public:
 
     AttackOutput attack(AttackInput& input) const;
 
+    const Memory& getMemory() const;
+
     static constexpr uint64_t totalSize =
         Dims<Layer1>::total +
         Dims<Layer2>::total +
