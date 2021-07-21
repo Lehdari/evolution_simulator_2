@@ -33,6 +33,7 @@ public:
     float               direction;
     float               speed;
     double              age;
+    double              agingFactor;
 
     CreatureCognition   cognition;
 };

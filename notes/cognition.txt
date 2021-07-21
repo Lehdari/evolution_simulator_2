@@ -3,7 +3,8 @@ Creature cognition spec
 Inputs:
 0:  Self mass
 1:  Self energy (divided by massEnergyStorageConstant)
-3:  Self speed
+2:  Self speed
+3:  Self aging factor
 4:  Whisker length
 5:  Whisker contacted food (true: 1.0, false: 0.0)
 6:  Whisker contacted creature (true: 1.0, false: 0.0)

@@ -77,28 +77,28 @@ void CreatureSystem::dynamics(
     auto& s = creatureComponent.speed;
     auto& d = creatureComponent.direction;
     auto& m = creatureComponent.mass;
+    float r = orientationComponent.getScale()*ConfigSingleton::spriteRadius;
 
     auto& cognitionOutput = creatureComponent.cognition._output;
 
     creatureComponent.age += 1.0;
     // aging simulated as increased energy use over time. inversely proportional to mass
-    double ageMovementEnergyUseFactor = pow(1.000077, creatureComponent.age / m);
-
-    float drag = std::clamp(s*s*config.creatureDragCoefficient, 0.0f, s);
-    s -= std::copysignf(drag, s); // drag
+    creatureComponent.agingFactor = pow(1.000077, creatureComponent.age / m);
 
     float a = cognitionOutput(0); // acceleration
-    s += a*10.0f;
-    float r = orientationComponent.getScale()*ConfigSingleton::spriteRadius;
-    s = std::clamp(s, -sqrtf(r), sqrtf(r));
-    e -= abs(a)*m*config.creatureAccelerationEnergyUseConstant*ageMovementEnergyUseFactor; // acceleration energy usage
+    s += a*r;
+    e -= abs(a)*m*config.creatureAccelerationEnergyUseConstant*creatureComponent.agingFactor; // acceleration energy usage
+
+    float drag = std::clamp((s*s)/r, 0.0f, s);
+    s -= std::copysignf(drag, s); // drag
+    s = std::clamp(s, -r, r);
 
     float da = cognitionOutput(1); // direction change
     d += da*(float)M_PI_4;
-    e -= abs(da)*m*config.creatureTurnEnergyUseConstant*ageMovementEnergyUseFactor; // direction change energy usage
+    e -= da*da*m*config.creatureTurnEnergyUseConstant*creatureComponent.agingFactor; // direction change energy usage
 
     // constant energy usage, relative to sqrt of mass
-    e -= config.creatureEnergyUseConstant*sqrt(m+1.0);
+    e -= config.creatureEnergyUseConstant*sqrt(m);
 
     // if energy reaches 0, the creature dies
     if (e <= 0.0) {
@@ -135,7 +135,8 @@ void CreatureSystem::reproduction(
     auto& cognitionOutput = creatureComponent.cognition._output;
 
     // energy required for production of an unit of mass
-    double reproductionEnergyConstant = config.massEnergyStorageConstant+config.foodMeatMassToEnergyConstant;
+    double reproductionEnergyConstant = config.massEnergyStorageConstant*g[Genome::CHILD_ENERGY]+
+        config.foodMeatMassToEnergyConstant;
     double minChildEnergy = ConfigSingleton::minCreatureMass*reproductionEnergyConstant;
 
     if (e > minChildEnergy && RND*10.0f < (cognitionOutput(2)+1.0f)*0.5f) {
@@ -154,7 +155,7 @@ void CreatureSystem::reproduction(
 
         // Child components
         CreatureComponent childCreatureComponent = CreatureComponent(
-            childGenome, childMass*config.massEnergyStorageConstant, childMass,
+            childGenome, childMass*config.massEnergyStorageConstant*g[Genome::CHILD_ENERGY], childMass,
             creatureComponent.direction, creatureComponent.speed);
 
         fug::Orientation2DComponent childOrientationComponent = orientationComponent;
@@ -274,23 +275,24 @@ void CreatureSystem::processInputs(
     cognitionInput(0) = (float)m;
     cognitionInput(1) = (float)(e / config.massEnergyStorageConstant);
     cognitionInput(2) = s;
-    cognitionInput(3) = t;
+    cognitionInput(3) = (float)creatureComponent.agingFactor;
+    cognitionInput(4) = t;
     if (cEId >= 0) {
         auto* ccc = _ecs.getComponent<CreatureComponent>(cEId);
         auto* cfc = _ecs.getComponent<FoodComponent>(cEId);
 
         if (ccc == nullptr) {
             // contact is food
-            cognitionInput(4) = 1.0f;
-            cognitionInput(6) = (float)cfc->mass;
+            cognitionInput(5) = 1.0f;
+            cognitionInput(7) = (float)cfc->mass;
         }
         else {
             // contact is creature
-            cognitionInput(5) = 1.0f;
-            cognitionInput(6) = (float)ccc->mass;
+            cognitionInput(6) = 1.0f;
+            cognitionInput(7) = (float)ccc->mass;
         }
 
-        cognitionInput.block<3,1>(7,0) = cColor;
+        cognitionInput.block<3,1>(8,0) = cColor;
     }
 
     lineSingleton.drawLine(wBegin, wBegin + wv*t, color, cColor);

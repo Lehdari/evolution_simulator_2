@@ -18,7 +18,7 @@
 
 class Genome : protected Vector<float> {
 public:
-    static constexpr size_t genomeHeaderSize = 11;
+    static constexpr size_t genomeHeaderSize = 12;
     static constexpr size_t genomeSize = genomeHeaderSize+CreatureCognition::totalSize;
 
     enum { // indices for addressing the genome
@@ -26,13 +26,14 @@ public:
         METABOLIC_CONSTANT = 1,
         CHILD_SIZE_MIN = 2,
         CHILD_SIZE_MAX = 3,
-        COLOR_R = 4,
-        COLOR_G = 5,
-        COLOR_B = 6,
-        MUTATION_PROBABILITY_1 = 7,
-        MUTATION_AMPLITUDE_1 = 8,
-        MUTATION_PROBABILITY_2 = 9,
-        MUTATION_AMPLITUDE_2 = 10, // header ends here
+        CHILD_ENERGY = 4,
+        COLOR_R = 5,
+        COLOR_G = 6,
+        COLOR_B = 7,
+        MUTATION_PROBABILITY_1 = 8,
+        MUTATION_AMPLITUDE_1 = 9,
+        MUTATION_PROBABILITY_2 = 10,
+        MUTATION_AMPLITUDE_2 = 11, // header ends here
         COGNITION_BEGIN = genomeHeaderSize,
         COGNITION_END = genomeSize
     };
