@@ -28,9 +28,12 @@ void WorldSingleton::addEntity(const fug::EntityId& eId, const Vec2f& position, 
     auto x = posToGridCoord(position(0));
     auto y = posToGridCoord(position(1));
 
-    _entityGrid[y*gridSize + x].push_back(eId);
-
     ++_numberOfEntities[entityType];
+
+    if (x < 0 || y < 0 || x >= gridSize || y>=gridSize)
+        return;
+
+    _entityGrid[y*gridSize + x].push_back(eId);
 }
 
 void WorldSingleton::getEntities(Vector<fug::EntityId>& entities,
