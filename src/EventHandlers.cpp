@@ -41,7 +41,10 @@ void EventHandler_Creature_CollisionEvent::handleEvent(
 
         // direction reflection
         oc1.translate(pv*(m2/massSum));
-#if 1
+
+        if (cc1.energy < 0.0)
+            return;
+
         // attack
         CreatureCognition::AttackInput attackInput = CreatureCognition::AttackInput::Zero();
         auto* sc2 = ecs.getComponent<fug::SpriteComponent>(event.entityId);
@@ -52,13 +55,12 @@ void EventHandler_Creature_CollisionEvent::handleEvent(
 
         auto attackOutput = cc1.cognition.attack(attackInput);
         double damage = (attackOutput(0)+1.0f)*0.5*cc1.energy;
-        double damageMassFactor = cc1.mass / cc2->mass;
+        double damageMassFactor = std::max(cc1.mass / cc2->mass, 1.0);
         cc2->energy -= damage*damageMassFactor;
         cc1.energy -= damage;
-#endif
     }
     else if (fc2 != nullptr) {// collision object is food
-        double feedMass = cc1.mass*config.creatureFeedRate;
+        double feedMass = sqrtf(cc1.mass)*config.creatureFeedRate;
         if (feedMass >= fc2->mass) { // food gets completely eaten
             feedMass = fc2->mass;
             ecs.removeEntity(event.entityId);
