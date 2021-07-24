@@ -38,6 +38,7 @@ Window::Window(
         Vec2f(_settings.window.width*0.5f, _settings.window.height*0.5f), 32.0f),
     _cursorPosition     (0.0f, 0.0f),
     _activeCreature     (-1),
+    _activeCreatureFollow           (false),
     _lastTicks          (0),
     _frameTicks         (0),
     _windowContext      (*this),
@@ -291,6 +292,7 @@ void Window::updateGUI()
     if (_activeCreature >= 0) {
         // Selected creature controls
         auto* cc = _ecs.getComponent<CreatureComponent>(_activeCreature);
+        auto* oc = _ecs.getComponent<fug::Orientation2DComponent>(_activeCreature);
         auto* sc = _ecs.getComponent<fug::SpriteComponent>(_activeCreature);
 
         if (cc != nullptr && sc != nullptr) {
@@ -298,6 +300,10 @@ void Window::updateGUI()
 
             ImGui::Text("Creature %lu", _activeCreature);
             ImGui::Text("Energy: %0.5f", cc->energy);
+
+            ImGui::Checkbox("Follow", &_activeCreatureFollow);
+            if (_activeCreatureFollow)
+                _viewport.centerTo(oc->getPosition());
 
             Vec3f color = sc->getColor();
             ImGui::ColorPicker3("Creature color", color.data());
@@ -320,6 +326,8 @@ void Window::updateWorld(void)
     _ecs.runSystem(_creatureSystem);
     _creatureSystem.setStage(CreatureSystem::Stage::DYNAMICS);
     _ecs.runSystem(_creatureSystem);
+    if (_activeCreature >= 0 && _ecs.getComponent<CreatureComponent>(_activeCreature) == nullptr)
+        _activeCreature = -1;
     _creatureSystem.setStage(CreatureSystem::Stage::REPRODUCTION);
     _ecs.runSystem(_creatureSystem);
 
