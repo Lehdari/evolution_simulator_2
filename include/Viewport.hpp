@@ -17,22 +17,27 @@
 
 class Viewport {
 public:
-    Viewport(const Vec2f& position, float scale);
+    Viewport(float windowWidth, float windowHeight, const Vec2f& position, float scale);
 
-    /*  @brief  Multiply current scale
+    /** @brief  Multiply current scale
      *  @param  scale   Scaling factor by which to modify the current scale
      *  @param  minScale    Minimum allowed scale level
      *  @param  maxScale    Maximum allowed scale level
      */
     void applyScale(float scale, float minScale=0.5f, float maxScale=300.0f);
 
-    /*  @brief  Zoom the viewport with respect to a pivot point
+    /** @brief  Zoom the viewport with respect to a pivot point
      *  @param  zoom    Scaling factor, similar to scale in applyScale
      *  @param  pivot   Pivot point used as a centroid for zooming, in pixel coordinates
      *  @param  minScale    Minimum allowed scale level
      *  @param  maxScale    Maximum allowed scale level
      */
     void zoom(float scale, const Vec2f& pivot, float minScale=0.5f, float maxScale=300.0f);
+
+    /** @brief  Center the viewport on world location
+     *  @param  position    Position to center te viewport onto, in world coordinates
+     */
+    void centerTo(const Vec2f& position);
 
     Vec2f toWorld(const Vec2f& position);
 
@@ -41,6 +46,8 @@ public:
     operator const Mat3f&() const;
 
 private:
+    float   _windowWidth;
+    float   _windowHeight;
     float   _initialScale;
     Mat3f   _viewport;
 };

@@ -11,7 +11,9 @@
 #include <Viewport.hpp>
 
 
-Viewport::Viewport(const Vec2f& position, float scale) :
+Viewport::Viewport(float windowWidth, float windowHeight, const Vec2f& position, float scale) :
+    _windowWidth    (windowWidth),
+    _windowHeight   (windowHeight),
     _initialScale   (scale)
 {
     _viewport <<
@@ -56,6 +58,13 @@ void Viewport::zoom(float scale, const Vec2f& pivot, float minScale, float maxSc
     // set scaling to the stabilized factor
     _viewport(0,0) = s;
     _viewport(1,1) = -s;
+}
+
+void Viewport::centerTo(const Vec2f& position)
+{
+    _viewport.block<2,1>(0,2) <<
+        (0.5f * _windowWidth) - (position(0)*_viewport(0,0)),
+        (0.5f * _windowHeight) - (position(1)*_viewport(1,1));
 }
 
 Vec2f Viewport::toWorld(const Vec2f& position)
