@@ -89,7 +89,7 @@ void CreatureSystem::dynamics(
     s += a*r;
     e -= abs(a)*m*config.creatureAccelerationEnergyUseConstant*creatureComponent.agingFactor; // acceleration energy usage
 
-    float drag = std::clamp((s*s)/r, 0.0f, s);
+    float drag = std::clamp(s*s, 0.0f, s);
     s -= std::copysignf(drag, s); // drag
     s = std::clamp(s, -r, r);
 
