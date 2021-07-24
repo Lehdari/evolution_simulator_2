@@ -21,6 +21,7 @@
 #include <glad/glad.h>
 #include <ecs/Ecs.hpp>
 #include <graphics/SpriteSystem.hpp>
+#include <gut_image/Image.hpp>
 
 
 class Window {
@@ -128,6 +129,8 @@ private:
     Vec2f               _cursorPosition;
     fug::EntityId       _activeCreature;
     bool                _activeCreatureFollow;
+    //gut::Image          _activeCreatureMemoryImage;
+    //gut::Texture        _activeCreatureMemoryTexture;
 
     uint32_t            _lastTicks;
     uint32_t            _frameTicks;

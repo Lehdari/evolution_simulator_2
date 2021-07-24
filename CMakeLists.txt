@@ -41,4 +41,5 @@ target_link_libraries(evolution_simulator
         fug_ecs
         fug_engine
         fug_graphics
+        gut_image
 )

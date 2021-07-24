@@ -146,10 +146,13 @@ void CreatureSystem::reproduction(
         double childMass = childEnergy/reproductionEnergyConstant;
 
         Genome childGenome = g;
-        childGenome.mutate(g[Genome::MUTATION_PROBABILITY_1], g[Genome::MUTATION_AMPLITUDE_1],
-            Genome::MutationMode::ADDITIVE);
-        childGenome.mutate(g[Genome::MUTATION_PROBABILITY_2], g[Genome::MUTATION_AMPLITUDE_2],
-            Genome::MutationMode::MULTIPLICATIVE);
+        //childGenome.mutate(g[Genome::MUTATION_PROBABILITY_1], g[Genome::MUTATION_AMPLITUDE_1],
+        //    Genome::MutationMode::ADDITIVE);
+        //childGenome.mutate(g[Genome::MUTATION_PROBABILITY_2], g[Genome::MUTATION_AMPLITUDE_2],
+        //    Genome::MutationMode::MULTIPLICATIVE);
+        childGenome.mutate(0.2f, 0.04f, Genome::MutationMode::ADDITIVE);
+        childGenome.mutate(0.2f, 0.04f, Genome::MutationMode::MULTIPLICATIVE);
+        childGenome.mutate(0.01f, 0.1f, Genome::MutationMode::MULTIPLICATIVE);
 
         fug::EntityId childId = _ecs.getEmptyEntityId();
 

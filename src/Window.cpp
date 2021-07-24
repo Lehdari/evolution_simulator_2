@@ -39,6 +39,8 @@ Window::Window(
     _cursorPosition     (0.0f, 0.0f),
     _activeCreature     (-1),
     _activeCreatureFollow           (false),
+    //_activeCreatureMemoryImage      (gut::Image::DataFormat::GRAY, gut::Image::DataType::F32),
+    //_activeCreatureMemoryTexture    (GL_TEXTURE_2D, GL_RED, GL_FLOAT),
     _lastTicks          (0),
     _frameTicks         (0),
     _windowContext      (*this),
@@ -105,6 +107,9 @@ Window::Window(
 
     ImGui_ImplSDL2_InitForOpenGL(_window, _glCtx);
     ImGui_ImplOpenGL3_Init("#version 420");
+
+    //_activeCreatureMemoryImage.create(4, 4);
+    //_activeCreatureMemoryTexture.create(4, 4);
 
     // Initialize world
     init();
@@ -308,7 +313,14 @@ void Window::updateGUI()
             Vec3f color = sc->getColor();
             ImGui::ColorPicker3("Creature color", color.data());
             sc->setColor(color);
+#if 0
+            memcpy(_activeCreatureMemoryImage.data<float>(), cc->cognition.getMemory().data(),
+                CreatureCognition::memorySize * sizeof(float));
+            _activeCreatureMemoryTexture.updateFromImage(_activeCreatureMemoryImage);
 
+            auto texId = _activeCreatureMemoryTexture.id();
+            ImGui::Image(&texId, ImVec2(4, 4));
+#endif
             ImGui::End();
         }
         else // creature has been removed
