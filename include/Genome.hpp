@@ -18,7 +18,7 @@
 
 class Genome : protected Vector<float> {
 public:
-    static constexpr size_t genomeHeaderSize = 12;
+    static constexpr size_t genomeHeaderSize = 8;
     static constexpr size_t genomeSize = genomeHeaderSize+CreatureCognition::totalSize;
 
     enum { // indices for addressing the genome
@@ -29,18 +29,14 @@ public:
         CHILD_ENERGY = 4,
         COLOR_R = 5,
         COLOR_G = 6,
-        COLOR_B = 7,
-        MUTATION_PROBABILITY_1 = 8,
-        MUTATION_AMPLITUDE_1 = 9,
-        MUTATION_PROBABILITY_2 = 10,
-        MUTATION_AMPLITUDE_2 = 11, // header ends here
+        COLOR_B = 7, // header ends here
         COGNITION_BEGIN = genomeHeaderSize,
         COGNITION_END = genomeSize
     };
 
-    enum class MutationMode {
-        ADDITIVE,
-        MULTIPLICATIVE
+    enum MutationMode {
+        ADDITIVE = 0,
+        MULTIPLICATIVE = 1
     };
 
     // methods exposed from Vector

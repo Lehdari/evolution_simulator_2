@@ -8,7 +8,3 @@ Creature Genome:
 5:  Color, Red channel
 6:  Color, Green channel
 7:  Color, Blue Channel
-8: Mutation probability, 1st pass
-9: Mutation amplitude, 1st pass
-10: Mutation probability, 2nd pass
-11: Mutation amplitude, 2nd pass

@@ -12,6 +12,11 @@
 #define EVOLUTION_SIMULATOR_2_CONFIGSINGLETON_HPP
 
 
+#include <gut_utils/TypeUtils.hpp>
+
+#include "MutationStage.hpp"
+
+
 struct ConfigSingleton {
     static constexpr float  worldSize = 1024.0f; // world size (ranges from -worldSize to worldSize)
     static constexpr float  spriteRadius = 64.0f; // sprite radius in pixels
@@ -34,6 +39,10 @@ struct ConfigSingleton {
     double  foodPerTick = 1.0; // number of food entities added each tick
     double  foodGrowthRate = 0.02; // amount of mass added to each growing food (plant) entity each tick
     double  foodSpoilRate = 0.006; // amount of mass reduced from each rotting food (meat) entity each tick
+
+    Vector<MutationStage>   mutationStages;
+
+    ConfigSingleton();
 };
 
 
