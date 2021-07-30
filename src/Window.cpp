@@ -225,6 +225,9 @@ void Window::handleEvent(SDL_Event& event)
                 case SDLK_PAUSE:
                     _paused = !_paused;
                     break;
+                case SDLK_F12:
+                    SDL_SetWindowFullscreen(_window, SDL_GetWindowFlags(_window) ^ SDL_WINDOW_FULLSCREEN);
+                    break;
             }
         case SDL_MOUSEWHEEL:
             _viewport.zoom(std::pow(1.414213562373f, (float)event.wheel.y), _cursorPosition);
