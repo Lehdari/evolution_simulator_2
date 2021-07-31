@@ -30,24 +30,24 @@
 Window::Window(
     const Window::Settings &settings
 ) :
-    _settings           (settings),
-    _window             (nullptr),
-    _quit               (false),
-    _paused             (false),
-    _viewport           (_settings.window.width, _settings.window.height,
-        Vec2f(_settings.window.width*0.5f, _settings.window.height*0.5f), 32.0f),
-    _cursorPosition     (0.0f, 0.0f),
-    _activeCreature     (-1),
-    _activeCreatureFollow           (false),
-    _lastTicks          (0),
-    _frameTicks         (0),
-    _windowContext      (*this),
-    _eventSystem        (_ecs),
-    _creatureSystem     (_ecs),
-    _foodSystem         (_ecs),
-    _collisionSystem    (_ecs, _eventSystem),
-    _spriteSystem       (_ecs),
-    _spriteSheetId      (-1)
+    _settings               (settings),
+    _window                 (nullptr),
+    _quit                   (false),
+    _paused                 (false),
+    _viewport               (_settings.window.width, _settings.window.height,
+                             Vec2f(_settings.window.width*0.5f, _settings.window.height*0.5f), 32.0f),
+    _cursorPosition         (0.0f, 0.0f),
+    _activeCreature         (-1),
+    _activeCreatureFollow   (false),
+    _lastTicks              (0),
+    _frameTicks             (0),
+    _windowContext          (*this),
+    _eventSystem            (_ecs),
+    _creatureSystem         (_ecs),
+    _foodSystem             (_ecs),
+    _collisionSystem        (_ecs, _eventSystem),
+    _spriteSystem           (_ecs),
+    _spriteSheetId          (-1)
 {
     int err;
 
