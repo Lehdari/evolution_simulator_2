@@ -278,17 +278,80 @@ void Window::updateGUI()
         ImGui::Text("N. Creatures: %lu\n", nCreatures);
         ImGui::Text("N. Food: %lu\n", nFood);
 
-        static double foodPerTickMin = 0.001;
-        static double foodPerTickMax = 100.0;
-        ImGui::SliderScalar("foodPerTick", ImGuiDataType_Double, &config.foodPerTick,
-            &foodPerTickMin, &foodPerTickMax, "%.5f", ImGuiSliderFlags_Logarithmic);
-
-        static double foodGrowthRateMin = 0.0001;
-        static double foodGrowthRateMax = 0.1;
-        ImGui::SliderScalar("foodGrowthRate", ImGuiDataType_Double, &config.foodGrowthRate,
-            &foodGrowthRateMin, &foodGrowthRateMax, "%.5f", ImGuiSliderFlags_Logarithmic);
-
         ImGui::Checkbox("Paused", &_paused);
+
+        if (ImGui::CollapsingHeader("Food Controls")) {
+            static double foodPerTickMin = 0.001;
+            static double foodPerTickMax = 100.0;
+            ImGui::SliderScalar("foodPerTick", ImGuiDataType_Double, &config.foodPerTick,
+                                &foodPerTickMin, &foodPerTickMax, "%.5f", ImGuiSliderFlags_Logarithmic);
+
+            static double foodGrowthRateMin = 0.0001;
+            static double foodGrowthRateMax = 0.1;
+            ImGui::SliderScalar("foodGrowthRate", ImGuiDataType_Double, &config.foodGrowthRate,
+                                &foodGrowthRateMin, &foodGrowthRateMax, "%.5f", ImGuiSliderFlags_Logarithmic);
+        }
+
+        // mutation menu
+        if (ImGui::CollapsingHeader("Mutation")) {
+            // slider bounds and drop menu item names
+            static const float probabilityBounds[2] = { 0.0001f, 1.0f };
+            static const float amplitudeBounds[2] = { 0.0001f, 1.0f };
+            static const char* modeTitles[] = { "Additive", "Multiplicative" };
+
+            ImGui::Indent();
+            int stageId = 0;
+
+            // list all stages
+            for (auto stageIt = config.mutationStages.begin(); stageIt < config.mutationStages.end(); ++stageIt) {
+                auto& stage = *stageIt;
+                std::stringstream stageName;
+                stageName << "Stage " << ++stageId;
+                bool stageEnabled = true; // the following CollapsingHeader will set this to false to signify stage deletion
+
+                if (ImGui::CollapsingHeader(stageName.str().c_str(), &stageEnabled)) {
+
+                    // element names
+                    std::stringstream probabilityName, amplitudeName, modeName;
+                    probabilityName << "Probability##evolution" << stageId;
+                    amplitudeName << "Amplitude##evolution" << stageId;
+                    modeName << "Mode##evolution" << stageId;
+
+                    // sliders for probability and amplitude
+                    ImGui::SliderScalar(probabilityName.str().c_str(), ImGuiDataType_Float, &stage.probability,
+                                        probabilityBounds, probabilityBounds+1, "%.5f", ImGuiSliderFlags_Logarithmic);
+
+                    ImGui::SliderScalar(amplitudeName.str().c_str(), ImGuiDataType_Float, &stage.amplitude,
+                                        amplitudeBounds, amplitudeBounds+1, "%.5f", ImGuiSliderFlags_Logarithmic);
+
+                    // drop menu for the mutation mode
+                    const char* currentModeTitle = modeTitles[stage.mode];
+                    if (ImGui::BeginCombo(modeName.str().c_str(), currentModeTitle)) {
+                        for (int n = 0; n < IM_ARRAYSIZE(modeTitles); n++)
+                        {
+                            bool isSelected = (currentModeTitle == modeTitles[n]);
+                            if (ImGui::Selectable(modeTitles[n], isSelected))
+                                stage.mode = static_cast<Genome::MutationMode>(n);
+                            if (isSelected)
+                                ImGui::SetItemDefaultFocus();
+                        }
+                        ImGui::EndCombo();
+                    }
+                }
+
+                // stage is deleted
+                if (!stageEnabled)
+                    stageIt = config.mutationStages.erase(stageIt);
+            }
+
+            // button for adding new stages
+            if (ImGui::Button("Add Stage")) {
+                config.mutationStages.emplace_back(0.1f, 0.1f, Genome::MutationMode::ADDITIVE);
+            }
+
+            ImGui::Unindent();
+        }
+
         ImGui::End();
     }
 
