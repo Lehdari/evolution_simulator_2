@@ -17,6 +17,7 @@
 #include <ConfigSingleton.hpp>
 #include <LineSingleton.hpp>
 #include <ResourceSingleton.hpp>
+#include <MapSingleton.hpp>
 #include <EventHandlers.hpp>
 #include <imgui.h>
 #include <backends/imgui_impl_sdl.h>
@@ -131,6 +132,7 @@ void Window::init(void)
         (int)_settings.window.width, (int)_settings.window.height);
 
     _ecs.getSingleton<ResourceSingleton>()->init(_spriteSheetId);
+    _ecs.getSingleton<MapSingleton>();
 
     fug::SpriteComponent creatureSpriteComponent(_spriteSheetId, 0);
     creatureSpriteComponent.setOrigin(Vec2f(ConfigSingleton::spriteRadius, ConfigSingleton::spriteRadius));
@@ -139,6 +141,7 @@ void Window::init(void)
     foodSpriteComponent.setColor(Vec3f(0.2f, 0.6f, 0.0f));
 
     auto& config = *_ecs.getSingleton<ConfigSingleton>();
+    auto& map = *_ecs.getSingleton<MapSingleton>();
 
     // Create creatures
     constexpr int nCreatures = 2000;
@@ -157,11 +160,7 @@ void Window::init(void)
     // Create food
     constexpr int nFoods = 5000;
     for (int i=0; i<nFoods; ++i) {
-        // get position using rejection sampling
-        Vec2f p(RNDS*ConfigSingleton::worldSize, RNDS*ConfigSingleton::worldSize);
-        while (gauss2(p, 256.0f) < RND)
-            p << RNDS*ConfigSingleton::worldSize, RNDS*ConfigSingleton::worldSize;
-
+        Vec2f p = map.sampleFertility();
         double mass = RNDRANGE(ConfigSingleton::minFoodMass, ConfigSingleton::maxFoodMass);
         createFood(_ecs, FoodComponent::Type::PLANT, mass, p);
     }
@@ -186,6 +185,8 @@ void Window::loop(void)
 
         _creatureSystem.setStage(CreatureSystem::Stage::PROCESS_INPUTS);
         _ecs.runSystem(_creatureSystem);
+
+        _ecs.getSingleton<MapSingleton>()->render(_viewport);
 
         // Render sprites
         _ecs.runSystem(_spriteSystem);
@@ -387,6 +388,7 @@ void Window::updateWorld(void)
 {
     static auto& world = *_ecs.getSingleton<WorldSingleton>();
     static auto& config = *_ecs.getSingleton<ConfigSingleton>();
+    static auto& map = *_ecs.getSingleton<MapSingleton>();
 
     _creatureSystem.setStage(CreatureSystem::Stage::COGNITION);
     _ecs.runSystem(_creatureSystem);
@@ -401,11 +403,7 @@ void Window::updateWorld(void)
         static double nNewFood = 0.0;
         nNewFood += config.foodPerTick;
         for (int i = 0; i < (int)nNewFood; ++i) {
-            // get position using rejection sampling
-            Vec2f p(RNDS * ConfigSingleton::worldSize, RNDS * ConfigSingleton::worldSize);
-            while (gauss2(p, 256.0f) < RND)
-                p << RNDS * ConfigSingleton::worldSize, RNDS * ConfigSingleton::worldSize;
-
+            Vec2f p = map.sampleFertility();
             createFood(_ecs, FoodComponent::Type::PLANT, ConfigSingleton::minFoodMass, p);
         }
         nNewFood -= (int)nNewFood;
