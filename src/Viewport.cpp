@@ -72,6 +72,16 @@ Vec2f Viewport::toWorld(const Vec2f& position)
     return (_viewport.inverse() * Vec3f(position(0), position(1), 1.0)).block<2,1>(0,0);
 }
 
+float Viewport::getWindowWidth() const
+{
+    return _windowWidth;
+}
+
+float Viewport::getWindowHeight() const
+{
+    return _windowHeight;
+}
+
 const Mat3f& Viewport::getViewport() const
 {
     return _viewport;

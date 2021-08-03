@@ -41,6 +41,8 @@ public:
 
     Vec2f toWorld(const Vec2f& position);
 
+    float getWindowWidth() const;
+    float getWindowHeight() const;
     const Mat3f& getViewport() const;
 
     operator const Mat3f&() const;
