@@ -52,8 +52,8 @@ public:
         bool doubleBuffer;
 
         explicit GLSettings(
-                int32_t contextMajor = 3,
-                int32_t contextMinor = 3,
+                int32_t contextMajor = 4,
+                int32_t contextMinor = 5,
                 SDL_GLcontextFlag contextFlags = SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG,
                 SDL_GLprofile profileMask = SDL_GL_CONTEXT_PROFILE_CORE,
                 bool doubleBuffer = true) :
