@@ -51,7 +51,7 @@ MapSingleton::MapSingleton() :
     _worldQuad.loadFromVertexData(worldQuadVertexData);
 
     // load textures
-    _fertilityMapTexture.loadFromFile(EVOLUTION_SIMULATOR_RES("textures/map1.png"));
+    _fertilityMapTexture.loadFromFile(EVOLUTION_SIMULATOR_RES("textures/map1.png"), GL_FLOAT);
     _fertilityMapTexture.enableDoubleBuffering();
     _fertilityMapTexture.setWrapping(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
 }
