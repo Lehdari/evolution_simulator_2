@@ -24,12 +24,14 @@ class MapSingleton {
 public:
     MapSingleton();
 
+    void diffuseFertility();
     Vec2f sampleFertility();
 
     void render(const Viewport& viewport);
 
 private:
     gut::Shader     _mapRenderShader;
+    gut::Shader     _diffusionShader;
     gut::Mesh       _worldQuad;
 
     gut::Texture    _fertilityMapTexture;

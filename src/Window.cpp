@@ -400,6 +400,9 @@ void Window::updateWorld(void)
     _ecs.runSystem(_creatureSystem);
 
     {   // Create new food
+        // fertility diffusion
+        map.diffuseFertility();
+
         static double nNewFood = 0.0;
         nNewFood += config.foodPerTick;
         for (int i = 0; i < (int)nNewFood; ++i) {

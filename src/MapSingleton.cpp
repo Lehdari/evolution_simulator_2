@@ -16,14 +16,15 @@
 
 
 MapSingleton::MapSingleton() :
-    _fertilityMapTexture    (GL_TEXTURE_2D, GL_RED, GL_FLOAT),
+    _fertilityMapTexture    (GL_TEXTURE_2D, GL_R32F, GL_FLOAT),
     _fertilityMapImage      (gut::Image::DataFormat::GRAY, gut::Image::DataType::F32),
     _fertilityMapImageDirty (true)
 {
-    // load the shader
+    // load the shaders
     _mapRenderShader.load(
         EVOLUTION_SIMULATOR_RES("shaders/VS_Map.glsl"),
         EVOLUTION_SIMULATOR_RES("shaders/FS_Map.glsl"));
+    _diffusionShader.load(EVOLUTION_SIMULATOR_RES("shaders/CS_Diffusion.glsl"), GL_COMPUTE_SHADER);
 
     // setup the world quad
     gut::VertexData worldQuadVertexData;
@@ -49,9 +50,20 @@ MapSingleton::MapSingleton() :
 
     _worldQuad.loadFromVertexData(worldQuadVertexData);
 
-
     // load textures
     _fertilityMapTexture.loadFromFile(EVOLUTION_SIMULATOR_RES("textures/map1.png"));
+    _fertilityMapTexture.enableDoubleBuffering();
+    _fertilityMapTexture.setWrapping(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+}
+
+void MapSingleton::diffuseFertility()
+{
+    _fertilityMapTexture.bindImage(0, 0, GL_READ_ONLY, true);
+    _fertilityMapTexture.bindImage(1, 0, GL_WRITE_ONLY, false);
+    _diffusionShader.dispatch(128, 128, 1);
+    _fertilityMapTexture.swap();
+    _fertilityMapTexture.generateMipMaps();
+    _fertilityMapImageDirty = true;
 }
 
 Vec2f MapSingleton::sampleFertility()
@@ -83,7 +95,7 @@ void MapSingleton::render(const Viewport& viewport)
     _mapRenderShader.setUniform("viewport", static_cast<const Mat3f&>(viewport));
     _mapRenderShader.setUniform("windowWidth", (int)viewport.getWindowWidth());
     _mapRenderShader.setUniform("windowHeight", (int)viewport.getWindowHeight());
-    _fertilityMapTexture.bind(0);
+    _fertilityMapTexture.bind(GL_TEXTURE0);
     _mapRenderShader.setUniform("tex", 0);
     _worldQuad.render(_mapRenderShader);
 }
