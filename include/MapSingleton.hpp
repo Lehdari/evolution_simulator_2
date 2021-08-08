@@ -18,6 +18,7 @@
 #include <gut_opengl/Mesh.hpp>
 #include <gut_opengl/Texture.hpp>
 #include <gut_image/Image.hpp>
+#include <gut_utils/TypeUtils.hpp>
 
 
 class MapSingleton {
@@ -25,7 +26,7 @@ public:
     MapSingleton();
 
     void diffuseFertility();
-    Vec2f sampleFertility();
+    Vector<Vec2f> sampleFertility(int nSamples);
 
     void render(const Viewport& viewport);
 
@@ -35,8 +36,6 @@ private:
     gut::Mesh       _worldQuad;
 
     gut::Texture    _fertilityMapTexture;
-    gut::Image      _fertilityMapImage;
-    bool            _fertilityMapImageDirty;
 };
 
 

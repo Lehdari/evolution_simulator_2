@@ -159,8 +159,8 @@ void Window::init(void)
 
     // Create food
     constexpr int nFoods = 5000;
-    for (int i=0; i<nFoods; ++i) {
-        Vec2f p = map.sampleFertility();
+    auto foodPositions = map.sampleFertility(nFoods);
+    for (auto& p : foodPositions) {
         double mass = RNDRANGE(ConfigSingleton::minFoodMass, ConfigSingleton::maxFoodMass);
         createFood(_ecs, FoodComponent::Type::PLANT, mass, p);
     }
@@ -405,8 +405,8 @@ void Window::updateWorld(void)
 
         static double nNewFood = 0.0;
         nNewFood += config.foodPerTick;
-        for (int i = 0; i < (int)nNewFood; ++i) {
-            Vec2f p = map.sampleFertility();
+        auto foodPositions = map.sampleFertility((int)nNewFood);
+        for (auto& p : foodPositions) {
             createFood(_ecs, FoodComponent::Type::PLANT, ConfigSingleton::minFoodMass, p);
         }
         nNewFood -= (int)nNewFood;

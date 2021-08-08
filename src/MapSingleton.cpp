@@ -16,9 +16,7 @@
 
 
 MapSingleton::MapSingleton() :
-    _fertilityMapTexture    (GL_TEXTURE_2D, GL_R32F, GL_FLOAT),
-    _fertilityMapImage      (gut::Image::DataFormat::GRAY, gut::Image::DataType::F32),
-    _fertilityMapImageDirty (true)
+    _fertilityMapTexture    (GL_TEXTURE_2D, GL_R32F, GL_FLOAT)
 {
     // load the shaders
     _mapRenderShader.load(
@@ -63,30 +61,35 @@ void MapSingleton::diffuseFertility()
     _diffusionShader.dispatch(128, 128, 1);
     _fertilityMapTexture.swap();
     _fertilityMapTexture.generateMipMaps();
-    _fertilityMapImageDirty = true;
 }
 
-Vec2f MapSingleton::sampleFertility()
+Vector<Vec2f> MapSingleton::sampleFertility(int nSamples)
 {
-    if (_fertilityMapImageDirty) {
-        _fertilityMapTexture.copyToImage(_fertilityMapImage);
-        _fertilityMapImageDirty = false;
+    // map the fertility to an image
+    auto& img = _fertilityMapTexture.mapToImage();
+
+    // get samples
+    Vector<Vec2f> samples;
+    for (int i=0; i<nSamples; ++i) {
+        Vec2f sample(RND, RND);
+        gut::Image::Pixel<float> pixel = img(
+            (int)(sample(0)*(float)_fertilityMapTexture.width()),
+            (int)(sample(1)*(float)_fertilityMapTexture.height()));
+
+        // use rejection sampling
+        while (pixel.r < RND) {
+            sample << RND, RND;
+            pixel = img(
+                (int)(sample(0)*(float)_fertilityMapTexture.width()),
+                (int)(sample(1)*(float)_fertilityMapTexture.height()));
+        }
+
+        samples.push_back((sample*2.0f - Vec2f(1.0f, 1.0f))*ConfigSingleton::worldSize);
     }
 
-    Vec2f p(RND, RND);
-    gut::Image::Pixel<float> sample = _fertilityMapImage(
-        (int)(p(0)*(float)_fertilityMapTexture.width()),
-        (int)(p(1)*(float)_fertilityMapTexture.height()));
+    _fertilityMapTexture.unmap();
 
-    // use rejection sampling
-    while (sample.r < RND) {
-        p << RND, RND;
-        sample = _fertilityMapImage(
-            (int)(p(0)*(float)_fertilityMapTexture.width()),
-            (int)(p(1)*(float)_fertilityMapTexture.height()));
-    }
-
-    return (p*2.0f - Vec2f(1.0f, 1.0f))*ConfigSingleton::worldSize;
+    return samples;
 }
 
 void MapSingleton::render(const Viewport& viewport)
