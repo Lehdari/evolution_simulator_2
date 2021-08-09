@@ -36,9 +36,9 @@ struct ConfigSingleton {
     double  foodPlantMassToEnergyConstant = 50.0; // ratio by which plant food mass in converted to creature energy
     double  foodMeatMassToEnergyConstant = 950.0; // ratio by which meat food mass in converted to creature energy
 
-    double  foodPerTick = 1.0; // number of food entities added each tick
-    double  foodGrowthRate = 0.02; // amount of mass added to each growing food (plant) entity each tick
-    double  foodSpoilRate = 0.006; // amount of mass reduced from each rotting food (meat) entity each tick
+    double  foodPerTick = 10.0; // number of food entities added each tick
+    double  foodGrowthRate = 0.05; // amount of mass added to each growing food (plant) entity each tick
+    double  foodSpoilRate = 0.005; // amount of mass reduced from each rotting food (meat) entity each tick
 
     Vector<MutationStage>   mutationStages;
 
