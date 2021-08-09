@@ -11,6 +11,7 @@
 #include <FoodSystem.hpp>
 #include <WorldSingleton.hpp>
 #include <ConfigSingleton.hpp>
+#include <MapSingleton.hpp>
 
 
 FoodSystem::FoodSystem(fug::Ecs& ecs) :
@@ -42,14 +43,31 @@ void FoodSystem::grow(
     fug::Orientation2DComponent& orientationComponent)
 {
     static auto& config = *_ecs.getSingleton<ConfigSingleton>();
+    static auto& map = *_ecs.getSingleton<MapSingleton>();
+
+    auto& fertilityMap = map.fertilityMap();
+    auto& p = orientationComponent.getPosition();
+
+    // map pixel position
+    Vec2f pn = ((p / ConfigSingleton::worldSize) + Vec2f(1.0f, 1.0f))*0.5f;
+    int pfx = std::clamp<int>(pn(0) * fertilityMap.width(), 0, fertilityMap.width()-1);
+    int pfy = std::clamp<int>(pn(1) * fertilityMap.height(), 0, fertilityMap.height()-1);
+
+    gut::Image::Pixel<float> fMapPixel = fertilityMap(pfx, pfy);
 
     switch (foodComponent.type) {
         case FoodComponent::Type::PLANT:
-            if (foodComponent.mass < ConfigSingleton::maxFoodMass)
-                foodComponent.mass += config.foodGrowthRate;
+            if (foodComponent.mass < ConfigSingleton::maxFoodMass) {
+                double growthMass = config.foodGrowthRate*fMapPixel.r;
+                foodComponent.mass += config.foodGrowthRate*growthMass;
+                fMapPixel.r -= (float)growthMass;
+                fertilityMap.setPixel(pfx, pfy, fMapPixel);
+            }
             break;
         case FoodComponent::Type::MEAT:
             foodComponent.mass -= config.foodSpoilRate;
+            fMapPixel.r += (float)(config.foodSpoilRate*100.0f);
+            fertilityMap.setPixel(pfx, pfy, fMapPixel);
             if (foodComponent.mass <= 0.0)
                 _ecs.removeEntity(eId);
             break;

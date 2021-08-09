@@ -168,6 +168,8 @@ void Window::init(void)
 
 void Window::loop(void)
 {
+    auto& map = *_ecs.getSingleton<MapSingleton>();
+
     // Application main loop
     while (!_quit) {
         // Event handling
@@ -181,14 +183,14 @@ void Window::loop(void)
 
         if (!_paused)
             updateWorld();
-        updateGUI();
 
         _creatureSystem.setStage(CreatureSystem::Stage::PROCESS_INPUTS);
         _ecs.runSystem(_creatureSystem);
 
-        _ecs.getSingleton<MapSingleton>()->render(_viewport);
+        updateGUI();
 
-        // Render sprites
+        // Render world
+        map.render(_viewport);
         _ecs.runSystem(_spriteSystem);
         _ecs.getSingleton<fug::SpriteSingleton>()->render(_viewport);
         _ecs.getSingleton<LineSingleton>()->render(_viewport);
@@ -199,6 +201,11 @@ void Window::loop(void)
 
         // Swap draw and display buffers
         SDL_GL_SwapWindow(_window);
+
+        if (!_paused) {
+            // Map update (GPGPU pass)
+            map.diffuseFertility();
+        }
 
         uint32_t curTicks = SDL_GetTicks();
         _frameTicks = curTicks - _lastTicks;
@@ -390,19 +397,23 @@ void Window::updateWorld(void)
     static auto& config = *_ecs.getSingleton<ConfigSingleton>();
     static auto& map = *_ecs.getSingleton<MapSingleton>();
 
+    // initiate pixel data transfer from GPU
+    map.prefetch();
+
     _creatureSystem.setStage(CreatureSystem::Stage::COGNITION);
     _ecs.runSystem(_creatureSystem);
     _creatureSystem.setStage(CreatureSystem::Stage::DYNAMICS);
     _ecs.runSystem(_creatureSystem);
+
+    // map the pixel data memory
+    map.map();
+
     if (_activeCreature >= 0 && _ecs.getComponent<CreatureComponent>(_activeCreature) == nullptr)
         _activeCreature = -1;
     _creatureSystem.setStage(CreatureSystem::Stage::REPRODUCTION);
     _ecs.runSystem(_creatureSystem);
 
     {   // Create new food
-        // fertility diffusion
-        map.diffuseFertility();
-
         static double nNewFood = 0.0;
         nNewFood += config.foodPerTick;
         auto foodPositions = map.sampleFertility((int)nNewFood);
@@ -430,6 +441,9 @@ void Window::updateWorld(void)
 
     _foodSystem.setStage(FoodSystem::Stage::GROW);
     _ecs.runSystem(_foodSystem);
+
+    // unmap the pixel data memory
+    map.unmap();
 
     addEntitiesToWorld();
 

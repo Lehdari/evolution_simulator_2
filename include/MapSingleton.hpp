@@ -25,6 +25,11 @@ class MapSingleton {
 public:
     MapSingleton();
 
+    void prefetch();
+    void map();
+    void unmap();
+    gut::Image& fertilityMap();
+
     void diffuseFertility();
     Vector<Vec2f> sampleFertility(int nSamples);
 
@@ -36,6 +41,8 @@ private:
     gut::Mesh       _worldQuad;
 
     gut::Texture    _fertilityMapTexture;
+    gut::Image*     _fertilityMapImage;
+    float           _averageFertility;
 };
 
 

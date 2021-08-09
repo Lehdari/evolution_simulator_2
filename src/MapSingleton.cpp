@@ -16,7 +16,9 @@
 
 
 MapSingleton::MapSingleton() :
-    _fertilityMapTexture    (GL_TEXTURE_2D, GL_R32F, GL_FLOAT)
+    _fertilityMapTexture    (GL_TEXTURE_2D, GL_R32F, GL_FLOAT),
+    _fertilityMapImage      (nullptr),
+    _averageFertility       (0.0f)
 {
     // load the shaders
     _mapRenderShader.load(
@@ -52,34 +54,71 @@ MapSingleton::MapSingleton() :
     _fertilityMapTexture.loadFromFile(EVOLUTION_SIMULATOR_RES("textures/map1.png"), GL_FLOAT);
     _fertilityMapTexture.enableDoubleBuffering();
     _fertilityMapTexture.setWrapping(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+
+    // read average fertility from the 1x1 mipmap
+    _fertilityMapTexture.generateMipMaps();
+    _fertilityMapTexture.bind();
+    glGetnTexImage(GL_TEXTURE_2D, 12, GL_RED, GL_FLOAT, sizeof(float), &_averageFertility);
+}
+
+void MapSingleton::prefetch()
+{
+    _fertilityMapTexture.initiateMapping();
+}
+
+void MapSingleton::map()
+{
+    _fertilityMapImage = &_fertilityMapTexture.mapToImage();
+}
+
+void MapSingleton::unmap()
+{
+    _fertilityMapTexture.unmap();
+    _fertilityMapImage = nullptr;
+}
+
+gut::Image& MapSingleton::fertilityMap()
+{
+    return *_fertilityMapImage;
 }
 
 void MapSingleton::diffuseFertility()
 {
+    _diffusionShader.use();
+    _diffusionShader.setUniform("averageFertility", _averageFertility);
+
     _fertilityMapTexture.bindImage(0, 0, GL_READ_ONLY, true);
     _fertilityMapTexture.bindImage(1, 0, GL_WRITE_ONLY, false);
     _diffusionShader.dispatch(128, 128, 1);
     _fertilityMapTexture.swap();
     _fertilityMapTexture.generateMipMaps();
+
+    // read new average fertility
+    _fertilityMapTexture.bind();
+    glGetnTexImage(GL_TEXTURE_2D, 12, GL_RED, GL_FLOAT, sizeof(float), &_averageFertility);
 }
 
 Vector<Vec2f> MapSingleton::sampleFertility(int nSamples)
 {
-    // map the fertility to an image
-    auto& img = _fertilityMapTexture.mapToImage();
+    bool justInTimeMapped = false;
+    if (_fertilityMapImage == nullptr) {
+        prefetch();
+        map();
+        justInTimeMapped = true;
+    }
 
     // get samples
     Vector<Vec2f> samples;
     for (int i=0; i<nSamples; ++i) {
         Vec2f sample(RND, RND);
-        gut::Image::Pixel<float> pixel = img(
+        gut::Image::Pixel<float> pixel = (*_fertilityMapImage)(
             (int)(sample(0)*(float)_fertilityMapTexture.width()),
             (int)(sample(1)*(float)_fertilityMapTexture.height()));
 
         // use rejection sampling
         while (pixel.r < RND) {
             sample << RND, RND;
-            pixel = img(
+            pixel = (*_fertilityMapImage)(
                 (int)(sample(0)*(float)_fertilityMapTexture.width()),
                 (int)(sample(1)*(float)_fertilityMapTexture.height()));
         }
@@ -87,7 +126,8 @@ Vector<Vec2f> MapSingleton::sampleFertility(int nSamples)
         samples.push_back((sample*2.0f - Vec2f(1.0f, 1.0f))*ConfigSingleton::worldSize);
     }
 
-    _fertilityMapTexture.unmap();
+    if (justInTimeMapped)
+        _fertilityMapTexture.unmap();
 
     return samples;
 }
