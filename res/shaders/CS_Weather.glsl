@@ -27,21 +27,16 @@ uniform int pass = 0;
 uniform float rainRate;
 uniform float evaporationRate;
 
+uniform float cellSize = 1.0;
+
 const float deltaTime = 0.1;
 const float gravity = 4.0;
 const float pipeCrossSectionArea = 0.25;
 const float pipeLength = 1.0;
-//const float lx = 1.0;
-//const float ly = 1.0;
 const float sedimentCapacity = 0.01;
 const float baseSedimentCapacity = 0.001;
 const float dissolvingConstant = 0.002;
 const float depositionConstant = 0.003;
-
-//const float sedimentCapacity = 0.01;
-//const float baseSedimentCapacity = 0.001;
-//const float dissolvingConstant = 0.002;
-//const float depositionConstant = 0.005;
 
 
 float rainPattern(vec2 p) {
@@ -119,7 +114,7 @@ void main() {
             float fluxScale = 1.0;
             float fluxSum = sFlux.r+sFlux.g+sFlux.b+sFlux.a;
             if (fluxSum != 0.0)
-                fluxScale = min(1, (sWater.r /* *lx*ly*/)/((sFlux.r+sFlux.g+sFlux.b+sFlux.a)*deltaTime));
+                fluxScale = min(1, (sWater.r*cellSize*cellSize)/((sFlux.r+sFlux.g+sFlux.b+sFlux.a)*deltaTime));
             sFlux *= fluxScale;
 
             imageStore(rainOutput, pPixel, vec4(rain, 0.0, 0.0, 0.0));
@@ -143,8 +138,8 @@ void main() {
                 -sFlux.r-sFlux.g-sFlux.b-sFlux.a);
 
             // Water level update
-            sWater.r += deltaVolume;
-            //sWater.r += deltaVolume/(lx*ly);
+            //sWater.r += deltaVolume;
+            sWater.r += deltaVolume/(cellSize*cellSize);
 
             w += sWater.r;
             w *= 0.5;
@@ -155,8 +150,8 @@ void main() {
             );
 
             if (w > 0.0)
-                sWater.gb = waterFlow/w;
-                //sWater.gb = vec2(waterFlow.x/(w*ly), waterFlow.y/(w*lx));
+                //sWater.gb = waterFlow/w;
+                sWater.gb = vec2(waterFlow.x/(w*cellSize), waterFlow.y/(w*cellSize));
 
             imageStore(waterOutput, pPixel, sWater);
             return;
@@ -189,7 +184,7 @@ void main() {
 
             slopes = abs(slopes);
             vec2 maxSlope = vec2(max(slopes.x, slopes.y), max(slopes.z, slopes.a));
-            vec2 tiltSin = maxSlope / sqrt(1.0 + maxSlope*maxSlope);
+            vec2 tiltSin = maxSlope / sqrt(cellSize*cellSize + maxSlope*maxSlope);
 
             // Sediment transport capacity
             float sedimentTransportCap = sWater.r*length(sWater.gb*
