@@ -170,6 +170,8 @@ void Window::loop(void)
 {
     auto& map = *_ecs.getSingleton<MapSingleton>();
 
+    uint32_t frameId = 0;
+
     // Application main loop
     while (!_quit) {
         // Event handling
@@ -204,7 +206,9 @@ void Window::loop(void)
 
         if (!_paused) {
             // Map update (GPGPU pass)
+            map.simulateWeather(frameId);
             map.diffuseFertility();
+            ++frameId;
         }
 
         uint32_t curTicks = SDL_GetTicks();

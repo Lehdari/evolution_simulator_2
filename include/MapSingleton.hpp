@@ -34,15 +34,25 @@ public:
     Vector<Vec2f> sampleFertility(int nSamples);
 
     void render(const Viewport& viewport);
+    void simulateWeather(uint32_t time);
 
 private:
     gut::Shader     _mapRenderShader;
     gut::Shader     _diffusionShader;
+    gut::Shader     _weatherShader;
     gut::Mesh       _worldQuad;
 
     gut::Texture    _fertilityMapTexture;
     gut::Image*     _fertilityMapImage;
     float           _averageFertility;
+
+    gut::Texture    _terrainTexture;
+    gut::Texture    _rainTexture;
+    gut::Texture    _waterTexture; // water height, velocity vector, sediment amount
+    gut::Texture    _fluxTexture; // water flux left, right, down, up
+    float           _rainRate;
+    float           _rainRateIntg;
+    float           _evaporationRate;
 };
 
 
