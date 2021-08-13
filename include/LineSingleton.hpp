@@ -36,6 +36,9 @@ public:
 
     void render(const Mat3f& viewport = Mat3f::Identity());
 
+    // clear rendering buffers without rendering
+    void clear();
+
 private:
     gut::Shader                 _shader;
 

@@ -82,6 +82,11 @@ void LineSingleton::render(const Mat3f& viewport)
 
     glDrawArrays(GL_LINES, 0, _vertexPositions.size());
 
+    clear();
+}
+
+void LineSingleton::clear()
+{
     _vertexPositions.clear();
     _vertexColors.clear();
 }
