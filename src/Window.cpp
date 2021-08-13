@@ -40,7 +40,7 @@ Window::Window(
     _cursorPosition         (0.0f, 0.0f),
     _activeCreature         (-1),
     _activeCreatureFollow   (false),
-    _renderMode             (3), // TODO set to 0
+    _renderMode             (1), // TODO set to 0
     _lastTicks              (0),
     _frameTicks             (0),
     _windowContext          (*this),
@@ -372,7 +372,7 @@ void Window::updateGUI()
         }
 
         if (ImGui::CollapsingHeader("Rendering")) {
-            static const char* modeTitles[] = { "Fertility", "Terrain", "Rain", "Flow" };
+            static const char* modeTitles[] = { "Fertility", "Terrain", "Rain" };
 
             // drop menu for the rendering mode
             const char* currentModeTitle = modeTitles[_renderMode];

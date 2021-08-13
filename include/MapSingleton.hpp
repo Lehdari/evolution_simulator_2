@@ -51,6 +51,8 @@ private:
     gut::Texture    _rainTexture;
     gut::Texture    _waterTexture; // water height, velocity vector, sediment amount
     gut::Texture    _fluxTexture; // water flux left, right, down, up
+    gut::Texture    _elevationGradientTexture; // elevation coloring
+    gut::Texture    _waterGradientTexture; // elevation coloring
     float           _rainRate;
     float           _rainRateIntg;
     float           _evaporationRate;

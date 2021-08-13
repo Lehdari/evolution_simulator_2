@@ -16,16 +16,18 @@
 
 
 MapSingleton::MapSingleton() :
-    _fertilityMapTexture    (GL_TEXTURE_2D, GL_R32F, GL_FLOAT),
-    _fertilityMapImage      (nullptr),
-    _averageFertility       (0.0f),
-    _terrainTexture         (GL_TEXTURE_2D, GL_RGBA32F, GL_FLOAT),
-    _rainTexture            (GL_TEXTURE_2D, GL_R32F, GL_FLOAT),
-    _waterTexture            (GL_TEXTURE_2D, GL_RGBA32F, GL_FLOAT),
-    _fluxTexture            (GL_TEXTURE_2D, GL_RGBA32F, GL_FLOAT),
-    _rainRate               (0.05f),
-    _rainRateIntg           (0.0f),
-    _evaporationRate        (0.01f)
+    _fertilityMapTexture        (GL_TEXTURE_2D, GL_R32F, GL_FLOAT),
+    _fertilityMapImage          (nullptr),
+    _averageFertility           (0.0f),
+    _terrainTexture             (GL_TEXTURE_2D, GL_RGBA32F, GL_FLOAT),
+    _rainTexture                (GL_TEXTURE_2D, GL_R32F, GL_FLOAT),
+    _waterTexture               (GL_TEXTURE_2D, GL_RGBA32F, GL_FLOAT),
+    _fluxTexture                (GL_TEXTURE_2D, GL_RGBA32F, GL_FLOAT),
+    _elevationGradientTexture   (GL_TEXTURE_2D, GL_RGB32F, GL_FLOAT),
+    _waterGradientTexture       (GL_TEXTURE_2D, GL_RGB32F, GL_FLOAT),
+    _rainRate                   (0.05f),
+    _rainRateIntg               (0.0f),
+    _evaporationRate            (0.01f)
 {
     // load the shaders
     _mapRenderShader.load(
@@ -96,6 +98,14 @@ MapSingleton::MapSingleton() :
     _fluxTexture.enableDoubleBuffering();
     _fluxTexture.setWrapping(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
     _fluxTexture.generateMipMaps();
+    _elevationGradientTexture.loadFromFile(EVOLUTION_SIMULATOR_RES("textures/elevationGradient.png"));
+    _elevationGradientTexture.setWrapping(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+    _elevationGradientTexture.setFiltering(GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
+    _elevationGradientTexture.generateMipMaps();
+    _waterGradientTexture.loadFromFile(EVOLUTION_SIMULATOR_RES("textures/waterGradient.png"));
+    _waterGradientTexture.setWrapping(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+    _waterGradientTexture.setFiltering(GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
+    _waterGradientTexture.generateMipMaps();
 
     // read average fertility from the 1x1 mipmap
     _fertilityMapTexture.generateMipMaps();
@@ -284,9 +294,13 @@ void MapSingleton::render(const Viewport& viewport, int renderMode)
     _terrainTexture.bind(GL_TEXTURE1);
     _rainTexture.bind(GL_TEXTURE2);
     _waterTexture.bind(GL_TEXTURE3);
+    _elevationGradientTexture.bind(GL_TEXTURE4);
+    _waterGradientTexture.bind(GL_TEXTURE5);
     _mapRenderShader.setUniform("fertility", 0);
     _mapRenderShader.setUniform("terrain", 1);
     _mapRenderShader.setUniform("rain", 2);
     _mapRenderShader.setUniform("water", 3);
+    _mapRenderShader.setUniform("elevationGradient", 4);
+    _mapRenderShader.setUniform("waterGradient", 5);
     _worldQuad.render(_mapRenderShader);
 }
