@@ -1,3 +1,13 @@
+//
+// Project: evolution_simulator_2
+// File: CS_Diffusion.glsl
+//
+// Copyright (c) 2021 Miika 'Lehdari' Lehtimäki
+// You may use, distribute and modify this code under the terms
+// of the licence specified in file LICENSE which is distributed
+// with this source code package.
+//
+
 #version 430
 layout(local_size_x = 32, local_size_y = 32) in;
 layout(r32f, binding = 0) uniform image2D imgInput;
