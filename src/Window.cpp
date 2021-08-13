@@ -40,6 +40,7 @@ Window::Window(
     _cursorPosition         (0.0f, 0.0f),
     _activeCreature         (-1),
     _activeCreatureFollow   (false),
+    _renderMode             (3), // TODO set to 0
     _lastTicks              (0),
     _frameTicks             (0),
     _windowContext          (*this),
@@ -192,10 +193,16 @@ void Window::loop(void)
         updateGUI();
 
         // Render world
-        map.render(_viewport);
-        _ecs.runSystem(_spriteSystem);
-        _ecs.getSingleton<fug::SpriteSingleton>()->render(_viewport);
-        _ecs.getSingleton<LineSingleton>()->render(_viewport);
+        map.render(_viewport, _renderMode);
+        if (_renderMode == 0) {
+            _ecs.runSystem(_spriteSystem);
+            _ecs.getSingleton<fug::SpriteSingleton>()->render(_viewport);
+            _ecs.getSingleton<LineSingleton>()->render(_viewport);
+        }
+        else {
+            _ecs.getSingleton<fug::SpriteSingleton>()->clear();
+            _ecs.getSingleton<LineSingleton>()->clear();
+        }
 
         // Render ImGui
         ImGui::Render();
@@ -362,6 +369,24 @@ void Window::updateGUI()
             }
 
             ImGui::Unindent();
+        }
+
+        if (ImGui::CollapsingHeader("Rendering")) {
+            static const char* modeTitles[] = { "Fertility", "Terrain", "Rain", "Flow" };
+
+            // drop menu for the rendering mode
+            const char* currentModeTitle = modeTitles[_renderMode];
+            if (ImGui::BeginCombo("Mode##rendering", currentModeTitle)) {
+                for (int n = 0; n < IM_ARRAYSIZE(modeTitles); n++)
+                {
+                    bool isSelected = (_renderMode == n);
+                    if (ImGui::Selectable(modeTitles[n], isSelected))
+                        _renderMode = n;
+                    if (isSelected)
+                        ImGui::SetItemDefaultFocus();
+                }
+                ImGui::EndCombo();
+            }
         }
 
         ImGui::End();

@@ -267,13 +267,20 @@ void MapSingleton::simulateWeather(uint32_t time)
     // TODO temp
 }
 
-void MapSingleton::render(const Viewport& viewport)
+void MapSingleton::render(const Viewport& viewport, int renderMode)
 {
     _mapRenderShader.use();
     _mapRenderShader.setUniform("viewport", static_cast<const Mat3f&>(viewport));
     _mapRenderShader.setUniform("windowWidth", (int)viewport.getWindowWidth());
     _mapRenderShader.setUniform("windowHeight", (int)viewport.getWindowHeight());
+    _mapRenderShader.setUniform("renderMode", renderMode);
     _fertilityMapTexture.bind(GL_TEXTURE0);
-    _mapRenderShader.setUniform("tex", 0);
+    _terrainTexture.bind(GL_TEXTURE1);
+    _rainTexture.bind(GL_TEXTURE2);
+    _waterTexture.bind(GL_TEXTURE3);
+    _mapRenderShader.setUniform("fertility", 0);
+    _mapRenderShader.setUniform("terrain", 1);
+    _mapRenderShader.setUniform("rain", 2);
+    _mapRenderShader.setUniform("water", 3);
     _worldQuad.render(_mapRenderShader);
 }

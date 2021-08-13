@@ -128,6 +128,7 @@ private:
     Vec2f               _cursorPosition;
     fug::EntityId       _activeCreature;
     bool                _activeCreatureFollow;
+    int                 _renderMode;
 
     uint32_t            _lastTicks;
     uint32_t            _frameTicks;

@@ -33,8 +33,9 @@ public:
     void diffuseFertility();
     Vector<Vec2f> sampleFertility(int nSamples);
 
-    void render(const Viewport& viewport);
     void simulateWeather(uint32_t time);
+
+    void render(const Viewport& viewport, int renderMode);
 
 private:
     gut::Shader     _mapRenderShader;
