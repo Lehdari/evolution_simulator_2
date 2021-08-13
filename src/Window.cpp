@@ -238,7 +238,7 @@ void Window::handleEvent(SDL_Event& event)
                     break;
             }
         case SDL_MOUSEWHEEL:
-            _viewport.zoom(std::pow(1.414213562373f, (float)event.wheel.y), _cursorPosition);
+            _viewport.zoom(std::pow(1.414213562373f, (float)event.wheel.y), _cursorPosition, 0.125f);
             break;
         case SDL_MOUSEMOTION:
             _cursorPosition << (float)event.motion.x, (float)event.motion.y;
