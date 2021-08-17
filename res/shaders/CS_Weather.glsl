@@ -35,6 +35,7 @@ const float pipeCrossSectionArea = 0.25;
 const float pipeLength = 1.0;
 const float sedimentCapacity = 0.01;
 const float baseSedimentCapacity = 0.001;
+const float concavitySedimentConstant = 0.075;
 const float dissolvingConstant = 0.002;
 const float depositionConstant = 0.003;
 
@@ -165,6 +166,16 @@ void main() {
             vec3 sTerrainUp = imageLoad(terrainInput, pPixel+ivec2(0, 1)).rgb;
             vec4 sWater = imageLoad(waterInput, pPixel);
 
+            // Boundary conditions
+            if (pPixel.x == 0)
+                sTerrainLeft.r = sTerrain.r;
+            if (pPixel.x == imgSize.x-1)
+                sTerrainRight.r = sTerrain.r;
+            if (pPixel.y == 0)
+                sTerrainDown.r = sTerrain.r;
+            if (pPixel.y == imgSize.y-1)
+                sTerrainUp.r = sTerrain.r;
+
             // Slopes to all directions
             vec4 slopes = vec4(
                 sTerrainLeft.r-sTerrain.r,
@@ -172,37 +183,32 @@ void main() {
                 sTerrainDown.r-sTerrain.r,
                 sTerrainUp.r-sTerrain.r);
 
-            // Boundary conditions
-            if (pPixel.x == 0)
-                slopes.x = 0.0;
-            if (pPixel.x == imgSize.x-1)
-                slopes.y = 0.0;
-            if (pPixel.y == 0)
-                slopes.z = 0.0;
-            if (pPixel.y == imgSize.y-1)
-                slopes.w = 0.0;
-
             slopes = abs(slopes);
-            vec2 maxSlope = vec2(max(slopes.x, slopes.y), max(slopes.z, slopes.a));
-            vec2 tiltSin = maxSlope / sqrt(cellSize*cellSize + maxSlope*maxSlope);
+            float maxSlope = max(max(slopes.x, slopes.y), max(slopes.z, slopes.a));
+            float tiltSin = maxSlope / sqrt(cellSize*cellSize + maxSlope*maxSlope);
+
+            float concavityFactor = 0.5+concavitySedimentConstant*(sTerrain.r-
+                (sTerrainLeft.r+sTerrainRight.r+sTerrainDown.r+sTerrainUp.r)*0.25);
 
             // Sediment transport capacity
-            float sedimentTransportCap = sWater.r*length(sWater.gb*
-                (sedimentCapacity*max(tiltSin.x, tiltSin.y) + baseSedimentCapacity));
+            float sedimentTransportCap = sWater.r*concavityFactor*
+                length(sWater.gb*(sedimentCapacity*tiltSin + baseSedimentCapacity));
 
             if (sedimentTransportCap > sWater.a) {
                 float sediment = min(dissolvingConstant*(sedimentTransportCap-sWater.a), sTerrain.r);
                 sTerrain.r -= sediment;
                 sWater.a += sediment;
+                sWater.r += sediment;
             }
             else {
                 float sediment = depositionConstant*(sWater.a-sedimentTransportCap);
                 sTerrain.r += sediment;
                 sWater.a -= sediment;
+                sWater.r -= sediment;
             }
 
             //sTerrain.gb = normal.xy;
-            sTerrain.gb = tiltSin;
+            sTerrain.g = tiltSin;
 
             imageStore(terrainOutput, pPixel, vec4(sTerrain, 1.0));
             imageStore(waterOutput, pPixel, sWater);
