@@ -26,7 +26,6 @@ MapSingleton::MapSingleton() :
     _elevationGradientTexture   (GL_TEXTURE_2D, GL_RGB32F, GL_FLOAT),
     _waterGradientTexture       (GL_TEXTURE_2D, GL_RGB32F, GL_FLOAT),
     _rainRate                   (0.05f),
-    _rainRateIntg               (0.0f),
     _evaporationRate            (0.01f)
 {
     // load the shaders
@@ -243,24 +242,30 @@ void MapSingleton::simulateWeather(uint32_t time)
     glGetnTexImage(GL_TEXTURE_2D, 12, GL_RED, GL_FLOAT, sizeof(float), &averageWaterLevel);
 
     // adjust rain and evaporation rate
+    static float averageWaterLevelPrev = averageWaterLevel;
+    static float averageWaterLevelDeriv = 0.0f;
+    const float derivFilterFactor = 0.05f;
+    averageWaterLevelDeriv = (1.0f-derivFilterFactor)*averageWaterLevelDeriv +
+        derivFilterFactor*(averageWaterLevel-averageWaterLevelPrev);
     float waterLevelDiff = ConfigSingleton::targetWaterLevel-averageWaterLevel;
-    _rainRateIntg += 1.0e-11f * waterLevelDiff;
-    _rainRate += 1.0e-8f * waterLevelDiff + _rainRateIntg;
-    _evaporationRate -= 1.0e-7f * waterLevelDiff;
+    _rainRate += 1.0e-5f * waterLevelDiff - 1.0e-5f*averageWaterLevelDeriv;
+    _evaporationRate -= 1.0e-4f * waterLevelDiff - 1.0e-6f*averageWaterLevelDeriv;
 
     if (_rainRate < 0.0)
         _rainRate = 0.0;
     if (_evaporationRate < 0.0)
         _evaporationRate = 0.0;
 
+    averageWaterLevelPrev = averageWaterLevel;
+
     // TODO temp
     printf("averageWaterLevel: %0.10f\n", averageWaterLevel);
-    printf("_rainRateIntg: %0.10f\n", _rainRateIntg);
+    printf("averageWaterLevelDerivFilter: %0.10f\n", averageWaterLevelDeriv);
     printf("_rainRate: %0.10f\n", _rainRate);
     printf("_evaporationRate: %0.10f\n", _evaporationRate);
     printf("time: %d\n\n", time);
 
-    if (time%10000 == 0) {
+    if (time%50000 == 0) {
         gut::Image terrainSaveImage(gut::Image::DataFormat::GRAY, gut::Image::DataType::F32);
         _terrainTexture.copyToImage(terrainSaveImage);
 
