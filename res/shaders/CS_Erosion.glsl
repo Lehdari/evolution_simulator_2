@@ -57,8 +57,8 @@ void main() {
     switch (pass) {
         case 0: { // Rain and flux pass
             vec2 pNorm = vec2(
-            ((pPixel.x+0.5)/float(imgSize.x)-0.5)*2.0,
-            ((pPixel.y+0.5)/float(imgSize.y)-0.5)*2.0);
+                ((pPixel.x+0.5)/float(imgSize.x)-0.5)*2.0,
+                ((pPixel.y+0.5)/float(imgSize.y)-0.5)*2.0);
 
             // Load data
             vec3 sTerrain = imageLoad(terrainInput, pPixel).rgb;
@@ -72,7 +72,7 @@ void main() {
             vec4 sWaterDown = imageLoad(waterInput, pPixel+ivec2(0, -1));
             vec4 sWaterUp = imageLoad(waterInput, pPixel+ivec2(0, 1));
             vec4 sFlux = imageLoad(fluxInput, pPixel);
-            float sRain = imageLoad(rainInput, pPixel).r;
+            float sRain = imageLoad(rainInput, pPixel/4).r; // rain texture resolution is 1/4 of that of the terrain
 
             // Add water from rain
             sWater.r += max(sRain, 0.0)*deltaTime*rainRate;

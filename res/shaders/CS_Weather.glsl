@@ -34,11 +34,11 @@ float rainPattern(vec2 p) {
 
 void main() {
     ivec2 pPixel = ivec2(gl_GlobalInvocationID.xy);
-    ivec2 imgSize = imageSize(terrainInput);
+    ivec2 imgSize = imageSize(rainOutput);
 
     vec2 pNorm = vec2(
-    ((pPixel.x+0.5)/float(imgSize.x)-0.5)*2.0,
-    ((pPixel.y+0.5)/float(imgSize.y)-0.5)*2.0);
+        ((pPixel.x+0.5)/float(imgSize.x)-0.5)*2.0,
+        ((pPixel.y+0.5)/float(imgSize.y)-0.5)*2.0);
 
     // Load data
     vec3 sTerrain = imageLoad(terrainInput, pPixel).rgb;

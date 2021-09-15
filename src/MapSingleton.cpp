@@ -19,6 +19,8 @@ MapSingleton::MapSingleton() :
     _fertilityMapTexture        (GL_TEXTURE_2D, GL_R32F, GL_FLOAT),
     _fertilityMapImage          (nullptr),
     _averageFertility           (0.0f),
+    _mapResolution              (4096), // TODO read from file
+    _mapLastMipLevel            ((int)sizeof(unsigned int)*8 - __builtin_clz(_mapResolution) - 1),
     _terrainTexture             (GL_TEXTURE_2D, GL_RGBA32F, GL_FLOAT),
     _rainTexture                (GL_TEXTURE_2D, GL_R32F, GL_FLOAT),
     _waterTexture               (GL_TEXTURE_2D, GL_RGBA32F, GL_FLOAT),
@@ -88,14 +90,14 @@ MapSingleton::MapSingleton() :
     _terrainTexture.enableDoubleBuffering();
     _terrainTexture.setWrapping(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
     _terrainTexture.generateMipMaps();
-    _rainTexture.create(4096, 4096);
+    _rainTexture.create(_mapResolution/4, _mapResolution/4);
     _rainTexture.setWrapping(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
     _rainTexture.generateMipMaps();
     _waterTexture.loadFromImage(waterImage);
     _waterTexture.enableDoubleBuffering();
     _waterTexture.setWrapping(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
     _waterTexture.generateMipMaps();
-    _fluxTexture.create(4096, 4096);
+    _fluxTexture.create(_mapResolution, _mapResolution);
     _fluxTexture.enableDoubleBuffering();
     _fluxTexture.setWrapping(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
     _fluxTexture.generateMipMaps();
@@ -111,7 +113,7 @@ MapSingleton::MapSingleton() :
     // read average fertility from the 1x1 mipmap
     _fertilityMapTexture.generateMipMaps();
     _fertilityMapTexture.bind();
-    glGetnTexImage(GL_TEXTURE_2D, 12, GL_RED, GL_FLOAT, sizeof(float), &_averageFertility);
+    glGetnTexImage(GL_TEXTURE_2D, _mapLastMipLevel, GL_RED, GL_FLOAT, sizeof(float), &_averageFertility);
 }
 
 void MapSingleton::prefetch()
@@ -148,7 +150,7 @@ void MapSingleton::diffuseFertility()
 
     // read new average fertility
     _fertilityMapTexture.bind();
-    glGetnTexImage(GL_TEXTURE_2D, 12, GL_RED, GL_FLOAT, sizeof(float), &_averageFertility);
+    glGetnTexImage(GL_TEXTURE_2D, _mapLastMipLevel, GL_RED, GL_FLOAT, sizeof(float), &_averageFertility);
 }
 
 Vector<Vec2f> MapSingleton::sampleFertility(int nSamples)
@@ -190,7 +192,7 @@ void MapSingleton::simulateWeather(uint32_t time, ConfigSingleton& config)
     _weatherShader.use();
     _weatherShader.setUniform("time", time);
     _weatherShader.setUniform("elevationScale", ConfigSingleton::elevationScale);
-    _terrainTexture.bindImage(0, 0, GL_READ_ONLY, true);
+    _terrainTexture.bindImage(0, 2, GL_READ_ONLY, true);
     _rainTexture.bindImage(1, 0, GL_WRITE_ONLY);
     _weatherShader.dispatch(128, 128, 1);
 
@@ -200,6 +202,7 @@ void MapSingleton::simulateWeather(uint32_t time, ConfigSingleton& config)
     _erosionShader.setUniform("cellSize", (2.0f*ConfigSingleton::worldSize)/(float)_terrainTexture.width());
 
     _terrainTexture.bindImage(0, 0, GL_READ_ONLY, true);
+    _rainTexture.bindImage(1, 0, GL_READ_ONLY);
     _waterTexture.bindImage(2, 0, GL_READ_ONLY, true);
     _fluxTexture.bindImage(3, 0, GL_READ_ONLY, true);
     _terrainTexture.bindImage(4, 0, GL_WRITE_ONLY, false);
@@ -246,7 +249,7 @@ void MapSingleton::simulateWeather(uint32_t time, ConfigSingleton& config)
     // read new average water level
     _waterTexture.bind();
     float averageWaterLevel;
-    glGetnTexImage(GL_TEXTURE_2D, 12, GL_RED, GL_FLOAT, sizeof(float), &averageWaterLevel);
+    glGetnTexImage(GL_TEXTURE_2D, _mapLastMipLevel, GL_RED, GL_FLOAT, sizeof(float), &averageWaterLevel);
 
     // adjust rain and evaporation rate
     config.targetWaterLevel = ConfigSingleton::initialWaterLevel +

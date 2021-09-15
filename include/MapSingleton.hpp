@@ -51,6 +51,8 @@ private:
     gut::Image*     _fertilityMapImage;
     float           _averageFertility;
 
+    unsigned int    _mapResolution;
+    int             _mapLastMipLevel;
     gut::Texture    _terrainTexture;
     gut::Texture    _rainTexture;
     gut::Texture    _waterTexture; // water height, velocity vector, sediment amount
