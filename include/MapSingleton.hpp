@@ -44,6 +44,7 @@ private:
     gut::Shader     _mapRenderShader;
     gut::Shader     _diffusionShader;
     gut::Shader     _weatherShader;
+    gut::Shader     _erosionShader;
     gut::Mesh       _worldQuad;
 
     gut::Texture    _fertilityMapTexture;

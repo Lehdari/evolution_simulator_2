@@ -35,6 +35,7 @@ MapSingleton::MapSingleton() :
         EVOLUTION_SIMULATOR_RES("shaders/FS_Map.glsl"));
     _diffusionShader.load(EVOLUTION_SIMULATOR_RES("shaders/CS_Diffusion.glsl"), GL_COMPUTE_SHADER);
     _weatherShader.load(EVOLUTION_SIMULATOR_RES("shaders/CS_Weather.glsl"), GL_COMPUTE_SHADER);
+    _erosionShader.load(EVOLUTION_SIMULATOR_RES("shaders/CS_Erosion.glsl"), GL_COMPUTE_SHADER);
 
     // setup the world quad
     gut::VertexData worldQuadVertexData;
@@ -188,49 +189,53 @@ void MapSingleton::simulateWeather(uint32_t time, ConfigSingleton& config)
 {
     _weatherShader.use();
     _weatherShader.setUniform("time", time);
-    _weatherShader.setUniform("rainRate", _rainRate);
-    _weatherShader.setUniform("evaporationRate", _evaporationRate);
     _weatherShader.setUniform("elevationScale", ConfigSingleton::elevationScale);
-    _weatherShader.setUniform("cellSize", (2.0f*ConfigSingleton::worldSize)/(float)_terrainTexture.width());
+    _terrainTexture.bindImage(0, 0, GL_READ_ONLY, true);
+    _rainTexture.bindImage(1, 0, GL_WRITE_ONLY);
+    _weatherShader.dispatch(128, 128, 1);
+
+    _erosionShader.use();
+    _erosionShader.setUniform("rainRate", _rainRate);
+    _erosionShader.setUniform("evaporationRate", _evaporationRate);
+    _erosionShader.setUniform("cellSize", (2.0f*ConfigSingleton::worldSize)/(float)_terrainTexture.width());
 
     _terrainTexture.bindImage(0, 0, GL_READ_ONLY, true);
     _waterTexture.bindImage(2, 0, GL_READ_ONLY, true);
     _fluxTexture.bindImage(3, 0, GL_READ_ONLY, true);
     _terrainTexture.bindImage(4, 0, GL_WRITE_ONLY, false);
-    _rainTexture.bindImage(5, 0, GL_WRITE_ONLY);
-    _waterTexture.bindImage(6, 0, GL_WRITE_ONLY, false);
-    _fluxTexture.bindImage(7, 0, GL_WRITE_ONLY, false);
-    _weatherShader.setUniform("pass", 0);
-    _weatherShader.dispatch(128, 128, 1);
+    _waterTexture.bindImage(5, 0, GL_WRITE_ONLY, false);
+    _fluxTexture.bindImage(6, 0, GL_WRITE_ONLY, false);
+    _erosionShader.setUniform("pass", 0);
+    _erosionShader.dispatch(128, 128, 1);
     _waterTexture.swap();
     _fluxTexture.swap();
 
     _rainTexture.bindImage(1, 0, GL_READ_ONLY);
     _waterTexture.bindImage(2, 0, GL_READ_ONLY, true);
     _fluxTexture.bindImage(3, 0, GL_READ_ONLY, true);
-    _waterTexture.bindImage(6, 0, GL_WRITE_ONLY, false);
-    _fluxTexture.bindImage(7, 0, GL_WRITE_ONLY, false);
-    _weatherShader.setUniform("pass", 1);
-    _weatherShader.dispatch(128, 128, 1);
+    _waterTexture.bindImage(5, 0, GL_WRITE_ONLY, false);
+    _fluxTexture.bindImage(6, 0, GL_WRITE_ONLY, false);
+    _erosionShader.setUniform("pass", 1);
+    _erosionShader.dispatch(128, 128, 1);
     _waterTexture.swap();
 
     _waterTexture.bindImage(2, 0, GL_READ_ONLY, true);
-    _waterTexture.bindImage(6, 0, GL_WRITE_ONLY, false);
-    _weatherShader.setUniform("pass", 2);
-    _weatherShader.dispatch(128, 128, 1);
+    _waterTexture.bindImage(5, 0, GL_WRITE_ONLY, false);
+    _erosionShader.setUniform("pass", 2);
+    _erosionShader.dispatch(128, 128, 1);
     _terrainTexture.swap();
     _waterTexture.swap();
 
     _waterTexture.bindImage(2, 0, GL_READ_ONLY, true);
-    _waterTexture.bindImage(6, 0, GL_WRITE_ONLY, false);
-    _weatherShader.setUniform("pass", 3);
-    _weatherShader.dispatch(128, 128, 1);
+    _waterTexture.bindImage(5, 0, GL_WRITE_ONLY, false);
+    _erosionShader.setUniform("pass", 3);
+    _erosionShader.dispatch(128, 128, 1);
     _waterTexture.swap();
 
     _waterTexture.bindImage(2, 0, GL_READ_ONLY, true);
-    _waterTexture.bindImage(6, 0, GL_WRITE_ONLY, false);
-    _weatherShader.setUniform("pass", 4);
-    _weatherShader.dispatch(128, 128, 1);
+    _waterTexture.bindImage(5, 0, GL_WRITE_ONLY, false);
+    _erosionShader.setUniform("pass", 4);
+    _erosionShader.dispatch(128, 128, 1);
     _waterTexture.swap();
 
     _terrainTexture.generateMipMaps();
@@ -238,7 +243,7 @@ void MapSingleton::simulateWeather(uint32_t time, ConfigSingleton& config)
     _waterTexture.generateMipMaps();
     _fluxTexture.generateMipMaps();
 
-    // read new average fertility
+    // read new average water level
     _waterTexture.bind();
     float averageWaterLevel;
     glGetnTexImage(GL_TEXTURE_2D, 12, GL_RED, GL_FLOAT, sizeof(float), &averageWaterLevel);
