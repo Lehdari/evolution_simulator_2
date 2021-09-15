@@ -170,6 +170,7 @@ void Window::init(void)
 void Window::loop(void)
 {
     auto& map = *_ecs.getSingleton<MapSingleton>();
+    auto& config = *_ecs.getSingleton<ConfigSingleton>();
 
     uint32_t frameId = 0;
 
@@ -213,7 +214,7 @@ void Window::loop(void)
 
         if (!_paused) {
             // Map update (GPGPU pass)
-            map.simulateWeather(frameId);
+            map.simulateWeather(frameId, config);
             map.diffuseFertility();
             ++frameId;
         }

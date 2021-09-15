@@ -25,7 +25,8 @@ MapSingleton::MapSingleton() :
     _fluxTexture                (GL_TEXTURE_2D, GL_RGBA32F, GL_FLOAT),
     _elevationGradientTexture   (GL_TEXTURE_2D, GL_RGB32F, GL_FLOAT),
     _waterGradientTexture       (GL_TEXTURE_2D, GL_RGB32F, GL_FLOAT),
-    _rainRate                   (0.05f),
+    _targetRainRate             (0.05f),
+    _rainRate                   (_targetRainRate),
     _evaporationRate            (0.01f)
 {
     // load the shaders
@@ -75,7 +76,7 @@ MapSingleton::MapSingleton() :
     auto waterImageSize = waterImage.width()*waterImage.height();
     auto* waterImageData = waterImage.data<float>();
     for (int i=0; i<waterImageSize; ++i) {
-        waterImageData[i*4] = ConfigSingleton::targetWaterLevel;
+        waterImageData[i*4] = ConfigSingleton::initialWaterLevel;
     }
 
     // load textures
@@ -183,12 +184,13 @@ Vector<Vec2f> MapSingleton::sampleFertility(int nSamples)
     return samples;
 }
 
-void MapSingleton::simulateWeather(uint32_t time)
+void MapSingleton::simulateWeather(uint32_t time, ConfigSingleton& config)
 {
     _weatherShader.use();
     _weatherShader.setUniform("time", time);
     _weatherShader.setUniform("rainRate", _rainRate);
     _weatherShader.setUniform("evaporationRate", _evaporationRate);
+    _weatherShader.setUniform("elevationScale", ConfigSingleton::elevationScale);
     _weatherShader.setUniform("cellSize", (2.0f*ConfigSingleton::worldSize)/(float)_terrainTexture.width());
 
     _terrainTexture.bindImage(0, 0, GL_READ_ONLY, true);
@@ -242,13 +244,17 @@ void MapSingleton::simulateWeather(uint32_t time)
     glGetnTexImage(GL_TEXTURE_2D, 12, GL_RED, GL_FLOAT, sizeof(float), &averageWaterLevel);
 
     // adjust rain and evaporation rate
+    config.targetWaterLevel = ConfigSingleton::initialWaterLevel +
+        0.25f*ConfigSingleton::initialWaterLevel*std::sin((time/50000.0f)*M_PI*2.0f);
+
     static float averageWaterLevelPrev = averageWaterLevel;
-    static float averageWaterLevelDeriv = 0.0f;
+    static float averageWaterLevelDeriv = 0.0f; // filtered derivative
     const float derivFilterFactor = 0.05f;
     averageWaterLevelDeriv = (1.0f-derivFilterFactor)*averageWaterLevelDeriv +
         derivFilterFactor*(averageWaterLevel-averageWaterLevelPrev);
-    float waterLevelDiff = ConfigSingleton::targetWaterLevel-averageWaterLevel;
-    _rainRate += 1.0e-5f * waterLevelDiff - 1.0e-5f*averageWaterLevelDeriv;
+    float waterLevelDiff = config.targetWaterLevel-averageWaterLevel;
+    _rainRate += 1.0e-5f * waterLevelDiff - 1.0e-5f*averageWaterLevelDeriv +
+        1.0e-4f*(_targetRainRate-_rainRate);
     _evaporationRate -= 1.0e-4f * waterLevelDiff - 1.0e-6f*averageWaterLevelDeriv;
 
     if (_rainRate < 0.0)
@@ -259,6 +265,7 @@ void MapSingleton::simulateWeather(uint32_t time)
     averageWaterLevelPrev = averageWaterLevel;
 
     // TODO temp
+    printf("targetWaterLevel: %0.10f\n", config.targetWaterLevel);
     printf("averageWaterLevel: %0.10f\n", averageWaterLevel);
     printf("averageWaterLevelDerivFilter: %0.10f\n", averageWaterLevelDeriv);
     printf("_rainRate: %0.10f\n", _rainRate);

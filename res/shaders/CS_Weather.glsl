@@ -27,6 +27,7 @@ uniform int pass = 0;
 uniform float rainRate;
 uniform float evaporationRate;
 
+uniform float elevationScale;
 uniform float cellSize = 1.0;
 
 const float deltaTime = 0.1;
@@ -35,7 +36,7 @@ const float pipeCrossSectionArea = 0.25;
 const float pipeLength = 1.0;
 const float sedimentCapacity = 0.01;
 const float baseSedimentCapacity = 0.001;
-const float concavitySedimentConstant = 0.075;
+const float concavitySedimentConstant = 0.15;
 const float dissolvingConstant = 0.002;
 const float depositionConstant = 0.003;
 
@@ -86,7 +87,7 @@ void main() {
             vec4 sFlux = imageLoad(fluxInput, pPixel);
 
             // Rain
-            float rain = rainPattern(pNorm);
+            float rain = (sTerrain.r/elevationScale-0.5)*0.8 + 0.6*rainPattern(pNorm);
 
             // Add water from rain
             sWater.r += max(rain, 0.0)*deltaTime*rainRate;

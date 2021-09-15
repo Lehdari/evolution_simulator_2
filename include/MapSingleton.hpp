@@ -21,6 +21,9 @@
 #include <gut_utils/TypeUtils.hpp>
 
 
+class ConfigSingleton;
+
+
 class MapSingleton {
 public:
     MapSingleton();
@@ -33,7 +36,7 @@ public:
     void diffuseFertility();
     Vector<Vec2f> sampleFertility(int nSamples);
 
-    void simulateWeather(uint32_t time);
+    void simulateWeather(uint32_t time, ConfigSingleton& config);
 
     void render(const Viewport& viewport, int renderMode);
 
@@ -53,6 +56,7 @@ private:
     gut::Texture    _fluxTexture; // water flux left, right, down, up
     gut::Texture    _elevationGradientTexture; // elevation coloring
     gut::Texture    _waterGradientTexture; // elevation coloring
+    float           _targetRainRate;
     float           _rainRate;
     float           _evaporationRate;
 };

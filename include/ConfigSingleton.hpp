@@ -19,9 +19,10 @@
 
 struct ConfigSingleton {
     // World constants
-    static constexpr float worldSize = 4096.0f; // world size (ranges from -worldSize to worldSize)
-    static constexpr float elevationScale = 2048.0f;
-    static constexpr float targetWaterLevel = 75.0f;
+    static constexpr float  worldSize = 4096.0f; // world size (ranges from -worldSize to worldSize)
+    static constexpr float  elevationScale = 2048.0f;
+    static constexpr float  initialWaterLevel = 40.0f;
+    float   targetWaterLevel = initialWaterLevel;
 
     // Entity constants
     static constexpr float  spriteRadius = 64.0f; // sprite radius in pixels
